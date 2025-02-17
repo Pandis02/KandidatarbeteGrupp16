@@ -1,4 +1,4 @@
-INSERT INTO Scans (hostname, ip_adress, mac_address, status, last_seen, custom_name) VALUES
+INSERT INTO Scans (hostname, ip_address, mac_address, status, last_seen, custom_name) VALUES
 ('lab-pc-01', '192.168.1.10', 'AA:BB:CC:DD:EE:01', 1, NOW(), 'Main Lab PC'),
 ('lab-pc-02', '192.168.1.11', 'AA:BB:CC:DD:EE:02', 1, DATEADD('MINUTE', -5, NOW()), NULL),
 ('server-01', '192.168.1.50', 'AA:BB:CC:DD:EE:03', 0, DATEADD('HOUR', -2, NOW()), 'Research Server'),

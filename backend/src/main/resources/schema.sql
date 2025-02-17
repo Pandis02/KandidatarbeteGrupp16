@@ -6,7 +6,7 @@ DROP TABLE IF EXISTS OfflineEvents CASCADE;
 CREATE TABLE Scans (
     device_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     hostname VARCHAR(255) NOT NULL,
-    ip_adress VARCHAR(45) NOT NULL,
+    ip_address VARCHAR(45) NOT NULL,
     mac_address VARCHAR(17) UNIQUE NOT NULL,
     status SMALLINT DEFAULT 1 CHECK (status IN (0,1)), -- 0 = offline, 1= online
     last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
