@@ -13,3 +13,24 @@ INSERT INTO OfflineEvents (device_id, offline_since, restored_at) VALUES
 (2, DATEADD('HOUR', -3, NOW()), DATEADD('HOUR', -2, NOW())), -- Lab PC was offline for 1 hour
 (4, DATEADD('MINUTE', -30, NOW()), DATEADD('MINUTE', -10, NOW())), -- Library PC was offline for 20 minutes
 (1, DATEADD('DAY', -2, NOW()), DATEADD('DAY', -1, NOW())); -- Main Lab PC had a long downtime
+
+BEGIN TRANSACTION;
+
+-- Step 1: Insert notification event and retrieve the inserted alert_id
+INSERT INTO Notifications (device_id)
+VALUES (1);
+
+-- Step 2: Retrieve the last inserted alert_id
+SELECT alert_id
+FROM FINAL TABLE (
+    INSERT INTO Notifications (device_id) VALUES (1)
+);
+
+-- Step 3: Insert multiple recipients using the retrieved alert_id
+INSERT INTO NotificationRecipients (alert_id, type_id, recipient)
+VALUES
+    ((SELECT alert_id FROM FINAL TABLE (INSERT INTO Notifications (device_id) VALUES (1))), 1, 'admin@example.com'),
+    ((SELECT alert_id FROM FINAL TABLE (INSERT INTO Notifications (device_id) VALUES (1))), 2, '0707123456'),
+    ((SELECT alert_id FROM FINAL TABLE (INSERT INTO Notifications (device_id) VALUES (1))), 3, 'push_token_xyz');
+
+COMMIT;
