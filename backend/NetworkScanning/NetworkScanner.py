@@ -8,17 +8,17 @@ class NmapScanner:
         self.scanner = nmap.PortScanner()
 
     def scan_network(self):
-        """Utför en nätverksskanning och returnerar en dictionary med IP, status och hostname."""
-        print(f"🔍 Skannar nätverket {self.network_range} med Nmap...\n")
+        """Perform a network scan and return a dictionary with IP, status and hostname"""
+        print(f"🔍 Scanns the network {self.network_range} with Nmap...\n")
         self.scanner.scan(hosts=self.network_range, arguments="-sn -R")  # -R för Reverse DNS lookup
 
         devices = {} # Dictionary 
         for host in self.scanner.all_hosts():
             status = self.scanner[host].state() == "up"  # True/False
             mac_address = self.scanner[host]['addresses'].get('mac', 'Unknown MAC')
-            hostname = self.scanner[host].hostname() or "Unknown unit" # Hämta hostname, eller tom sträng om det saknas 
+            hostname = self.scanner[host].hostname() or "Unknown unit" # Fetch hostname, or empty string if missing 
             last_seen = self.scanner.scanstats().get('timestr', 'Unknown Time') 
-            devices[host] = (status, hostname, mac_address, last_seen)  # Lägg till hostname
+            devices[host] = (status, hostname, mac_address, last_seen)  
 
         return devices  # {IP: (True/False, "Hostname")}
 
