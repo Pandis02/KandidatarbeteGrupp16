@@ -1,6 +1,8 @@
 -- TO RESET EVERYTHING
 DROP TABLE IF EXISTS Scans CASCADE;
 DROP TABLE IF EXISTS OfflineEvents CASCADE;
+DROP TABLE IF EXISTS AlertTypes CASCADE;
+DROP TABLE IF EXISTS CheckIns CASCADE;
 
 -- CREATE TABLES
 CREATE TABLE Scans (
@@ -24,6 +26,11 @@ CREATE TABLE OfflineEvents (
 CREATE TABLE AlertTypes (
     type_id INT PRIMARY KEY,
     type_name VARCHAR(10) UNIQUE NOT NULL
+);
+
+CREATE TABLE Checkins (
+    mac_address CHAR(17) PRIMARY KEY,
+    last_checkin TIMESTAMP NOT NULL
 );
 
 -- Insert the alert types 

@@ -1,7 +1,16 @@
 package kg16;
 
+import java.util.regex.Pattern;
+
 public class Utils {
     private Utils() {}
+
+    private static final String MAC_REGEX = "^[0-9A-Fa-f]{2}(-[0-9A-Fa-f]{2}){5}$";
+    private static final Pattern MAC_PATTERN = Pattern.compile(MAC_REGEX);
+
+    public static boolean isValidMacAddress(String mac) {
+        return mac != null && MAC_PATTERN.matcher(mac).matches();
+    }
 
     public static boolean isEmpty(String... strings) {
         for (String str : strings) {
