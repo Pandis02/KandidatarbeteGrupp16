@@ -2,7 +2,7 @@ import nmap
 from datetime import datetime
 
 class NmapScanner:
-    """Scanns the network with Nmap and returns a dictionary {IP: (Status, Hostname, MAC, Last seen)}."""
+    """Scans the network with Nmap and returns a dictionary {IP: (Status, Hostname, MAC, Last seen)}."""
 
     def __init__(self, network_range="192.168.86.0/24"):
         self.network_range = network_range
