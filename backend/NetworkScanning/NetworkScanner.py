@@ -1,44 +1,63 @@
 import nmap
+import requests
+import logging
 from datetime import datetime
 
-class NmapScanner:
-    """Scans the network with Nmap and returns a dictionary {IP: (Status, Hostname, MAC, Last seen)}."""
+API_URL = "http://localhost:8080/api/scans/add"
+
+# Configure logger
+logging.basicConfig(level=logging.INFO)  
+logger = logging.getLogger(__name__)
+
+class NetworkScanner:
+    """Scans the network with Nmap and sends results to a REST API."""
 
     def __init__(self, network_range="192.168.86.0/24"):
         self.network_range = network_range
         self.scanner = nmap.PortScanner()
 
     def scan_network(self):
-        """Perform a network scan and return a dictionary with IP, status and hostname"""
-        print(f"🔍 Scanning the network {self.network_range} with Nmap...\n")
+        """Perform a network scan and send results to the API."""
+        logger.info(f"🔍 Scanning the network {self.network_range} with Nmap...")
 
-        try: # Adding error handling
+        try:
             self.scanner.scan(hosts=self.network_range, arguments="-sn -R")
         except nmap.PortScannerError as e:
-            print(f"Nmap scan failed: {e}")
+            logger.error(f"🔴 Nmap scan failed: {e}")
             return {}
 
-        devices = {} # Dictionary 
-        for host in self.scanner.all_hosts():
-            status = self.scanner[host].state() == "up"  # True/False
-            mac_address = self.scanner[host].get('addresses', {}).get('mac', 'Unknown MAC') # If MAC is missing, return "Unknown MAC"
-            hostname = self.scanner[host].hostname() or "Unknown unit" # Fetch hostname, or empty string if missing 
-            last_seen = datetime.now().strftime("%Y-%m-%d %H:%M:%S") # Changed from Nmap time to local time to avoid "unknown time" or time when scan started if scan takes a long time
-            devices[host] = (status, hostname, mac_address, last_seen)  
+        for ip in self.scanner.all_hosts():
+            status = 1 if self.scanner[ip].state() == "up" else 0
+            mac_address = self.scanner[ip].get('addresses', {}).get('mac', 'Unknown MAC')
+            hostname = self.scanner[ip].hostname() or "Unknown"
+            last_seen = datetime.now().isoformat()
 
-        return devices  # {IP: (True/False, "Hostname")}
+            device_data = {
+                "ipAddress": ip,
+                "hostname": hostname,
+                "macAddress": mac_address,
+                "status": status,
+                "lastSeen": last_seen
+            }
+
+            logger.info(f"Preparing to send data: {device_data}")  # Debugging output
+
+            # API Request with error handling
+            try:
+                response = requests.post(API_URL, json=device_data, timeout=5)  # Set timeout to prevent hanging
+                response.raise_for_status()  # Raises an exception for HTTP error codes (4xx, 5xx)
+
+                logger.info(f"🟢  Sent {ip} to API successfully!")
+            except requests.exceptions.ConnectionError:
+                logger.error(f"🔴 Failed to connect to API. Is the backend running?")
+            except requests.exceptions.Timeout:
+                logger.error(f"🔴 Timeout error: The API took too long to respond.")
+            except requests.exceptions.HTTPError as e:
+                logger.error(f"🔴 API returned an HTTP error: {e.response.status_code} - {e.response.text}")
+            except requests.exceptions.RequestException as e:
+                logger.error(f"🔴 An unexpected error occurred: {e}")
 
 if __name__ == "__main__":
-    network_range = input("Enter the network range (e.g., 192.168.1.0/24): ") # Let the user decide the subnet range
-    scanner = NmapScanner(network_range)
-
-    results = scanner.scan_network()
-
-    print("\n📋 Explore units")
-    for ip, (status, hostname, mac_address, last_seen) in results.items():
-        status_text = "🟢 Online" if status else "🔴 Offline"
-        print(f"IP: {ip}  |  Status: {status_text}  |  Name: {hostname} | MAC: {mac_address} | Last seen:  {last_seen}")
-
-
-
-
+    network_range = input("Enter the network range (e.g., 192.168.1.0/24): ")
+    scanner = NetworkScanner(network_range)
+    scanner.scan_network()
