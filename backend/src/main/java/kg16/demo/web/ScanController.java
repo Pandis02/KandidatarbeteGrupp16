@@ -1,14 +1,15 @@
 package kg16.demo.web;
 
-import kg16.demo.dto.ScanDTO;
+import kg16.demo.dto.ScanResponse;
 import kg16.demo.model.Scan;
 import kg16.demo.repository.ScanRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Optional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.sql.Timestamp;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/scans")
@@ -18,27 +19,24 @@ public class ScanController {
     private ScanRepository scanRepository;
 
     @PostMapping("/add")
-    public ResponseEntity<String> addOrUpdateScan(@RequestBody ScanDTO scanDTO) {
-        Optional<Scan> existingScan = scanRepository.findByMacAddress(scanDTO.getMacAddress());
+    public ResponseEntity<ScanResponse> addOrUpdateScan(@RequestBody Scan scan) {
+        Optional<Scan> existingScan = scanRepository.findByMacAddress(scan.getMacAddress());
 
         if (existingScan.isPresent()) {
-            scanRepository.updateScan(
-                scanDTO.getMacAddress(),
-                scanDTO.getIpAddress(),
-                scanDTO.getHostname(),
-                scanDTO.getStatus()
-            );
-            return ResponseEntity.ok("Updated scan for MAC: " + scanDTO.getMacAddress());
+            scanRepository.updateScan(scan.getMacAddress(), scan.getIpAddress(), scan.getHostname(), scan.getStatus());
+            return ResponseEntity.ok(new ScanResponse(
+                "Updated scan for MAC: ",
+                scan.getMacAddress(),
+                Instant.now()
+            ));
         } else {
-            Scan newScan = new Scan(
-                scanDTO.getHostname(),
-                scanDTO.getIpAddress(),
-                scanDTO.getMacAddress(),
-                scanDTO.getStatus(),
-                new Timestamp(System.currentTimeMillis())  // Set last seen to now
-            );
-            scanRepository.save(newScan);
-            return ResponseEntity.ok("Inserted new scan for MAC: " + scanDTO.getMacAddress());
+            scan.setLastSeen(new Timestamp(System.currentTimeMillis()));
+            scanRepository.save(scan);
+            return ResponseEntity.ok(new ScanResponse(
+                "Inserted new scan for MAC: ",
+                scan.getMacAddress(),
+                Instant.now()
+            ));
         }
     }
 }

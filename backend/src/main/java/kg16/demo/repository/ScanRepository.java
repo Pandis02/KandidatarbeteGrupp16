@@ -16,6 +16,18 @@ public interface ScanRepository extends JpaRepository<Scan, Long> {
 
     @Modifying
     @Transactional
-    @Query("UPDATE Scan s SET s.ipAddress = :ip, s.hostname = :hostname, s.status = :status, s.lastSeen = CURRENT_TIMESTAMP WHERE s.macAddress = :mac")
-    int updateScan(@Param("mac") String macAddress, @Param("ip") String ipAddress, @Param("hostname") String hostname, @Param("status") Integer status);
+    @Query("""
+        UPDATE Scan s 
+        SET s.ipAddress = :ip, 
+        s.hostname = :hostname, 
+        s.status = :status, 
+        s.lastSeen = CURRENT_TIMESTAMP WHERE 
+        s.macAddress = :mac
+        """)
+    int updateScan(
+        @Param("mac") String macAddress, 
+        @Param("ip") String ipAddress, 
+        @Param("hostname") String hostname, 
+        @Param("status") Integer status
+        );
 }
