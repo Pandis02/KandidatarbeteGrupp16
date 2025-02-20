@@ -7,7 +7,7 @@ import java.util.List;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import kg16.demo.model.records.Checkin;
+import kg16.demo.model.Records.Checkin;
 
 @Service
 public class Database {
