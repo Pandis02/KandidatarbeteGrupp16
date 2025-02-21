@@ -35,10 +35,17 @@ public class ScanController {
     }
 
 
-    @GetMapping  // Fetch all scans
-    public ResponseEntity<List<ScanRecord>> getAllScans() {
-        return ResponseEntity.ok(scanService.getAllScans());
-    }
+    @GetMapping
+    public ResponseEntity<List<ScanRecord>> getAllScans(
+        @RequestParam(required = false) Integer status,
+        @RequestParam(defaultValue = "last_seen") String sortBy,
+        @RequestParam(defaultValue = "desc") String order,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "100") int size) {
+        
+        return ResponseEntity.ok(scanService.getScans(status, sortBy, order, page, size));
+}
+
 
     //  Get scans older than X minutes
     @GetMapping("/old/{minutes}")

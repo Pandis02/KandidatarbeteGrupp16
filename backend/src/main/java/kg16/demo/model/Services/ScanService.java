@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 
 @Service
@@ -83,18 +84,23 @@ public class ScanService {
     }
 
     public List<ScanRecord> getScans(Integer status, String sortBy, String order, int page, int size) {
-        String sql = "SELECT * FROM Scans";
+        // Validate sorting column
+        List<String> allowedSortFields = List.of("mac_address", "ip_address", "hostname", "status", "last_seen");
+        if (!allowedSortFields.contains(sortBy)) {
+            throw new IllegalArgumentException("Invalid sorting column: " + sortBy);
+        }
     
-        // Add filtering if status is provided
+        // Validate order direction
+        String sortDirection = order.equalsIgnoreCase("desc") ? "DESC" : "ASC";
+    
+        // SQL Query with sorting and pagination
+        String sql = "SELECT * FROM Scans";
+        
         if (status != null) {
             sql += " WHERE status = ?";
         }
-    
-        // Add sorting
-        sql += " ORDER BY " + sortBy + " " + (order.equalsIgnoreCase("desc") ? "DESC" : "ASC");
-    
-        // Apply pagination (LIMIT + OFFSET)
-        sql += " LIMIT ? OFFSET ?";
+        
+        sql += " ORDER BY " + sortBy + " " + sortDirection + " LIMIT ? OFFSET ?";
     
         Object[] params;
         if (status != null) {
@@ -104,13 +110,15 @@ public class ScanService {
         }
     
         return jdbc.query(sql, params, (rs, rowNum) -> new ScanRecord(
-            rs.getString("hostname"),
-            rs.getString("ip_address"),
             rs.getString("mac_address"),
+            rs.getString("ip_address"),
+            rs.getString("hostname"),
             rs.getInt("status"),
             rs.getTimestamp("last_seen")
         ));
     }
+    
+    
     
     
     public int countScans(Integer status) {
