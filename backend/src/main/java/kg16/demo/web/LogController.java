@@ -1,6 +1,10 @@
 package kg16.demo.web;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Locale;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +53,22 @@ public class LogController {
                 return ResponseEntity.badRequest().build();
             }
         }
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM d, yyyy", Locale.ENGLISH);
+        try {
+            LocalDate startDateFormatted = LocalDate.parse(startDate, formatter);
+        } catch (DateTimeParseException e) {
+            logger.error("Invaild startTime format: {}", startDate);
+            return ResponseEntity.badRequest().build();
+        }
+
+        try {
+            LocalDate endDateFormatted = LocalDate.parse(endDate, formatter);
+        } catch (DateTimeParseException e) {
+            logger.error("Invaild startTime format: {}", endDate);
+            return ResponseEntity.badRequest().build();
+        }
+
 
         List<LogDTO> logs = logRepository.findLogs(parsedDeviceID, startDate, endDate, parsedAlertType);
         return ResponseEntity.ok(logs);
