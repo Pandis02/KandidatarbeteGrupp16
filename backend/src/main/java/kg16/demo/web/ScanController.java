@@ -1,42 +1,45 @@
 package kg16.demo.web;
 
+import kg16.demo.dto.ScanDTO;
 import kg16.demo.dto.ScanResponse;
-import kg16.demo.model.Scan;
-import kg16.demo.repository.ScanRepository;
+import kg16.demo.model.Database.Database;
+import kg16.demo.model.records.ScanRecord;
 import org.springframework.beans.factory.annotation.Autowired;
-import java.util.Optional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
-import java.sql.Timestamp;
+import java.util.List;
+
 
 @RestController
-@RequestMapping("/api/scans")
+@RequestMapping("/api/scans")  // Ensure API URLs are prefixed with /api
 public class ScanController {
 
+    private final Database database;
+
     @Autowired
-    private ScanRepository scanRepository;
+    public ScanController(Database database) {
+        this.database = database;
+    }
 
     @PostMapping("/add")
-    public ResponseEntity<ScanResponse> addOrUpdateScan(@RequestBody Scan scan) {
-        Optional<Scan> existingScan = scanRepository.findByMacAddress(scan.getMacAddress());
+    public ResponseEntity<ScanResponse> addOrUpdateScan(@RequestBody ScanDTO scan) {
+        database.upsertScan(scan.getHostname(), scan.getIpAddress(), scan.getMacAddress(), scan.getStatus());
+        return ResponseEntity.ok(new ScanResponse(
+            "Scan recorded for MAC: " + scan.getMacAddress(),
+            scan.getMacAddress(),
+            Instant.now()
+        ));
+    }
 
-        if (existingScan.isPresent()) {
-            scanRepository.updateScan(scan.getMacAddress(), scan.getIpAddress(), scan.getHostname(), scan.getStatus());
-            return ResponseEntity.ok(new ScanResponse(
-                "Updated scan for MAC: ",
-                scan.getMacAddress(),
-                Instant.now()
-            ));
-        } else {
-            scan.setLastSeen(new Timestamp(System.currentTimeMillis()));
-            scanRepository.save(scan);
-            return ResponseEntity.ok(new ScanResponse(
-                "Inserted new scan for MAC: ",
-                scan.getMacAddress(),
-                Instant.now()
-            ));
-        }
+    @GetMapping  // Fetch all scans
+    public ResponseEntity<List<ScanRecord>> getAllScans() {
+        return ResponseEntity.ok(database.getAllScans());
+    }
+
+    @GetMapping("/old/{minutes}")  // Fetch old scans
+    public ResponseEntity<List<ScanRecord>> getOldScans(@PathVariable int minutes) {
+        return ResponseEntity.ok(database.getOldScans(minutes));
     }
 }
