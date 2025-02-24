@@ -55,19 +55,24 @@ public class LogController {
         }
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM d, yyyy", Locale.ENGLISH);
-        try {
-            LocalDate startDateFormatted = LocalDate.parse(startDate, formatter);
-        } catch (DateTimeParseException e) {
-            logger.error("Invaild startTime format: {}", startDate);
-            return ResponseEntity.badRequest().build();
+        if (startDate != null) {
+            try {
+                LocalDate startDateFormatted = LocalDate.parse(startDate, formatter);
+            } catch (DateTimeParseException e) {
+                logger.error("Invaild startTime format: {}", startDate);
+                return ResponseEntity.badRequest().build();
+            }
         }
 
-        try {
-            LocalDate endDateFormatted = LocalDate.parse(endDate, formatter);
-        } catch (DateTimeParseException e) {
-            logger.error("Invaild startTime format: {}", endDate);
-            return ResponseEntity.badRequest().build();
+        if(endDate != null) {
+            try {
+                LocalDate endDateFormatted = LocalDate.parse(endDate, formatter);
+            } catch (DateTimeParseException e) {
+                logger.error("Invaild startTime format: {}", endDate);
+                return ResponseEntity.badRequest().build();
+            }
         }
+        
 
 
         List<LogDTO> logs = logRepository.findLogs(parsedDeviceID, startDate, endDate, parsedAlertType);
