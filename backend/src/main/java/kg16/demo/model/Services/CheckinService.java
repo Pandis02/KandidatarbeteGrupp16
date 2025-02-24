@@ -1,19 +1,17 @@
-package kg16.demo.model.Database;
+package kg16.demo.model.Services;
 
+import kg16.demo.model.records.Checkin;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Service;
-
-import kg16.demo.model.records.Checkin;
-
 @Service
-public class Database {
+public class CheckinService {
     private final JdbcTemplate jdbc;
 
-    public Database(JdbcTemplate jdbcTemplate) {
+    public CheckinService(JdbcTemplate jdbcTemplate) {
         this.jdbc = jdbcTemplate;
     }
 
