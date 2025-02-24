@@ -15,4 +15,4 @@ You can for now view the checkins easily by visiting `localhost:8080/checkins` i
 
 You can also manually send HTTP post requests to `/checkin` with the correct body to test the system!
 
-The backend will then update this checkin in the database for further use! Check the code in `CheckinController.java` and corresponding code in `Database.java`!
+The backend will then update this checkin in the database for further use! Check the code in `CheckinController.java` and corresponding code in `CheckinService.java`!
