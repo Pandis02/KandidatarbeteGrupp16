@@ -84,13 +84,14 @@ public class ScanService {
     }
 
     public List<ScanRecord> getScans(Integer status, String sortBy, String order, int page, int size) {
-        // Validate sorting column
+        // Define allowed sorting fields to prevent SQL injection
         List<String> allowedSortFields = List.of("mac_address", "ip_address", "hostname", "status", "last_seen");
+    
         if (!allowedSortFields.contains(sortBy)) {
             throw new IllegalArgumentException("Invalid sorting column: " + sortBy);
         }
-    
-        // Validate order direction
+        
+        // Ensure safe sorting direction
         String sortDirection = order.equalsIgnoreCase("desc") ? "DESC" : "ASC";
     
         // SQL Query with sorting and pagination
@@ -99,8 +100,8 @@ public class ScanService {
         if (status != null) {
             sql += " WHERE status = ?";
         }
-        
-        sql += " ORDER BY " + sortBy + " " + sortDirection + " LIMIT ? OFFSET ?";
+    
+        sql += " ORDER BY " + sortBy + " " + sortDirection + " LIMIT ? OFFSET ?"; 
     
         Object[] params;
         if (status != null) {
@@ -117,6 +118,7 @@ public class ScanService {
             rs.getTimestamp("last_seen")
         ));
     }
+    
     
     
     
