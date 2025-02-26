@@ -24,7 +24,7 @@ public class CheckinController {
             return;
         }
 
-        checkinService.insert_checkin(body.macAddress());
+        checkinService.insertCheckin(body.macAddress());
         logger.info(body.macAddress() + " has checked in!");
     }
 }

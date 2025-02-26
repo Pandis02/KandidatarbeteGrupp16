@@ -18,9 +18,9 @@ public class ViewCheckins {
     @GetMapping("/checkins")
     public String onViewCheckins(@RequestParam(required = false) Integer old, Model model) {
         if (old == null)
-            model.addAttribute("checkins", checkinService.get_all_checkins());
+            model.addAttribute("checkins", checkinService.getAllCheckins());
         else
-            model.addAttribute("checkins", checkinService.get_all_checkins_older_than(old));
+            model.addAttribute("checkins", checkinService.getAllCheckinsOlderThan(old));
 
         return "checkins";
     }

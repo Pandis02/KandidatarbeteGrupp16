@@ -1,7 +1,6 @@
 package kg16.demo.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import java.sql.Timestamp;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,9 +21,6 @@ public class ScanDTO {
 
     @NotBlank
     private String macAddress;
-
-    @NotNull
-    private Integer status;
 
     private Timestamp lastSeen;
 }

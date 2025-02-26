@@ -14,23 +14,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import kg16.demo.model.Services.LogService;
 import kg16.demo.model.dto.LogDTO;
-import kg16.demo.repository.LogRepository;
 
 @RestController
 @RequestMapping("/logs")
 public class LogController {
 
     private static final Logger logger = LoggerFactory.getLogger(LogController.class);
-    private final LogRepository logRepository;
+    private final LogService logRepository;
 
-    public LogController(LogRepository logRepository) {
+    public LogController(LogService logRepository) {
         this.logRepository = logRepository;
     }
 
     @GetMapping
-    public ResponseEntity<List<LogDTO>> getLogs(@RequestParam(required = false) String deviceId,
-                                                @RequestParam(required = false) String startDate,
+    public ResponseEntity<List<LogDTO>> getLogs(@RequestParam(required = false) String startDate,
                                                 @RequestParam(required = false) String endDate,
                                                 @RequestParam(required = false) String alertType) {
 
@@ -40,16 +39,6 @@ public class LogController {
                 parsedAlertType = Integer.parseInt(alertType);
             } catch (NumberFormatException e) {
                 logger.error("Invalid alertType format: {}", alertType);
-                return ResponseEntity.badRequest().build();
-            }
-        }
-
-        Integer parsedDeviceID = null;
-        if (deviceId != null) {
-            try {
-                parsedDeviceID = Integer.parseInt(deviceId);
-            } catch (NumberFormatException e) {
-                logger.error("Invalid deviceId format: {}", deviceId);
                 return ResponseEntity.badRequest().build();
             }
         }
@@ -75,7 +64,7 @@ public class LogController {
         
 
 
-        List<LogDTO> logs = logRepository.findLogs(parsedDeviceID, startDate, endDate, parsedAlertType);
+        List<LogDTO> logs = logRepository.findLogs(startDate, endDate, parsedAlertType);
         return ResponseEntity.ok(logs);
     }
 }

@@ -22,7 +22,6 @@
                     <th>MAC Address</th>
                     <th>IP Address</th>
                     <th>Hostname</th>
-                    <th>Status</th>
                     <th>Last Seen</th>
                 </tr>
             </thead>
@@ -31,10 +30,6 @@
                     <td th:text="${scan.macAddress}"></td>
                     <td th:text="${scan.ipAddress}"></td>
                     <td th:text="${scan.hostname}"></td>
-                    <td>
-                        <span th:if="${scan.status == 1}" class="text-success">🟢 Online</span>
-                        <span th:if="${scan.status == 0}" class="text-danger">🔴 Offline</span>
-                    </td>
                     <td th:text="${scan.lastSeen}"></td>
                 </tr>
             </tbody>
