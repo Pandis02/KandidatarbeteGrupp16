@@ -1,4 +1,4 @@
-package kg16.demo.model.Services;
+package kg16.demo.model.services;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package kg16.demo.model.Services;
+package kg16.demo.model.services;
 
 import kg16.demo.model.records.Checkin;
 import org.springframework.jdbc.core.JdbcTemplate;

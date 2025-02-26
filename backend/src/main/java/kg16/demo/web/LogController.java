@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import kg16.demo.model.Services.LogService;
 import kg16.demo.model.dto.LogDTO;
+import kg16.demo.model.services.LogService;
 
 @RestController
 @RequestMapping("/logs")

@@ -1,6 +1,5 @@
-package kg16.demo.model.Services;
+package kg16.demo.model.services;
 
-import kg16.demo.dto.ScanDTO;
 import kg16.demo.model.records.ScanRecord;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -17,7 +16,7 @@ public class ScanService {
     }
 
     // Upsert scan (Insert if not exists, otherwise update)
-    public void upsertScan(String hostname, String ipAddress, String macAddress, Integer status) {
+    public void upsertScan(String hostname, String ipAddress, String macAddress) {
         if (!isValidMacAddress(macAddress) || !isValidIpAddress(ipAddress) || hostname.isBlank()) {
             throw new IllegalArgumentException("Invalid input data for scan.");
         }
@@ -102,16 +101,5 @@ public class ScanService {
     public int countScans(Integer status) {
         String sql = "SELECT COUNT(*) FROM Scans";
         return jdbc.queryForObject(sql, status != null ? new Object[] { status } : new Object[] {}, Integer.class);
-    }
-
-    public List<ScanDTO> getPaginatedScans(int page, int size) {
-        String sql = "SELECT * FROM Scans ORDER BY last_seen DESC LIMIT ? OFFSET ?";
-        int offset = page * size;
-
-        return jdbc.query(sql, new Object[] { size, offset }, (rs, rowNum) -> new ScanDTO(
-                rs.getString("hostname"),
-                rs.getString("ip_address"),
-                rs.getString("mac_address"),
-                rs.getTimestamp("last_seen")));
     }
 }

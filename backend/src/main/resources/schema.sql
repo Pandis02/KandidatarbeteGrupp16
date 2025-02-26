@@ -41,7 +41,7 @@ CREATE TABLE Checkins (
 CREATE TABLE OfflineEvents (
     event_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     mac_address CHAR(17) NOT NULL,
-    offline_since TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    offline_since TIMESTAMP NOT NULL,
     restored_at TIMESTAMP,
     CONSTRAINT chk_timestamps CHECK (restored_at IS NULL OR restored_at > offline_since)
 );

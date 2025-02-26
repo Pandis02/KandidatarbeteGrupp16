@@ -6,8 +6,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import kg16.demo.model.Services.ScanService;
 import kg16.demo.model.records.ScanRecord;
+import kg16.demo.model.services.ScanService;
+
 import java.util.List;
 
 @Controller
