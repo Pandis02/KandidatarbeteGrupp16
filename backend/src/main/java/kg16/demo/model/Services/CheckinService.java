@@ -1,4 +1,4 @@
-package kg16.demo.model.Services;
+package kg16.demo.model.services;
 
 import kg16.demo.model.records.Checkin;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -16,7 +16,7 @@ public class CheckinService {
     }
 
     // single query based insert/update
-    public void insert_checkin(String mac_address) {
+    public void insertCheckin(String mac_address) {
         String sql = """
                     MERGE INTO Checkins c
                     USING (SELECT '%s' AS mac_address, NOW() AS last_checkin) AS new_data
@@ -30,7 +30,7 @@ public class CheckinService {
     }
 
     // get all checkins
-    public List<Checkin> get_all_checkins() {
+    public List<Checkin> getAllCheckins() {
         String sql = "SELECT * FROM Checkins;";
 
         return jdbc.query(sql, (r, rowNum) -> {
@@ -38,8 +38,8 @@ public class CheckinService {
         });
     }
 
-    // get all colums of mac_addresses that have not checked in, in the last x minutes
-    public List<Checkin> get_all_checkins_older_than(int minutes) {
+    // get all devices that have not checked in, in the last x minutes
+    public List<Checkin> getAllCheckinsOlderThan(int minutes) {
         LocalDateTime before = LocalDateTime.now().minusMinutes(minutes);
         String sql = "SELECT * FROM Checkins WHERE last_checkin < ?";
 

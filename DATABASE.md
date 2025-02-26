@@ -4,79 +4,70 @@ This guide provides essential SQL operations for managing and retrieving data fr
 
 ---
 
-## **1. Device Management**
+## 1. Device Management
 
-###  Insert a New Device
+###  Inserts
 ```sql
-INSERT INTO Scans (hostname, ip_address, mac_address, status, last_seen) 
-VALUES ('Device-01', '192.168.1.10', '00:1A:2B:3C:4D:5E', 1, NOW());
+INSERT INTO Scans (mac_address, hostname, ip_address, last_seen) 
+VALUES ('00:1A:2B:3C:4D:5E', 'Device-01', '192.168.1.10', NOW());
+```
+Or
+```sql
+INSERT INTO Checkins (mac_address, last_checkin) 
+VALUES ('00:1A:2B:3C:4D:5E', NOW());
 ```
 
-### Update Device Status
+> Keep in mind we will use something like a merge statement to do an upsert operation, since these rows are created once, and after that only edited on each update
+
+### Updates
 ```sql
 UPDATE Scans 
-SET last_seen = NOW(), status = 1 
+SET last_seen = NOW()
+WHERE mac_address = '00:1A:2B:3C:4D:5E';
+```
+Or
+```sql
+UPDATE Checkins 
+SET last_checkin = NOW()
 WHERE mac_address = '00:1A:2B:3C:4D:5E';
 ```
 
-### Mark Device as Offline 
-```sql
-UPDATE Scans 
-SET status = 0 
-WHERE last_seen < DATEADD('MINUTE', -5, NOW()); 
+## 2. Logging Offline Events
 
+###  Mark a device going offline
+```sql
+INSERT INTO OfflineEvents (mac_address, offline_since) 
+VALUES ('00:1A:2B:3C:4D:5E', NOW());
 ```
 
-## **2. Logging Offline Events**
-
-###  Log a Device Going Offline
-```sql
-INSERT INTO OfflineEvents (device_id, offline_since) 
-SELECT device_id, NOW() 
-FROM Scans 
-WHERE status = 0;
-
-```
-
-### Mark a Device as Restored (Back Online)
+### Mark a device as restored
 ```sql
 UPDATE OfflineEvents 
 SET restored_at = NOW() 
-WHERE device_id = (
-    SELECT device_id FROM Scans WHERE mac_address = '00:1A:2B:3C:4D:5E'
-) 
-AND restored_at IS NULL;
-
+WHERE event_id = (
+    SELECT event_id FROM OfflineEvents
+    WHERE mac_address = '00:1A:2B:3C:4D:5E' AND restored_at IS NULL
+    LIMIT 1
+);
 ```
-## **3. Retrieving Device & Event Information**
-###  Get All Active Devices
+But ideally the java part should maintain a list of `event_id`'s mapped to mac_addresses that are currenly offline and use that to update it. Or even fetch it right before restoring it.
 ```sql
-SELECT * FROM Scans WHERE status = 1;
+UPDATE OfflineEvents 
+SET restored_at = NOW() 
+WHERE event_id = some_id;
 ```
 
-###  Find Devices Offline for More Than 5 Minutes (red)
+## 3. Retrieving device & event information
+###  Get all devices marked offline
 ```sql
-SELECT hostname, ip_address, last_seen 
-FROM Scans 
-WHERE status = 0 
-AND last_seen < DATEADD('MINUTE', -5, NOW());
+SELECT * FROM OfflineEvents 
+WHERE restored_at IS NULL
+ORDER BY offline_since DESC;
 ```
 
-###  Find Devices Offline for LESS Than 5 Minutes (yellow)
+###  Find devices offline for more than 5 minutes
 ```sql
-SELECT hostname, ip_address, last_seen 
-FROM Scans 
-WHERE status = 0 
-AND last_seen > DATEADD('MINUTE', -5, NOW());
+SELECT * FROM OfflineEvents 
+WHERE offline_since < NOW() - INTERVAL '5' MINUTE
+ORDER BY offline_since DESC;
 ```
-
-###  List Offline Event History
-```sql
-SELECT s.hostname, e.offline_since, e.restored_at 
-FROM OfflineEvents e 
-JOIN Scans s ON e.device_id = s.device_id;
-```
-
-
-
-

@@ -4,7 +4,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import kg16.Utils;
-import kg16.demo.model.Services.CheckinService;
+import kg16.demo.model.services.CheckinService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +25,7 @@ public class CheckinController {
             return;
         }
 
-        checkinService.insert_checkin(body.macAddress());
+        checkinService.insertCheckin(body.macAddress());
         logger.info(body.macAddress() + " has checked in!");
     }
 }

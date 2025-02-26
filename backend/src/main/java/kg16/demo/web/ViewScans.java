@@ -6,9 +6,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import kg16.demo.model.Services.ScanService;
 import kg16.demo.model.records.ScanRecord;
-import kg16.demo.dto.ScanDTO;
+import kg16.demo.model.services.ScanService;
+
 import java.util.List;
 
 @Controller
@@ -27,7 +27,7 @@ public String onViewScans(@RequestParam(defaultValue = "0") int page,
                           @RequestParam(defaultValue = "desc") String order,
                           Model model) {
     
-    List<ScanRecord> scans = scanService.getScans(null, sortBy, order, page, size);
+    List<ScanRecord> scans = scanService.getScans(sortBy, order, page, size);
     model.addAttribute("scans", scans);
     model.addAttribute("currentPage", page);
     model.addAttribute("pageSize", size);
