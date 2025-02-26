@@ -15,6 +15,8 @@ public class ScanService {
         this.jdbc = jdbcTemplate;
     }
 
+    
+
     // Upsert scan (Insert if not exists, otherwise update)
     public void upsertScan(String hostname, String ipAddress, String macAddress) {
         if (!isValidMacAddress(macAddress) || !isValidIpAddress(ipAddress) || hostname.isBlank()) {

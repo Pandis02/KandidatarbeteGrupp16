@@ -27,24 +27,22 @@ class NetworkScanner:
             return {}
 
         for ip in self.scanner.all_hosts():
-            status = 1 if self.scanner[ip].state() == "up" else 0
             mac_address = self.scanner[ip].get('addresses', {}).get('mac', 'Unknown MAC')
             hostname = self.scanner[ip].hostname() or "Unknown"
             last_seen = datetime.now().isoformat()
-
-            device_data = {
-                "ipAddress": ip,
-                "hostname": hostname,
+            
+            scan_data = {
                 "macAddress": mac_address,
-                "status": status,
+                "hostname": hostname,
+                "ipAddress": ip,
                 "lastSeen": last_seen
             }
 
-            logger.info(f"Preparing to send data: {device_data}")  # Debugging output
+            logger.info(f"Preparing to send data: {scan_data}")  # Debugging output
 
             # API Request with error handling
             try:
-                response = requests.post(API_URL, json=device_data, timeout=5)  # Set timeout to prevent hanging
+                response = requests.post(API_URL, json=scan_data, timeout=5)  # Set timeout to prevent hanging
                 response.raise_for_status()  # Raises an exception for HTTP error codes (4xx, 5xx)
 
                 logger.info(f"🟢  Sent {ip} to API successfully!")
