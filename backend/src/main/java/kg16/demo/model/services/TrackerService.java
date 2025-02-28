@@ -24,13 +24,45 @@ public class TrackerService {
         System.out.println("Fixed Delay Task: " + System.currentTimeMillis());
         /* 
             1. Get tracked devices that are currently not flagged offline
-            2. Log them into offline events
-            3. 
+            2. Flag as offline in the OfflineEvents table
+            3. Check if devices in OfflineEvents are now back online
             4. 
         */
 
-        // works and prints out [04-7C-16-DE-4E-08] when I stop sending checkins from my pc
-        System.out.println(getAllUnflaggedDevicesNotSeenIn(6));
+        // Step 1: Get tracked devices that are currently not flagged offline
+        List<String> unflaggedDevices = getAllUnflaggedDevicesNotSeenIn(5);
+        System.out.println("Unflagged devices: " + unflaggedDevices);
+        
+         // Step 2: Flag as offline in the OfflineEvents table
+         for (String macAddress : unflaggedDevices) {
+            String sql = """
+                INSERT INTO OfflineEvents (mac_address, offline_since)
+                VALUES (?, NOW())
+            """;
+            jdbc.update(sql, macAddress);
+            System.out.println("Device " + macAddress + " flagged as offline.");
+        }
+        
+
+        // Step 3: Check if devices in OfflineEvents are now back online
+        List<String> offlineDevices = getAllDevicesMarkedOfflineForMoreThan(5);
+        System.out.println("Offline devices to check: " + offlineDevices);
+
+        for (String macAddress : offlineDevices) {
+            boolean isOnline = checkIfDeviceIsOnline(macAddress);
+            if (isOnline) {
+                // Step 3: If the device is online, mark it as restored in OfflineEvents
+                String sql = """
+                    UPDATE OfflineEvents
+                    SET restored_at = NOW()
+                    WHERE mac_address = ?
+                      AND restored_at IS NULL
+                """;
+                jdbc.update(sql, macAddress);
+                System.out.println("Device " + macAddress + " restored.");
+            }
+            
+        }
     }
 
     /* 
@@ -54,4 +86,39 @@ public class TrackerService {
                 """;
         return jdbc.queryForList(String.format(sql, minutes), String.class);
     }
+
+    // Method to get devices that have been marked offline for more than `x` minutes
+    private List<String> getAllDevicesMarkedOfflineForMoreThan(int minutes) {
+        String sql = String.format("""
+            SELECT mac_address
+            FROM OfflineEvents
+            WHERE restored_at IS NULL
+            AND offline_since < NOW() - INTERVAL '%d' MINUTE
+        """, minutes);
+        
+        return jdbc.queryForList(sql, String.class);
+    }
+
+
+
+
+    // Method to check if a device is online. It checks if the device has checked in within the last minute.
+    // Adjust the interval (e.g., 1 minute) as needed to define when the device is considered online.
+
+    private boolean checkIfDeviceIsOnline(String macAddress) {
+        String sql = """
+            SELECT COUNT(*)
+            FROM Checkins
+            WHERE mac_address = ?
+            AND last_checkin > NOW() - INTERVAL '1' MINUTE
+        """;
+        
+        Integer count = jdbc.queryForObject(sql, new Object[]{macAddress}, Integer.class);
+        return count != null && count > 0;
+    }
+
+
+
+
+
 }
