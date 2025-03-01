@@ -20,7 +20,7 @@ public class CheckinService {
 
     // single query based insert/update
     @Transactional
-    public void insertCheckin(String macAddress) {
+    public void upsertCheckin(String macAddress) {
         Timestamp t = Timestamp.valueOf(LocalDateTime.now());
 
         // MERGE operation for Checkins table
