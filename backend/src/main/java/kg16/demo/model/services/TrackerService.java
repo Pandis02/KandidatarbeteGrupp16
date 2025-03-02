@@ -28,7 +28,7 @@ public class TrackerService {
         */
 
         // Step 1: Get tracked devices that are currently not flagged offline
-        List<SummarizedDevice> unflaggedDevices = getAllUnflaggedDevicesNotSeenIn(6);
+        List<SummarizedDevice> unflaggedDevices = getAllUnflaggedDevicesNotSeenIn(3);
         System.out.println("Unflagged devices: " + unflaggedDevices);
 
         // Step 2: Flag as offline in the OfflineEvents table
