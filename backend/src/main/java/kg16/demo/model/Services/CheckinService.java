@@ -1,6 +1,10 @@
 package kg16.demo.model.services;
 
 import kg16.demo.model.records.Checkin;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +17,7 @@ import java.util.List;
 @Service
 public class CheckinService {
     private final JdbcTemplate jdbc;
+    private static final Logger logger = LoggerFactory.getLogger(CheckinService.class);
 
     public CheckinService(JdbcTemplate jdbcTemplate) {
         this.jdbc = jdbcTemplate;
@@ -33,7 +38,6 @@ public class CheckinService {
                 WHEN NOT MATCHED THEN
                     INSERT (mac_address, last_checkin) VALUES (new_data.mac_address, new_data.last_checkin)
                 """;
-        jdbc.update(mergeSQL, macAddress, t);
 
         // Update OfflineEvents for device if previously marked offline
         String updateSQL = """
@@ -42,7 +46,13 @@ public class CheckinService {
                 WHERE mac_address = ?
                 AND restored_at IS NULL
                 """;
-        jdbc.update(updateSQL, t, macAddress);
+
+        try {
+            jdbc.update(mergeSQL, macAddress, t);
+            jdbc.update(updateSQL, t, macAddress);
+        } catch (DataAccessException e) {
+            logger.error("Failed to upsert checkin for mac address: " + macAddress, e);
+        }
     }
 
     // get all checkins

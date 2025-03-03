@@ -1,6 +1,8 @@
 package kg16.demo.model.services;
 
 import kg16.demo.model.records.ScanRecord;
+
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -10,9 +12,13 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 public class ScanService {
     private final JdbcTemplate jdbc;
+    private static final Logger logger = LoggerFactory.getLogger(ScanService.class);
 
     public ScanService(JdbcTemplate jdbcTemplate) {
         this.jdbc = jdbcTemplate;
@@ -39,7 +45,6 @@ public class ScanService {
                         INSERT (mac_address, hostname, ip_address, last_seen)
                         VALUES (?, ?, ?, ?);
                 """;
-        jdbc.update(sql, macAddress, hostname, ipAddress, t, macAddress, hostname, ipAddress, t);
 
         // Update OfflineEvents for device if previously marked offline
         String updateSQL = """
@@ -48,7 +53,13 @@ public class ScanService {
                 WHERE mac_address = ?
                 AND restored_at IS NULL
                 """;
-        jdbc.update(updateSQL, t, macAddress);
+
+        try {
+            jdbc.update(sql, macAddress, hostname, ipAddress, t, macAddress, hostname, ipAddress, t);
+            jdbc.update(updateSQL, t, macAddress);
+        } catch (DataAccessException e) {
+            logger.error("Failed to upsert scan for mac address: " + macAddress, e);
+        }
     }
 
     private boolean isValidMacAddress(String macAddress) {
