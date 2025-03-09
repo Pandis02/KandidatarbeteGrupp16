@@ -2,6 +2,23 @@ body{
     
 }
 
+.verticalLine {
+    border-left: thick solid #ff0000;
+}
+
+/*-- CARDS --*/
+
+.stat-card {
+    transition: transform 0.2s;
+}
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.card-button{
+    display: flex;
+}
+
 /*-- SIDEBAR --*/
 .sidebar {
     width: 250px;
