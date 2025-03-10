@@ -43,8 +43,62 @@
     </nav>
     <!-- Main Content -->
     <div class="main-content p-4">
-        <h1>Online Computers</h1>
+        <div class="header-container">
+            <h1>Online Computers</h1>
+            <div class="input-group search-box">
+                <input type="text" class="form-control" placeholder="Enter MAC-address">
+                <button class="btn btn-outline-secondary"><i class="bi bi-search"></i></button>
     </div>
+
+    <!-- Status Cards -->
+    <div class="d-flex gap-4 my-4">
+        <div class="card text-center p-3 shadow" style="width: 600px;">
+            <i class="bi bi-people fs-1 text-success"></i>
+            <h3>174</h3>
+            <p>Total Computers</p>
+        </div>
+        <div class="card text-center p-3 shadow" style="width: 600px;">
+            <i class="bi bi-pc-display fs-1 text-primary"></i>
+            <h3>85</h3>
+            <p>Active Devices</p>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="card p-4 shadow">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>MAC Address</th>
+                    <th>Room</th>
+                    <th>IP Address</th>
+                    <th>User</th>
+                    <th>Device Name</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>00:1A:2B:3C:4D:5E</td>
+                    <td>HC1</td>
+                    <td>192.168.1.10</td>
+                    <td>rosalinda@chalmers.se</td>
+                    <td>Data635</td>
+                    <td><span class="badge bg-success">Online</span></td>
+                </tr>
+                <tr>
+                    <td>00:1A:2B:3C:4D:5E</td>
+                    <td>HA1</td>
+                    <td>192.168.1.10</td>
+                    <td>fredde@chalmers.se</td>
+                    <td>Data45</td>
+                    <td><span class="badge bg-danger">Offline</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
     <!-- Javascript-->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/site.js"></script>
