@@ -1,19 +1,35 @@
-body{
-    
+/* Default theme: Light so no need for data-theme="light" */
+:root {
+    --bg-color: #ffffff;
+    --text-color: #333333;
 }
 
-.test{
-    
+/* Dark theme */
+[data-theme="dark"] {
+    --bg-color: #333333;
+    --text-color: #ffffff;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+select {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    border: 1px solid var(--text-color);
+}
+
+option {
+    background-color: var(--bg-color);
+    color: var(--text-color);
 }
 
 
 
-.vertical-line {
-    border-left: thick solid #ff0000;
-}
-
-/*-- CARDS --*/
-
+/*      CARDS       */
 .stat-card {
     transition: transform 0.2s;
 }
@@ -25,7 +41,9 @@ body{
     display: flex;
 }
 
-/*-- SIDEBAR --*/
+
+
+/*      SIDEBAR        */
 .sidebar {
     width: 250px;
     height: 100vh;
