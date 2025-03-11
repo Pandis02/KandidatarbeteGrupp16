@@ -1,4 +1,6 @@
 -- TO RESET EVERYTHING
+DROP TABLE IF EXISTS AdminSettings CASCADE;
+DROP TABLE IF EXISTS Locations CASCADE;
 DROP TABLE IF EXISTS TrackedDevices CASCADE;
 DROP TABLE IF EXISTS Scans CASCADE;
 DROP TABLE IF EXISTS OfflineEvents CASCADE;
@@ -21,9 +23,26 @@ and OfflineEvents & NotificationEvents should retain their rows even if a device
 Foreign keys are for when you know your data cannot exist on their own but require a corresponding row in another table,
 Here we actually do want the unrelatability of independent primary keys, logs for one should always be retained
 */
+
+CREATE TABLE AdminSettings (
+    id INT PRIMARY KEY CHECK (id = 1), -- Forces a single row
+    alert_threshold_minutes INT NOT NULL CHECK (alert_threshold_minutes > 0),
+    checkin_interval_seconds INT NOT NULL CHECK (checkin_interval_seconds > 0),
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Locations (
+    location_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    building VARCHAR(255) NOT NULL,
+    room VARCHAR(255) NOT NULL,
+    UNIQUE (building, room) -- Ensuring combination of room and building is unique
+);
+
 CREATE TABLE TrackedDevices (
     mac_address CHAR(17) PRIMARY KEY,
-    custom_name VARCHAR(255)
+    custom_name VARCHAR(255),
+    enabled BOOLEAN DEFAULT TRUE,
+    location_id BIGINT REFERENCES Locations(location_id) ON DELETE SET NULL
 );
 
 CREATE TABLE Scans (
@@ -61,3 +80,14 @@ CREATE TABLE NotificationRecipients (
     recipient VARCHAR(255) NOT NULL, -- can be an email like live@securitas.se or +46 123456789
     PRIMARY KEY (event_id, recipient)
 );
+
+-- Hard coded mock data
+INSERT INTO Locations (building, room) VALUES
+('EDIT', 'A1'),
+('EDIT', 'A2'),
+('SB', 'BX'),
+('SB', 'BY'),
+('SB', 'BZ');
+
+INSERT INTO AdminSettings (id, alert_threshold_minutes, checkin_interval_seconds)
+VALUES (1, 3, 15);
