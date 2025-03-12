@@ -3,13 +3,12 @@ package kg16.demo.model.services;
 import java.sql.Timestamp;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Service
 public class TrackerService {
@@ -46,6 +45,7 @@ public class TrackerService {
             try {
                 jdbc.update(sql, device.macAddress, device.lastActive());
                 System.out.println("Device " + device.macAddress + " flagged as offline.");
+                // call for Notification here
             } catch (DataAccessException e) {
                 logger.error("Failed to update OfflineEvents for mac address: " + device.macAddress, e);
             }
