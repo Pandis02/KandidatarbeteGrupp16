@@ -5,10 +5,12 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import kg16.demo.model.dto.AdminSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 /**
  * Service class for managing admin settings.
  */
+@Service
 public class AdminSettingsService {
     private final JdbcTemplate jdbc;
     private static final Logger logger = LoggerFactory.getLogger(AdminSettingsService.class);
