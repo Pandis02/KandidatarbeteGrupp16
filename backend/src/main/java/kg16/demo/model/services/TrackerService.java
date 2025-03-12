@@ -65,6 +65,7 @@ public class TrackerService {
                     WHERE (
                         GREATEST (COALESCE(s.last_seen, '1970-01-01'), COALESCE(c.last_checkin, '1970-01-01')) < NOW() - INTERVAL '%d' MINUTE
                     )
+                    AND td.enabled = TRUE  -- Only consider enabled devices
                     AND NOT EXISTS (
                         SELECT 1 FROM OfflineEvents oe
                         WHERE oe.mac_address = td.mac_address
