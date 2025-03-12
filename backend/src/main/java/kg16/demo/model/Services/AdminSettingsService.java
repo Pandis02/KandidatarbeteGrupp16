@@ -6,14 +6,28 @@ import kg16.demo.model.dto.AdminSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Service class for managing admin settings.
+ */
 public class AdminSettingsService {
     private final JdbcTemplate jdbc;
     private static final Logger logger = LoggerFactory.getLogger(AdminSettingsService.class);
 
+    /**
+     * Constructs an AdminSettingsService with the specified JdbcTemplate.
+     *
+     * @param jdbc the JdbcTemplate to use for database operations
+     */
     public AdminSettingsService(JdbcTemplate jdbc) {
         this.jdbc = jdbc;
     }
 
+    /**
+     * Retrieves the admin settings from the database.
+     *
+     * @return the AdminSettings object containing the settings
+     * @throws IllegalStateException if no settings are found for the specified id
+     */
     public AdminSettings getSettings() {
         String sql = "SELECT * FROM AdminSettings WHERE id = 1";
         try {
@@ -27,5 +41,4 @@ public class AdminSettingsService {
             throw new IllegalStateException("Admin settings not found", e);
         }
     }
-    
 }
