@@ -27,18 +27,124 @@ option {
     color: var(--text-color);
 }
 
-
-
-/*      CARDS       */
-.stat-card {
-    transition: transform 0.2s;
-}
-.stat-card:hover {
-    transform: translateY(-5px);
+.form-control:focus {
+    outline: none !important;      
+    box-shadow: none !important;   
+    border-color: lightgray;       
 }
 
-.card-button{
+/*     LOGS     */
+.card-header {
+    cursor: pointer;
+    background-color: #E4E5FF;
+    padding: 10px;
+}
+
+.offline-card .card-header {
+    border-left: 4px solid #dc3545;
+}
+
+.temp-offline-card .card-header {
+    border-left: 4px solid #DD9A19;
+}
+
+.bg-temp{
+    background-color: #DD9A19;
+}
+
+.notification-card .card-header {
+    border-left: 4px solid #0d6efd;
+}
+
+.detail-item {
     display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.detail-label {
+    color: #6c757d;
+}
+
+
+/*     TABLE     */
+.table.log-table td {
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+.table.log-table .pop{
+    font-weight: bold;
+    color: #0A3B62;
+}
+
+.table.log-table th {
+    color: #464F60;
+    background-color: #E4E5FF;
+}
+
+.table-gray{
+    color: #687182;
+}
+
+
+
+
+/* STATUS */
+.status-online{
+    color: white;
+    background-color: #008767;
+    font-weight: bold;
+}
+
+
+
+
+/*     Toggle switch     */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;  /* Updated width */
+    height: 20px;  /* Updated height */
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 10px;  /* Adjusted for new height */
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;  /* Adjusted size */
+  width: 16px;   /* Adjusted size */
+  left: 2px;     /* Adjusted positioning */
+  bottom: 2px;   /* Adjusted positioning */
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #0A3B62;
+}
+
+input:checked + .slider:before {
+  transform: translateX(30px);  /* Adjusted translation */
 }
 
 
