@@ -15,7 +15,7 @@
             <i class="bi bi-chevron-left text-white"></i>
         </button>
         <div class="nav flex-column pt-5">
-            <a href="index.html" class="nav-link active">
+            <a href="index.html" class="nav-link">
                 <i class="bi bi-grid fs-3 pe-2"></i>
                 <span class="nav-text">Dashboard</span>
             </a>
@@ -23,7 +23,7 @@
                 <i class="bi bi-bell fs-3 pe-2"></i>
                 <span class="nav-text">Notification</span>
             </a>
-            <a href="logs.html" class="nav-link">
+            <a href="logs.html" class="nav-link active">
                 <i class="bi bi-pencil fs-3 pe-2"></i>
                 <span class="nav-text">Logs</span>
             </a>
@@ -43,59 +43,181 @@
     </nav>
     <!-- Main Content -->
     <div class="main-content p-4">
-        <h1 class="text-center">Logs</h1><!-- Filters Section -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <select class="form-select w-auto">
-                <option>Status</option>
-                <option>Confirmed</option>
-                <option>Pending</option>
-                <option>Failed</option>
-            </select>
-            <div class="d-flex gap-2">
-                <input type="date" class="form-control">
-                <span>→</span>
-                <input type="date" class="form-control">
-            </div>
-        </div>
-    
-        <!-- Logs Table -->
-        <div class="log-table">
-            <div class="log-entry">
-                <div class="log-header d-flex justify-content-between align-items-center">
-                    <span class="badge bg-dark">1</span>
-                    <span class="text-success">Confirmed</span>
-                    <span>21-03-2022</span>
-                    <span>Apa3</span>
-                    <span>123-48</span>
-                    <button class="btn btn-danger btn-sm"><i class="bi bi-trash"></i></button>
-                    <button class="btn btn-light btn-sm toggle-details"><i class="bi bi-three-dots"></i></button>
+        <h1 class="py-3">Logs & Events</h1>
+        <div class="container">
+            <!-- Filter and sorting option -->
+            <div class="row py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="d-flex gap-2">
+                            <button class="nav-button btn btn-outline-dark">Filter</button>
+                            <div class="input-group form-inline">
+                                <form class="form-inline">
+                                    <div class="input-group">
+                                      <div class="input-group-prepend">
+                                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                                      </div>
+                                      <input type="text" class="form-control border-start-0 test" placeholder="Enter MAC address..."  id="search">
+                                    </div>
+                                  </form>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div>
+                        <div>
+                            <label for="sortBySelector">Sort by</label>
+                            <select class="ps-1 border-0 fw-bold" id="sortBySelector">
+                                <option class="fw-normal" value="name">Name</option>
+                                <option class="fw-normal" value="last-checkin">Last checkin</option>
+                                <option class="fw-normal" value="name">Status</option>
+                                <option class="fw-normal" value="name">Tracking</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
-                <div class="log-details">
-                    <table class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th>No.</th>
-                                <th>User Activity</th>
-                                <th>IP Address</th>
-                                <th>MAC Address</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>User johndoe logged into the system successfully at 3PM</td>
-                                <td>192.168.1.10</td>
-                                <td>00:1A:2B:3C:4D:5E</td>
-                            </tr>
-                            <tr>
-                                <td>2</td>
-                                <td>User janedoe logged out successfully at 3:15PM</td>
-                                <td>192.168.1.10</td>
-                                <td>00:1A:2B:3C:4D:5E</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <button class="btn btn-primary btn-sm">Save</button>
+            </div>
+            <!-- TODO: bubble row-->
+            <div class="row">
+                <hr>
+                <div class="col pb-3">
+                    <div class="d-inline-flex align-items-center border border-2 border-success rounded-pill">
+                        <span class="ps-3 pe-2">Tracking: On</span>
+                        <button type="button" class="btn-close btn-close-sm me-2 shadow-none"></button>
+                    </div>
+                </div>
+                <hr>
+            </div>
+            <!-- Offline Events -->
+            <h5 class="mb-3">Offline Events</h5>
+            <!--  card 1 - Sent Notifications-->
+            <div class="row pb-3">
+                <div class="notification-card" id="sentNotifications">
+                    <div class="card-header" data-bs-toggle="collapse" href="#notification1">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <span class="fw-bold">00:1A:C2:7B:00:47</span>
+                                <span class="ms-3 text-muted">192.168.1.10</span>
+                            </div>
+                            <div>
+                                <span class="badge bg-primary me-2">Email</span>
+                                <span class="text-muted">2024-02-15 14:35</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="notification1" class="collapse">
+                        <div class="card-body">
+                            <div class="detail-item">
+                                <span class="detail-label">Building:</span>
+                                <span>Samhällsbyggnad</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Room:</span>
+                                <span>HA1</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Recipient:</span>
+                                <span>admin@example.com</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Notification Type:</span>
+                                <span>Email</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Card 2 - offline event-->
+            <div class="row pb-3">
+                <div class="offline-card" id="offlineEvents">
+                    <div class="card-header" data-bs-toggle="collapse" href="#offline1">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <span class="fw-bold">00:1A:C2:7B:00:47</span>
+                                <span class="ms-3 text-muted">192.168.1.10</span>
+                            </div>
+                            <div>
+                                <span class="badge bg-danger me-2">Offline</span>
+                                <span class="text-muted">Samhällsbyggnad - HA1</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="offline1" class="collapse">
+                        <div class="card-body">
+                            <div class="detail-item">
+                                <span class="detail-label">Name:</span>
+                                <span>Computer 1</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Offline Since:</span>
+                                <span >2024-02-15 14:30</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Alert Sent:</span>
+                                <span class="badge bg-success">Yes</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Restored At:</span>
+                                <span >2024-02-15 15:00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Card 3 - offline event-->
+            <div class="row pb-3">
+                <div class="temp-offline-card" id="offlineEvents">
+                    <div class="card-header" data-bs-toggle="collapse" href="#offline2">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <span class="fw-bold">00:1A:C2:7B:00:47</span>
+                                <span class="ms-3 text-muted">192.168.1.10</span>
+                            </div>
+                            <div>
+                                <span class="badge bg-temp me-2">temporary offline</span>
+                                <span class="text-muted">Samhällsbyggnad - HA1</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="offline2" class="collapse">
+                        <div class="card-body">
+                            <div class="detail-item">
+                                <span class="detail-label">Name:</span>
+                                <span>Computer 1</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Offline Since:</span>
+                                <span >2024-02-15 14:30</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Alert Sent:</span>
+                                <span class="badge bg-success">Yes</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Restored At:</span>
+                                <span >2024-02-15 15:00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Footer -->
+            <div class="row pt-2">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <label class="table-gray" for="rowsSelector">Rows per page:</label>
+                        <select class="ps-1 border-0 table-gray" id="rowsSelector">
+                            <option value="name">5</option>
+                            <option value="last-checkin">10</option>
+                        </select>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="table-gray pe-3">1-5 of 1</span>
+                        <div class="d-flex gap-2">
+                            <button class="nav-button btn btn-outline-dark"><i class="bi bi-caret-left-fill"></i></button>
+                            <button class="nav-button btn btn-outline-dark"><i class="bi bi-caret-right-fill"></i></button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
