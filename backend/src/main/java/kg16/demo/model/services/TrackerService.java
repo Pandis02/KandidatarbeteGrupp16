@@ -15,12 +15,14 @@ public class TrackerService {
     private final ScanService sc;
     private final CheckinService cs;
     private final JdbcTemplate jdbc;
+    private final NotificationService ns;
     private static final Logger logger = LoggerFactory.getLogger(TrackerService.class);
 
-    public TrackerService(ScanService sc, CheckinService cs, JdbcTemplate jdbc) {
+    public TrackerService(ScanService sc, CheckinService cs, JdbcTemplate jdbc , NotificationService ns) {
         this.sc = sc;
         this.cs = cs;
         this.jdbc = jdbc;
+        this.ns = ns;
     }
 
     // runs every 10 seconds
@@ -45,7 +47,7 @@ public class TrackerService {
             try {
                 jdbc.update(sql, device.macAddress, device.lastActive());
                 System.out.println("Device " + device.macAddress + " flagged as offline.");
-                // call for Notification here
+                ns.UpdateToSend(device.macAddress, device.lastSeen);
             } catch (DataAccessException e) {
                 logger.error("Failed to update OfflineEvents for mac address: " + device.macAddress, e);
             }

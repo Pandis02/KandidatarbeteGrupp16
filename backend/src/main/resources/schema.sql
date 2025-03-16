@@ -13,6 +13,12 @@ DROP TABLE IF EXISTS NotificationEvents CASCADE;
 
 DROP TABLE IF EXISTS NotificationRecipients CASCADE;
 
+DROP TABLE IF EXISTS ContactList CASCADE;
+
+DROP TABLE IF EXISTS NotificationRecipients CASCADE;
+
+DROP TABLE IF EXISTS NotificationRecipients CASCADE;
+
 -- CREATE TABLES
 -- TrackedDevices is a list of devices for which we WANT notifications, this will be managed via a UI and not manually
 /* 
@@ -78,9 +84,32 @@ CREATE TABLE
 
 -- EmailList stores the emails of those that will be notified
 Create Table
-    EmailList (
-        mailAddress VARCHAR(255) PRIMARY KEY,
-        user VarCHAR(255),
+    ContactList (
+        mail_address VARCHAR(255) PRIMARY KEY,
+        user_name VARCHAR(255),
         sms VARCHAR(255),
         type VARCHAR(15) NOT NULL CHECK (type IN ('security', 'admin'))
     );
+
+-- TODO list that queues email alerts to be sent
+Create Table 
+    ToBeSentEMail (
+        mail_address VARCHAR(255) NOT NULL, 
+        user_name VARCHAR(255) NOT NULL,
+        type VARCHAR(15) NOT NULL CHECK (type IN ('security', 'admin')),
+        mac_address CHAR(17) NOT NULL , 
+        last_seen TIMESTAMP NOT NULL,
+        PRIMARY KEY (mac_address, mail_address)
+    );
+
+-- TODO list that queues sms alerts to be sent
+Create Table 
+    ToBeSentSMS (
+        sms VARCHAR(255) NOT NULL,
+        user_name VARCHAR(255) NOT NULL,
+        type VARCHAR(15) NOT NULL CHECK (type IN ('security', 'admin')),
+        mac_address CHAR(17) NOT NULL ,
+        last_seen TIMESTAMP NOT NULL,
+        PRIMARY KEY (mac_address, sms)
+    );
+
