@@ -6,9 +6,4 @@ import org.springframework.web.bind.annotation.*;
 public class MainController {
     public MainController() {
     }
-
-    @GetMapping("/")
-    public String onIndex() {
-        return "Hello World";
-    }
 }
