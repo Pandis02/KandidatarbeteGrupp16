@@ -65,20 +65,43 @@ CREATE TABLE OfflineEvents (
     CONSTRAINT chk_timestamps CHECK (restored_at IS NULL OR restored_at > offline_since)
 );
 
--- NotificationEvents stores a log of all notifications ever sent from us
-CREATE TABLE NotificationEvents (
+CREATE TABLE NotificationTriggers (
     event_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     mac_address CHAR(17) NOT NULL,
     message TEXT NOT NULL,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- NotificationRecipients stores a log of recipients that the notification was sent to
-CREATE TABLE NotificationRecipients (
-    event_id BIGINT REFERENCES NotificationEvents(event_id) ON DELETE CASCADE,
-    type VARCHAR(24) NOT NULL CHECK (type IN ('sms', 'email')),
-    recipient VARCHAR(255) NOT NULL, -- can be an email like live@securitas.se or +46 123456789
-    PRIMARY KEY (event_id, recipient)
+CREATE TABLE Roles (
+    role_id INT AUTO_INCREMENT PRIMARY KEY,
+    role_name VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE Recipients (
+    recipient_id BIGINT AUTO_INCREMENT PRIMARY KEY,  -- Unique ID for recipient
+    recipient_type VARCHAR(20) NOT NULL CHECK (recipient_type IN ('email', 'sms', 'push')), 
+    recipient_value VARCHAR(255) NOT NULL,  -- Holds either email, phone number, or push token
+    CHECK (
+        (recipient_type = 'email' AND recipient_value REGEXP '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$') OR -- Email regex check
+        (recipient_type = 'sms' AND recipient_value REGEXP '^\+?[1-9]\d{1,14}$') OR -- E.164 format phone number with optional + sign
+        (recipient_type = 'push' AND LENGTH(recipient_value) = 153) -- Change to length of push depending on service. 153 is for Firebase
+    )
+);
+
+CREATE TABLE RecipientRoles (
+    recipient_id BIGINT,
+    role_id INT,
+    PRIMARY KEY (recipient_id, role_id),
+    FOREIGN KEY (recipient_id) REFERENCES Recipients(recipient_id) ON DELETE CASCADE,
+    FOREIGN KEY (role_id) REFERENCES Roles(role_id)
+);
+
+CREATE TABLE NotificationRecipientEvents (
+    event_id BIGINT,
+    recipient_id BIGINT,
+    PRIMARY KEY (event_id, recipient_id),
+    FOREIGN KEY (event_id) REFERENCES NotificationTriggers(event_id) ON DELETE CASCADE,
+    FOREIGN KEY (recipient_id) REFERENCES Recipients(recipient_id) ON DELETE CASCADE
 );
 
 -- Hard coded mock data
