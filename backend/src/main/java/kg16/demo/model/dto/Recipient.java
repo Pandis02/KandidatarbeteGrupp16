@@ -12,4 +12,17 @@ public class Recipient {
     private String recipientType;
     private String recipientValue;
     private List<Role> roles;
+
+    public boolean hasRole(String roleName) {
+        boolean contains = false;
+
+        for (Role role : roles) {
+            if (role.getRoleName().equals(roleName)) {
+                contains = true;
+                break;
+            }
+        }
+
+        return contains;
+    }
 }

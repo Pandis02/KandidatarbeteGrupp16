@@ -37,12 +37,12 @@
                     <td th:text="${recipient.recipientType}"></td>
                     <td th:text="${recipient.recipientValue}"></td>
                     <td>
-                        <a th:href="@{${#lists.contains(recipient.roles.![roleName], 'Admin') ? '/remove-role' : '/assign-role'}(recipientId=${recipient.recipientId}, roleName='Admin')}"
-                           th:class="${#lists.contains(recipient.roles.![roleName], 'Admin')} ? 'btn btn-warning btn-sm' : 'btn btn-outline-warning btn-sm'">
+                        <a th:href="@{${recipient.hasRole('Admin') ? '/remove-role' : '/assign-role'}(recipientId=${recipient.recipientId}, roleName='Admin')}"
+                           th:class="${recipient.hasRole('Admin')} ? 'btn btn-warning btn-sm' : 'btn btn-outline-warning btn-sm'">
                            Admin
                         </a>
-                        <a th:href="@{${#lists.contains(recipient.roles.![roleName], 'Security') ? '/remove-role' : '/assign-role'}(recipientId=${recipient.recipientId}, roleName='Security')}"
-                           th:class="${#lists.contains(recipient.roles.![roleName], 'Security')} ? 'btn btn-primary btn-sm' : 'btn btn-outline-primary btn-sm'">
+                        <a th:href="@{${recipient.hasRole('Security') ? '/remove-role' : '/assign-role'}(recipientId=${recipient.recipientId}, roleName='Security')}"
+                           th:class="${recipient.hasRole('Security')} ? 'btn btn-primary btn-sm' : 'btn btn-outline-primary btn-sm'">
                            Security
                         </a>
                     </td>
