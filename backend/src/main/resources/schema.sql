@@ -6,8 +6,12 @@ DROP TABLE IF EXISTS Scans CASCADE;
 DROP TABLE IF EXISTS OfflineEvents CASCADE;
 DROP TABLE IF EXISTS AlertTypes CASCADE;
 DROP TABLE IF EXISTS Checkins CASCADE;
-DROP TABLE IF EXISTS NotificationEvents CASCADE;
-DROP TABLE IF EXISTS NotificationRecipients CASCADE;
+DROP TABLE IF EXISTS NotificationTriggers CASCADE;
+DROP TABLE IF EXISTS Roles CASCADE;
+DROP TABLE IF EXISTS Recipients CASCADE;
+DROP TABLE IF EXISTS RecipientRoles CASCADE;
+DROP TABLE IF EXISTS NotificationRecipientEvents CASCADE;
+
 
 -- CREATE TABLES
 
@@ -114,3 +118,7 @@ INSERT INTO Locations (building, room) VALUES
 
 INSERT INTO AdminSettings (id, alert_threshold_minutes, checkin_interval_seconds)
 VALUES (1, 3, 15);
+
+INSERT INTO Roles (role_name) VALUES ('Admin');
+INSERT INTO Roles (role_name) VALUES ('Security');
+
