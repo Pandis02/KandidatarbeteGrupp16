@@ -43,21 +43,31 @@
     </nav>
     <!-- Main Content -->
     <div class="main-content p-4">
-        <h1 class="py-3">Logs & Events</h1>
         <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="py-3">Logs & Events</h1>
+                </div>
+                <div>
+                    <select class="p-2 rounded" id="themeSelector">
+                        <option value="light">Light</option>
+                        <option value="dark">Dark</option>
+                    </select>
+                </div>
+            </div>
             <!-- Filter and sorting option -->
             <div class="row py-3">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <div class="d-flex gap-2">
-                            <button class="nav-button btn btn-outline-dark">Filter</button>
+                            <button class="nav-button btn btn-outline-dark themeButton">Filter</button>
                             <div class="input-group form-inline">
                                 <form class="form-inline">
                                     <div class="input-group">
                                       <div class="input-group-prepend">
                                         <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
                                       </div>
-                                      <input type="text" class="form-control border-start-0 test" placeholder="Enter MAC address..."  id="search">
+                                      <input type="text" class="form-control border-start-0 test" placeholder="Search..."  id="search">
                                     </div>
                                   </form>
                             </div>
@@ -92,11 +102,11 @@
             <h5 class="mb-3">Offline Events</h5>
             <!--  card 1 - Sent Notifications-->
             <div class="row pb-3">
-                <div class="notification-card" id="sentNotifications">
-                    <div class="card-header" data-bs-toggle="collapse" href="#notification1">
+                <div id="alertEvent">
+                    <div class="card-header total" data-bs-toggle="collapse" href="#notification1">
                         <div class="d-flex justify-content-between">
                             <div>
-                                <span class="fw-bold">00:1A:C2:7B:00:47</span>
+                                <span class="fw-bold">01:1A:C2:7B:00:47</span>
                                 <span class="ms-3 text-muted">192.168.1.10</span>
                             </div>
                             <div>
@@ -129,11 +139,11 @@
             </div>
             <!-- Card 2 - offline event-->
             <div class="row pb-3">
-                <div class="offline-card" id="offlineEvents">
-                    <div class="card-header" data-bs-toggle="collapse" href="#offline1">
+                <div id="offlineEvent">
+                    <div class="card-header offline" data-bs-toggle="collapse" href="#offline1">
                         <div class="d-flex justify-content-between">
                             <div>
-                                <span class="fw-bold">00:1A:C2:7B:00:47</span>
+                                <span class="fw-bold">02:1A:C2:7B:00:47</span>
                                 <span class="ms-3 text-muted">192.168.1.10</span>
                             </div>
                             <div>
@@ -166,11 +176,11 @@
             </div>
             <!-- Card 3 - offline event-->
             <div class="row pb-3">
-                <div class="temp-offline-card" id="offlineEvents">
-                    <div class="card-header" data-bs-toggle="collapse" href="#offline2">
+                <div id="offlineEvent">
+                    <div class="card-header temp-offline" data-bs-toggle="collapse" href="#offline2">
                         <div class="d-flex justify-content-between">
                             <div>
-                                <span class="fw-bold">00:1A:C2:7B:00:47</span>
+                                <span class="fw-bold">03:1A:C2:7B:00:47</span>
                                 <span class="ms-3 text-muted">192.168.1.10</span>
                             </div>
                             <div>
@@ -214,8 +224,8 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <span class="table-gray pe-3">1-5 of 1</span>
                         <div class="d-flex gap-2">
-                            <button class="nav-button btn btn-outline-dark"><i class="bi bi-caret-left-fill"></i></button>
-                            <button class="nav-button btn btn-outline-dark"><i class="bi bi-caret-right-fill"></i></button>
+                            <button class="nav-button btn btn-outline-dark themeButton"><i class="bi bi-caret-left-fill"></i></button>
+                            <button class="nav-button btn btn-outline-dark themeButton"><i class="bi bi-caret-right-fill"></i></button>
                         </div>
                     </div>
                 </div>
