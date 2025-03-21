@@ -43,39 +43,69 @@
     </nav>
     <!-- Main Content -->
     <div class="main-content p-4">
-        <h1 class="ps-5 ms-4">Dashboard</h1>
-        <hr>
-
-        <div class="test"></div>
-        
         <div class="container">
-            <div class="row py-3 pt-5">
-              <div class="col-sm">
-                    <div class="card h-100 card-body text-center stat-card">
-                        <h5 class="card-title">Online</h5>
-                        <h2 class="card-text text-success">10</h2>
-                    </div>
-              </div>
-              <div class="col-sm">
-                <div class="card h-100 card-body text-center stat-card">
-                    <h5 class="card-title">Offline (< 5)</h5>
-                    <h2 class="card-text text-warning">2</h2>
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="pt-3">Dashboard</h1>
                 </div>
-              </div>
-              <div class="col-sm">
-                <div class="card h-100 card-body text-center stat-card">
-                    <h5 class="card-title">Offline (<= 5)</h5>
-                    <h2 class="card-text text-danger">1</h2>
+                <div>
+                    <select class="p-2 rounded" id="themeSelector">
+                        <option value="light">Light</option>
+                        <option value="dark">Dark</option>
+                    </select>
                 </div>
-              </div>
-              <div class="col-sm">
-                <div class="card h-100 card-body border-0">
-                    <h5 class="card-title">Total computers</h5>
-                    <h2 class="card-text text-primary">13</h2>
-                </div>
-              </div>
             </div>
+            <hr class="pb-3">
+            <!-- CARDS ROW -->
+            <div class="row">
+                <div class="col ">
+                    <div class="card status-card online">
+                        <div class="card-body">
+                            <i class="bi bi-shield-check text-success card-icon"></i>
+                            <div class="card-content">
+                                <p class="h4">Online</p>
+                                <p class="fw-bold h3" id="online-count">0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col ">
+                    <div class="card status-card temp-offline">
+                        <div class="card-body">
+                            <i class="bi bi-clock-history text-warning card-icon"></i>
+                            <div class="card-content">
+                                <p class="h5">Temporary offline</p>
+                                <p class="fw-bold h3" id="online-count">0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col ">
+                    <div class="card status-card offline">
+                        <div class="card-body">
+                            <i class="bi bi-exclamation-triangle text-danger card-icon"></i>
+                            <div class="card-content">
+                                <p class="h4">Offline</p>
+                                <p class="fw-bold h3" id="online-count">0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col ">
+                    <div class="card status-card total">
+                        <div class="card-body">
+                            <i class="bi bi-pc-display-horizontal text-primary card-icon"></i>
+                            <div class="card-content">
+                                <p class="h4">Total computers</p>
+                                <p class="fw-bold h3" id="online-count">0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="row py-3 pt-5">
+                <!-- RECENT NOTIFICATIONS COL-->
                 <div class="col-sm p3-3 pe-5">
                   <h2>Recent notifications <i class="bi bi-bell fs-3"></i></h2>
                   <ui>
@@ -87,8 +117,8 @@
                                 21 Feb 2025 17:55
                             </div>
                             <div>
-                                <button type="button" class="btn btn-outline-dark">Resolve</button>
-                                <button type="button" class="btn btn-outline-dark">Info</button>                         
+                                <button type="button" class="btn btn-outline-dark themeButton">Resolve</button>
+                                <button type="button" class="btn btn-outline-dark themeButton">Info</button>                         
                             </div>
                         </div>
                       </div>
@@ -100,8 +130,8 @@
                                 21 Feb 2025 17:55
                             </div>
                             <div>
-                                <button type="button" class="btn btn-outline-dark">Resolve</button>
-                                <button type="button" class="btn btn-outline-dark">Info</button>                         
+                                <button type="button" class="btn btn-outline-dark themeButton">Resolve</button>
+                                <button type="button" class="btn btn-outline-dark themeButton">Info</button>                         
                             </div>
                         </div>
                       </div>
