@@ -45,81 +45,132 @@
     </nav>
     <!-- Main Content -->
     <div class="main-content p-4">
-        <h1>Settings</h1>
         <div class="container">
-            <h4 class="pt-4 fw-bold">Preferences</h4>
-            <hr>
-            <!--Lightmode/Darkmode-->
-            <div class="row">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <p><span class="pt-1 fw-bold"> <i class="bi bi-moon pe-2"></i> Appearance</span> <br>
-                        Choose your preferred theme for the interface.</p>
-                    </div>
-                    <div>
-                        <select class="p-2 rounded" id="themeSelector">
-                            <option value="light">Light</option>
-                            <option value="dark">Dark</option>
-                        </select>
+            <h1 class="py-3 mb-3">Settings</h1>
+            <!-- Main Tabs Navigation -->
+            <nav>
+                <div class="nav nav-tabs border-3" id="main-tabs" role="tablist">
+                    <button class="nav-link active" id="admin-tab" data-bs-toggle="tab" data-bs-target="#admin" type="button" role="tab">Admin Settings</button>
+                    <button class="nav-link" id="preferences-tab" data-bs-toggle="tab" data-bs-target="#preferences" type="button" role="tab"> Preferences</button>
+                    <button class="nav-link" id="info-tab" data-bs-toggle="tab" data-bs-target="#info" type="button" role="tab">Info</button>
+                </div>
+            </nav>
+        
+            <!-- Tab Content -->
+            <div class="tab-content pt-4">
+                <!-- Admin Settings Tab -->
+                <div class="tab-pane fade show active" id="admin" role="tabpanel">
+                    <div class="card card-body">
+                        <!-- Email List -->
+                        <div class="row mx-3 mt-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p><span class="fw-bold">Default Notification Emails</span> <br>
+                                    Select where you would like the emails to be sent and add additional email addresses.</p>
+                                </div>
+                                <div>
+                                    <div class="list-group " id="emailList">
+                                        <div class="d-flex gap-2">
+                                            <input type="email" class="form-control" value="admin@example.com">
+                                            <button class="btn btn-danger btn-sm"><i class="bi bi-trash"></i></button>
+                                        </div>
+                                        <button class="btn btn-outline-dark themeButton btn-sm mt-2" id="addEmailBtn">Add Email</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Alert threshold -->
+                        <div class="row mx-3 mt-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p><span class="fw-bold">Alert threshold</span> <br>
+                                        Set the time a computer must be disconnected before a notification is triggered.</p>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <input type="number" class="form-control" value="5" min="1" id="alertThreshold">
+                                    <p class="m-0">minutes</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Checkin interval -->
+                        <div class="row mx-3 my-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p><span class="fw-bold">Checkin interval</span> <br>
+                                        Set how often the system checks for connected devices.</p>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <input type="number" class="form-control" value="10" min="1" id="alertThreshold">
+                                    <p class="m-0">minutes</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <!-- Language -->
-            <div class="row">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <p><span class="pt-1 fw-bold"> <i class="bi bi-globe-americas pe-2"></i>Language</span><br> 
-                            Change the language used in the interface.</p>
-                    </div>
-                    <div>
-                        <select class="p-2 rounded" id="language-select">
-                            <option value="english">English</option>
-                            <option value="swedish">Swedish</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <!-- Notifications -->
-            <h4 class="pt-4 fw-bold">Notifications</h4>
-            <hr>
-            <div class="row">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <p><span class="pt-1 fw-bold"> <i class="bi bi-envelope pe-2"></i> Default Notification Email</span> <br>
-                        Select where you would like the emails to be sent and add additional email addresses.</p>
-                    </div>
-                    <div>
-                        <select class="p-2 me-3 border-0" id="language-select">
-                            <option value="email-1">example@email.com</option>
-                            <option value="email-2">example2@email.com</option>
-                        </select>
-                        <button type="button" class="btn btn-outline-dark themeButton">Edit emails</button>
-                    </div>
-                </div>
-            </div>
-            <h4 class="pt-4 fw-bold">Info</h4>
-            <hr>
-            <!-- User manual -->
-            <div class="row">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <p><span class="pt-1 fw-bold">User Manual</span> <br>
-                        View system details, architecture and key technologies used.</p>
-                    </div>
-                    <div>
-                        <button type="button" class="btn btn-outline-dark themeButton" >More</button>
+
+                <!-- Preferences Tab -->
+                <div class="tab-pane fade" id="preferences" role="tabpanel">
+                    <div class="card card-body">
+                        <!--Lightmode/Darkmode-->
+                        <div class="row mx-3 mt-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p><span class="fw-bold"> <i class="bi bi-moon pe-2"></i> Appearance</span> <br>
+                                    Choose your preferred theme for the interface.</p>
+                                </div>
+                                <div>
+                                    <select class="p-2 rounded" id="themeSelector">
+                                        <option value="light">Light</option>
+                                        <option value="dark">Dark</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Language -->
+                        <div class="row mx-3 my-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p><span class="pt-1 fw-bold"> <i class="bi bi-globe-americas pe-2"></i>Language</span><br> 
+                                        Change the language used in the interface.</p>
+                                </div>
+                                <div>
+                                    <select class="p-2 rounded" id="language-select">
+                                        <option value="english">English</option>
+                                        <option value="swedish">Swedish</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <!-- About us section-->
-            <div class="row">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <p><span class="pt-2 fw-bold">About Us</span> <br>
-                        Learn more about our team and mission behind this system.</p>
-                    </div>
-                    <div>
-                        <button type="button" class="btn btn-outline-dark themeButton">More</button>
+
+                <!-- Preferences Tab -->
+                <div class="tab-pane fade" id="info" role="tabpanel">
+                    <div class="card card-body">
+                        <!-- User manual -->
+                        <div class="row mx-3 my-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p><span class="fw-bold">User Manual</span> <br>
+                                    View system details, architecture and key technologies used.</p>
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-outline-dark themeButton" >More</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- About us section-->
+                        <div class="row mx-3 my-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p><span class="fw-bold">About Us</span> <br>
+                                    Learn more about our team and mission behind this system.</p>
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-outline-dark themeButton">More</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
