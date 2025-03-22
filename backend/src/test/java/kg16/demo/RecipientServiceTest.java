@@ -2,6 +2,7 @@ package kg16.demo;
 
 import kg16.demo.model.dto.Recipient;
 import kg16.demo.model.dto.Role;
+import kg16.demo.model.exceptions.DuplicateException;
 import kg16.demo.model.services.RecipientService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,17 +52,20 @@ public class RecipientServiceTest {
         when(jdbcTemplate.update(anyString(), eq(type), eq(value))).thenReturn(1);
 
         // Call the method to test
-        Recipient recipient = recipientService.addRecipient(type, value);
+        try {
+            Recipient recipient = recipientService.addRecipient(type, value);
+            // Verify the interactions with the mock
+            verify(jdbcTemplate, times(1)).queryForObject(anyString(), eq(Integer.class), eq(value));
+            verify(jdbcTemplate, times(1)).update(anyString(), eq(type), eq(value));
 
-        // Verify the interactions with the mock
-        verify(jdbcTemplate, times(1)).queryForObject(anyString(), eq(Integer.class), eq(value));
-        verify(jdbcTemplate, times(1)).update(anyString(), eq(type), eq(value));
-
-        // Assert the result
-        assertNotNull(recipient);
-        assertNull(recipient.getRecipientId()); // Assuming recipient_id is auto-incremented and not returned
-        assertEquals(type, recipient.getRecipientType());
-        assertEquals(value, recipient.getRecipientValue());
+            // Assert the result
+            assertNotNull(recipient);
+            assertNull(recipient.getRecipientId()); // Assuming recipient_id is auto-incremented and not returned
+            assertEquals(type, recipient.getRecipientType());
+            assertEquals(value, recipient.getRecipientValue());
+        } catch (Exception e) {
+            fail();
+        }
     }
 
     /**
@@ -74,7 +78,7 @@ public class RecipientServiceTest {
 
         when(jdbcTemplate.queryForObject(anyString(), eq(Integer.class), anyString())).thenReturn(1);
 
-        assertThrows(IllegalArgumentException.class, () -> recipientService.addRecipient(type, value));
+        assertThrows(DuplicateException.class, () -> recipientService.addRecipient(type, value));
     }
 
     /**
@@ -160,9 +164,10 @@ public class RecipientServiceTest {
     @Test
     public void testAssignRecipientToNonExistentRole() {
         when(jdbcTemplate.queryForObject(anyString(), eq(Long.class), anyString()))
-        .thenThrow(new EmptyResultDataAccessException(1));
+                .thenThrow(new EmptyResultDataAccessException(1));
 
-        assertThrows(IllegalArgumentException.class, () -> recipientService.assignRecipientToRole(1L, "ROLE_NON_EXISTENT"));
+        assertThrows(IllegalArgumentException.class,
+                () -> recipientService.assignRecipientToRole(1L, "ROLE_NON_EXISTENT"));
     }
 
     /**
@@ -171,8 +176,9 @@ public class RecipientServiceTest {
     @Test
     public void testRemoveRecipientFromNonExistentRole() {
         when(jdbcTemplate.queryForObject(anyString(), eq(Long.class), anyString()))
-        .thenThrow(new EmptyResultDataAccessException(1));
+                .thenThrow(new EmptyResultDataAccessException(1));
 
-        assertThrows(IllegalArgumentException.class, () -> recipientService.removeRecipientFromRole(1L, "ROLE_NON_EXISTENT"));
+        assertThrows(IllegalArgumentException.class,
+                () -> recipientService.removeRecipientFromRole(1L, "ROLE_NON_EXISTENT"));
     }
 }

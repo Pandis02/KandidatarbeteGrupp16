@@ -5,11 +5,20 @@ import java.util.regex.Pattern;
 public class Utils {
     private Utils() {}
 
-    private static final String MAC_REGEX = "^[0-9A-Fa-f]{2}(-[0-9A-Fa-f]{2}){5}$";
-    private static final Pattern MAC_PATTERN = Pattern.compile(MAC_REGEX);
+    private static final Pattern MAC_PATTERN = Pattern.compile("^[0-9A-Fa-f]{2}(-[0-9A-Fa-f]{2}){5}$");
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    private static final Pattern PHONE_PATTERN = Pattern.compile("^\\+?[1-9]\\d{1,14}$");
 
     public static boolean isValidMacAddress(String mac) {
         return mac != null && MAC_PATTERN.matcher(mac).matches();
+    }
+
+    public static boolean isValidEmail(String mac) {
+        return mac != null && EMAIL_PATTERN.matcher(mac).matches();
+    }
+
+    public static boolean isValidPhone(String mac) {
+        return mac != null && PHONE_PATTERN.matcher(mac).matches();
     }
 
     public static boolean isEmpty(String... strings) {
@@ -24,25 +33,5 @@ public class Utils {
             if (s.equals(str)) return true;
         }
         return false;
-    }
-
-    public static String sqlValues(Object... values) {
-        StringBuilder total = new StringBuilder();
-
-        for (int i = 0; i < values.length; i++) {
-            Object val = values[i];
-            if (val instanceof String s) {
-                total.append("'");
-                total.append(s);
-                total.append("'");
-            } else if (val instanceof Integer v) {
-                total.append(v);
-            } else total.append(val);
-            
-            if (i != values.length-1) {
-                total.append(',');
-            }
-        }
-        return total.toString();
     }
 }

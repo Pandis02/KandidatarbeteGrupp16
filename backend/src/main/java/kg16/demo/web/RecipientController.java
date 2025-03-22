@@ -1,19 +1,18 @@
 package kg16.demo.web;
 
-import kg16.demo.model.dto.Recipient;
 import kg16.demo.model.services.RecipientService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.ui.Model;
 
 /**
- * REST controller for managing recipients.
+ * Controller for managing recipients.
  */
-@RestController
-@RequestMapping("/api/recipients")
+@Controller
 public class RecipientController {
-    private final RecipientService recipientService;
+    private final RecipientService rs;
 
     /**
      * Constructs a new RecipientController with the given RecipientService.
@@ -21,7 +20,16 @@ public class RecipientController {
      * @param recipientService the recipient service
      */
     public RecipientController(RecipientService recipientService) {
-        this.recipientService = recipientService;
+        this.rs = recipientService;
+    }
+
+    /**
+     * Gets the main page
+     */
+    @GetMapping("/recipients")
+    public String getRecipients(Model model) {
+        model.addAttribute("recipients", rs.getAllRecipients());
+        return "recipients";
     }
 
     /**
@@ -31,22 +39,14 @@ public class RecipientController {
      * @param value the value of the recipient (e.g., email address, phone number, push token)
      * @return the added recipient
      */
-    @PostMapping("/add")
-    public ResponseEntity<Recipient> addRecipient(
-        @RequestParam String type,
-        @RequestParam String value
-    ) {
-        return ResponseEntity.ok(recipientService.addRecipient(type, value));
-    }
-
-    /**
-     * Retrieves all recipients.
-     *
-     * @return a list of all recipients
-     */
-    @GetMapping("/all")
-    public ResponseEntity<List<Recipient>> getAllRecipients() {
-        return ResponseEntity.ok(recipientService.getAllRecipients());
+    @PostMapping("/add-recipient")
+    public String addRecipient(@RequestParam String type, @RequestParam String value, RedirectAttributes rda) {
+        try {
+            rs.addRecipient(type, value);
+        } catch (Exception e) {
+            rda.addFlashAttribute("errorMessage", e.getMessage());
+        }
+        return "redirect:/recipients";
     }
 
     /**
@@ -55,10 +55,10 @@ public class RecipientController {
      * @param recipientId the ID of the recipient to delete
      * @return a response indicating the result of the deletion
      */
-    @DeleteMapping("/delete")
-    public ResponseEntity<String> deleteRecipient(@RequestParam Long recipientId) {
-        recipientService.deleteRecipient(recipientId);
-        return ResponseEntity.ok("Recipient deleted.");
+    @GetMapping("/remove-recipient")
+    public String deleteRecipient(@RequestParam Long recipientId) {
+        rs.deleteRecipient(recipientId);
+        return "redirect:/recipients";
     }
 
     /**
@@ -68,13 +68,15 @@ public class RecipientController {
      * @param roleName    the name of the role to assign
      * @return a response indicating the result of the assignment
      */
-    @PostMapping("/assign-role")
-    public ResponseEntity<String> assignRecipientToRole(
-        @RequestParam Long recipientId,
-        @RequestParam String roleName
-    ) {
-        recipientService.assignRecipientToRole(recipientId, roleName);
-        return ResponseEntity.ok("Recipient assigned to role.");
+    @GetMapping("/assign-role")
+    public String assignRecipientToRole(@RequestParam Long recipientId, @RequestParam String roleName,
+            RedirectAttributes rda) {
+        try {
+            rs.assignRecipientToRole(recipientId, roleName);
+        } catch (Exception e) {
+            rda.addFlashAttribute("errorMessage", e.getMessage());
+        }
+        return "redirect:/recipients";
     }
 
     /**
@@ -84,12 +86,14 @@ public class RecipientController {
      * @param roleName    the name of the role to remove
      * @return a response indicating the result of the removal
      */
-    @PostMapping("/remove-role")
-    public ResponseEntity<String> removeRecipientFromRole(
-        @RequestParam Long recipientId,
-        @RequestParam String roleName
-    ) {
-        recipientService.removeRecipientFromRole(recipientId, roleName);
-        return ResponseEntity.ok("Recipient removed from role.");
+    @GetMapping("/remove-role")
+    public String removeRecipientFromRole(@RequestParam Long recipientId, @RequestParam String roleName,
+            RedirectAttributes rda) {
+        try {
+            rs.removeRecipientFromRole(recipientId, roleName);
+        } catch (Exception e) {
+            rda.addFlashAttribute("errorMessage", e.getMessage());
+        }
+        return "redirect:/recipients";
     }
 }

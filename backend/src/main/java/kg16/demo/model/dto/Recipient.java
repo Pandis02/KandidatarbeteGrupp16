@@ -7,6 +7,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Data
 public class Recipient {
     private Long recipientId;
     private String recipientType;

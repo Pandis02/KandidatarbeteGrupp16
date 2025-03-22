@@ -38,12 +38,12 @@
                     <td th:text="${recipient.recipientValue}"></td>
                     <td>
                         <a th:href="@{${recipient.hasRole('Admin') ? '/remove-role' : '/assign-role'}(recipientId=${recipient.recipientId}, roleName='Admin')}"
-                           th:class="${recipient.hasRole('Admin')} ? 'btn btn-warning btn-sm' : 'btn btn-outline-warning btn-sm'">
-                           Admin
+                            th:class="${recipient.hasRole('Admin')} ? 'btn btn-warning btn-sm' : 'btn btn-outline-warning btn-sm'">
+                            Admin
                         </a>
                         <a th:href="@{${recipient.hasRole('Security') ? '/remove-role' : '/assign-role'}(recipientId=${recipient.recipientId}, roleName='Security')}"
-                           th:class="${recipient.hasRole('Security')} ? 'btn btn-primary btn-sm' : 'btn btn-outline-primary btn-sm'">
-                           Security
+                            th:class="${recipient.hasRole('Security')} ? 'btn btn-primary btn-sm' : 'btn btn-outline-primary btn-sm'">
+                            Security
                         </a>
                     </td>
                     <td>
@@ -66,13 +66,34 @@
                 placeholder="Enter email, phone number, or push token">
             <button type="submit" class="btn btn-success">Add Recipient</button>
         </form>
-
     </div>
 
+    <!-- Bootstrap Modal for Error Messages -->
+    <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="errorModalLabel">Error</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" th:text="${errorMessage}"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:if="${errorMessage != null}">
+        document.addEventListener("DOMContentLoaded", function () {
+            new bootstrap.Modal(document.getElementById('errorModal')).show();
+        });
+    </script>
+
     <script>
-        function addRecipient() {
-            let type = document.getElementById("newRecipientType").value;
-            let value = document.getElementById("newRecipientValue").value.trim();
+        function addRecipient(event) {
+            let type = newRecipientType.value;
+            let value = newRecipientValue.value.trim();
 
             if (value === "") {
                 event.preventDefault();

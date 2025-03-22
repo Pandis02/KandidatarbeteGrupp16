@@ -1,28 +1,35 @@
 package kg16.demo.model.services;
 
+import kg16.Utils;
 import kg16.demo.model.dto.Recipient;
 import kg16.demo.model.dto.Role;
+import kg16.demo.model.exceptions.*;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Service class for managing recipients.
  */
 @Service
 public class RecipientService {
-    private final JdbcTemplate jdbcTemplate;
+    private static final Logger logger = LoggerFactory.getLogger(ScanService.class);
+    private final JdbcTemplate jdbc;
 
     /**
      * Constructs a new RecipientService with the given JdbcTemplate.
      *
-     * @param jdbcTemplate the JdbcTemplate to use for database operations
+     * @param template the JdbcTemplate to use for database operations
      */
-    public RecipientService(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    public RecipientService(JdbcTemplate template) {
+        this.jdbc = template;
     }
 
     /**
@@ -31,20 +38,35 @@ public class RecipientService {
      * @param type  the type of the recipient (e.g., email, SMS, push token)
      * @param value the value of the recipient (e.g., email address, phone number, push token)
      * @return the added recipient
-     * @throws IllegalArgumentException if the recipient already exists
+     * @throws DuplicateException if the recipient already exists
+     * @throws IllegalArgumentException if sql constraints are hit
      */
-    public Recipient addRecipient(String type, String value) {
+    public Recipient addRecipient(String type, String value) throws DuplicateException, IllegalArgumentException {
+        if (type.equals("email") && !Utils.isValidEmail(value))
+            throw new IllegalArgumentException("Invalid email input.");
+        else if (type.equals("sms") && !Utils.isValidPhone(value))
+            throw new IllegalArgumentException("Invalid phone input.");
+        else if (type.equals("push") && value.length() != 153)
+            throw new IllegalArgumentException("Invalid push token input.");
+
         String checkQuery = "SELECT COUNT(*) FROM Recipients WHERE recipient_value = ?";
-        int count = jdbcTemplate.queryForObject(checkQuery, Integer.class, value);
+        int count = jdbc.queryForObject(checkQuery, Integer.class, value);
 
         if (count > 0) {
-            throw new IllegalArgumentException("Recipient already exists.");
+            throw new DuplicateException("Recipient already exists.");
         }
 
         String insertQuery = "INSERT INTO Recipients (recipient_type, recipient_value) VALUES (?, ?)";
-        jdbcTemplate.update(insertQuery, type, value);
+        try {
+            jdbc.update(insertQuery, type, value);
+        } catch (DataIntegrityViolationException e) {
+            logger.error(insertQuery, e);
+            throw new IllegalArgumentException("Action breaks database constriants.");
+        }
 
-        return new Recipient(null, type, value, new ArrayList<>());
+        return new Recipient(
+                jdbc.queryForObject("SELECT recipient_id FROM Recipients WHERE recipient_value = ?", Long.class, value),
+                type, value, new ArrayList<>());
     }
 
     /**
@@ -55,14 +77,11 @@ public class RecipientService {
     public List<Recipient> getAllRecipients() {
         String sql = "SELECT * FROM Recipients";
 
-        List<Recipient> recipients = jdbcTemplate.query(sql, (rs, rowNum) -> 
-            new Recipient(
+        List<Recipient> recipients = jdbc.query(sql, (rs, rowNum) -> new Recipient(
                 rs.getLong("recipient_id"),
                 rs.getString("recipient_type"),
                 rs.getString("recipient_value"),
-                new ArrayList<>()
-            )
-        );
+                new ArrayList<>()));
 
         for (Recipient recipient : recipients) {
             recipient.setRoles(getRolesForRecipient(recipient.getRecipientId()));
@@ -79,18 +98,15 @@ public class RecipientService {
      */
     public List<Role> getRolesForRecipient(Long recipientId) {
         String sql = "SELECT r.role_id, r.role_name FROM Roles r " +
-                     "JOIN RecipientRoles rr ON r.role_id = rr.role_id " +
-                     "WHERE rr.recipient_id = ?";
+                "JOIN RecipientRoles rr ON r.role_id = rr.role_id " +
+                "WHERE rr.recipient_id = ?";
 
         try {
-            return jdbcTemplate.query(sql, (rs, rowNum) -> 
-                new Role(
+            return jdbc.query(sql, (rs, rowNum) -> new Role(
                     rs.getLong("role_id"),
-                    rs.getString("role_name")
-                ), recipientId
-            );
+                    rs.getString("role_name")), recipientId);
         } catch (EmptyResultDataAccessException e) {
-            return new ArrayList<>(); 
+            return new ArrayList<>();
         }
     }
 
@@ -101,7 +117,7 @@ public class RecipientService {
      */
     public void deleteRecipient(Long recipientId) {
         String deleteQuery = "DELETE FROM Recipients WHERE recipient_id = ?";
-        jdbcTemplate.update(deleteQuery, recipientId);
+        jdbc.update(deleteQuery, recipientId);
     }
 
     /**
@@ -111,25 +127,25 @@ public class RecipientService {
      * @param roleName    the name of the role to assign
      * @throws IllegalArgumentException if the role is not found or the recipient already has the role
      */
-    public void assignRecipientToRole(Long recipientId, String roleName) {
+    public void assignRecipientToRole(Long recipientId, String roleName) throws IllegalArgumentException {
         String roleQuery = "SELECT role_id FROM Roles WHERE role_name = ?";
         Long roleId;
 
         try {
-            roleId = jdbcTemplate.queryForObject(roleQuery, Long.class, roleName);
+            roleId = jdbc.queryForObject(roleQuery, Long.class, roleName);
         } catch (EmptyResultDataAccessException e) {
             throw new IllegalArgumentException("Role not found.");
         }
 
         String checkExistingQuery = "SELECT COUNT(*) FROM RecipientRoles WHERE recipient_id = ? AND role_id = ?";
-        int count = jdbcTemplate.queryForObject(checkExistingQuery, Integer.class, recipientId, roleId);
+        int count = jdbc.queryForObject(checkExistingQuery, Integer.class, recipientId, roleId);
 
         if (count > 0) {
             throw new IllegalArgumentException("Recipient already has this role.");
         }
 
         String insertQuery = "INSERT INTO RecipientRoles (recipient_id, role_id) VALUES (?, ?)";
-        jdbcTemplate.update(insertQuery, recipientId, roleId);
+        jdbc.update(insertQuery, recipientId, roleId);
     }
 
     /**
@@ -139,18 +155,18 @@ public class RecipientService {
      * @param roleName    the name of the role to remove
      * @throws IllegalArgumentException if the role is not found or the role assignment is not found
      */
-    public void removeRecipientFromRole(Long recipientId, String roleName) {
+    public void removeRecipientFromRole(Long recipientId, String roleName) throws IllegalArgumentException {
         String roleQuery = "SELECT role_id FROM Roles WHERE role_name = ?";
         Long roleId;
 
         try {
-            roleId = jdbcTemplate.queryForObject(roleQuery, Long.class, roleName);
+            roleId = jdbc.queryForObject(roleQuery, Long.class, roleName);
         } catch (EmptyResultDataAccessException e) {
             throw new IllegalArgumentException("Role not found.");
         }
 
         String deleteQuery = "DELETE FROM RecipientRoles WHERE recipient_id = ? AND role_id = ?";
-        int affectedRows = jdbcTemplate.update(deleteQuery, recipientId, roleId);
+        int affectedRows = jdbc.update(deleteQuery, recipientId, roleId);
 
         if (affectedRows == 0) {
             throw new IllegalArgumentException("Role assignment not found.");
