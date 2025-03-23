@@ -17,7 +17,7 @@
             <i class="bi bi-chevron-left text-white"></i>
         </button>
         <div class="nav flex-column pt-5">
-            <a href="index.html" class="nav-link active">
+            <a href="index.html" class="nav-link">
                 <i class="bi bi-grid fs-3 pe-2"></i>
                 <span class="nav-text">Dashboard</span>
             </a>
@@ -33,7 +33,7 @@
                 <i class="bi bi-pc-display fs-3 pe-2"></i>
                 <span class="nav-text">Online computers</span>
             </a>
-            <a href="settings.html" class="nav-link">
+            <a href="settings.html" class="nav-link active">
                 <i class="bi bi-gear fs-3 pe-2"></i>
                 <span class="nav-text">Settings</span>
             </a>
@@ -127,7 +127,7 @@
                             </div>
                         </div>
                         <!-- Language -->
-                        <div class="row mx-3 my-3">
+                        <div class="row mx-3 mt-3">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <p><span class="pt-1 fw-bold"> <i class="bi bi-globe-americas pe-2"></i>Language</span><br> 
@@ -137,6 +137,21 @@
                                     <select class="p-2 rounded" id="language-select">
                                         <option value="english">English</option>
                                         <option value="swedish">Swedish</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Colorblind mode -->
+                        <div class="row mx-3 my-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p><span class="pt-1 fw-bold"> <i class="bi bi-paint-bucket pe-2"></i>Colorblind Mode</span><br> 
+                                        Enable this setting to adjust the colors in the interface for improved readability for users with color vision deficiences. </p>
+                                </div>
+                                <div>
+                                    <select class="p-2 rounded" id="select-colorblind">
+                                        <option value="colorblind-off">Off</option>
+                                        <option value="colorblind-on">On</option>
                                     </select>
                                 </div>
                             </div>
@@ -155,7 +170,20 @@
                                     View system details, architecture and key technologies used.</p>
                                 </div>
                                 <div>
-                                    <button type="button" class="btn btn-outline-dark themeButton" >More</button>
+                                    <button type="button" class="btn btn-outline-dark themeButton" data-bs-toggle="modal" data-bs-target="#manualModal">More</button>
+                                    <div class="modal" id="manualModal" tabindex="-1" role="dialog">
+                                        <div class="modal-dialog modal-lg">
+                                          <div class="modal-content">
+                                            <div class="modal-header">
+                                              <h5 class="modal-title"><i class="bi bi-book pe-2"></i>User manual</h5>
+                                              <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                              <p>Modal body text goes here.</p>
+                                            </div>
+                                          </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -167,7 +195,20 @@
                                     Learn more about our team and mission behind this system.</p>
                                 </div>
                                 <div>
-                                    <button type="button" class="btn btn-outline-dark themeButton">More</button>
+                                    <button type="button" class="btn btn-outline-dark themeButton" data-bs-toggle="modal" data-bs-target="#aboutUsModal">More</button>
+                                    <div class="modal" id="aboutUsModal" tabindex="-1" role="dialog">
+                                        <div class="modal-dialog  modal-lg">
+                                          <div class="modal-content">
+                                            <div class="modal-header">
+                                              <h5 class="modal-title"><i class="bi bi-book pe-2"></i>About us</h5>
+                                              <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                              <p>Modal body text goes here.</p>
+                                            </div>
+                                          </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
