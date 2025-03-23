@@ -13,11 +13,11 @@ DROP TABLE IF EXISTS NotificationEvents CASCADE;
 
 DROP TABLE IF EXISTS NotificationRecipients CASCADE;
 
-DROP TABLE IF EXISTS ContactList CASCADE;
+DROP TABLE IF EXISTS EmailList CASCADE;
 
-DROP TABLE IF EXISTS NotificationRecipients CASCADE;
+DROP TABLE IF EXISTS ToBeSentEMail CASCADE;
 
-DROP TABLE IF EXISTS NotificationRecipients CASCADE;
+DROP TABLE IF EXISTS ToBeSentSMS CASCADE;
 
 -- CREATE TABLES
 -- TrackedDevices is a list of devices for which we WANT notifications, this will be managed via a UI and not manually
@@ -84,7 +84,7 @@ CREATE TABLE
 
 -- EmailList stores the emails of those that will be notified
 Create Table
-    ContactList (
+    EmailList (
         mail_address VARCHAR(255) PRIMARY KEY,
         user_name VARCHAR(255),
         sms VARCHAR(255),
@@ -95,8 +95,6 @@ Create Table
 Create Table 
     ToBeSentEMail (
         mail_address VARCHAR(255) NOT NULL, 
-        user_name VARCHAR(255) NOT NULL,
-        type VARCHAR(15) NOT NULL CHECK (type IN ('security', 'admin')),
         mac_address CHAR(17) NOT NULL , 
         last_seen TIMESTAMP NOT NULL,
         PRIMARY KEY (mac_address, mail_address)
@@ -106,10 +104,25 @@ Create Table
 Create Table 
     ToBeSentSMS (
         sms VARCHAR(255) NOT NULL,
-        user_name VARCHAR(255) NOT NULL,
-        type VARCHAR(15) NOT NULL CHECK (type IN ('security', 'admin')),
         mac_address CHAR(17) NOT NULL ,
         last_seen TIMESTAMP NOT NULL,
         PRIMARY KEY (mac_address, sms)
     );
 
+/* --So that every alert is not sent to every contact on the contact list
+Create Table 
+    ResponsibilityGroups (
+        group VARCHAR(255),
+        building VARCHAR(255),
+        PRIMARY KEY (group, building)
+    );
+*/
+
+/* 
+Create Table 
+    GroupsMail (
+        group VARCHAR(255),
+        mail_address VARCHAR(255),
+        PRIMARY KEY (group, building)
+    );
+*/

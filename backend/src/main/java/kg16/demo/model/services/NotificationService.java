@@ -2,6 +2,7 @@ package kg16.demo.model.services;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.dao.DataAccessException;
@@ -26,15 +27,25 @@ public class NotificationService {
 
     public void UpdateToSend (String mac, Timestamp last) {
         String sql = """                
-                    INSERT INTO ToBeSentEMail (mail_address, user_name, type, mac_address, last_seen )  
-                    SELECT  cl.mail_address, cl.user_name, cl.type, ?, ? 
-                    FROM ContactList AS cl;
+                    INSERT INTO ToBeSentEMail (mail_address, mac_address, last_seen )  
+                    SELECT  el.mail_address, ?, ? 
+                    FROM EmailList AS el;
                """;
+        // version 2 that incorporates responsibilitygroups
+        /*String sql = """                
+                INSERT INTO ToBeSentEMail (mail_address, mac_address, last_seen )  
+                SELECT  el.mail_address, ?, ? 
+                FROM GroupsMail AS gm 
+                INNER JOIN ResponsibilityGroups AS rg ON  rg.group = gm.group
+                WHERE rg.building = ? ;
+           """;*/
+
+
         /* Example for sms      
         String sql2 = """                
-                    INSERT INTO ToBeSentSMS (sms, user_name, type, mac_address, last_seen )  
-                    SELECT  cl.sms, cl.user_name, cl.type, ?, ? 
-                    FROM ContactList AS cl;
+                    INSERT INTO ToBeSentSMS (sms, mac_address, last_seen )  
+                    SELECT  el.sms, ?, ? 
+                    FROM EmailList AS el;
                 """;*/
         try {
             jdbc.update(sql, mac, last);
@@ -47,10 +58,44 @@ public class NotificationService {
 
     } */
 
-    public void SendEmail(String mac, String name, Timestamp last) {
+    public void SendEmail() {
+        List<EmailToSend> mailList = getAllEmailToSend();
+        String sql = """
+                    DELETE FROM TOBESENTEMAIL;
+                """;
+        try {
+            jdbc.execute(sql);
+        } catch (DataAccessException e) {
+            logger.error("Failed to clear ToBeSentEMail table", e);
+        }
+        String cmail = mailList.get(0).mailAddress;
+        List<String> offline = new ArrayList<>();
+        for (EmailToSend mail : mailList) { 
+            if (!cmail.equals(mail.mailAddress)) {
+                // send to email service the list and the current mail address cmail
+                cmail = mail.mailAddress;
+                offline.clear();
+            }
 
+            offline.add(mail.macAddress);
+        }
+        // send to email service the list and the current mail address cmail
         
-        
+    }
+
+    private List<EmailToSend> getAllEmailToSend() {
+        String sql = """
+                    SELECT mail_address, user_name, type, mac_address, last_seen
+                    FROM ToBeSentEMail se
+                    ORDER BY mail_address ;
+                """;
+
+        return jdbc.query(String.format(sql), (r, rowNum) -> {
+            return new EmailToSend(
+                    r.getString("mail_address"),
+                    r.getString("mac_address"),
+                    r.getTimestamp("last_seen"));
+        });
     }
 
     public void NotificationLog (String mac , String message) {
@@ -66,6 +111,10 @@ public class NotificationService {
         }
     }
 
-    
+    public record EmailToSend(
+            String mailAddress,
+            String macAddress,
+            Timestamp lastSeen) {
+            }
 
 }
