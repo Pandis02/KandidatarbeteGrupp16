@@ -281,6 +281,8 @@ a.nav-link:focus{
 }
 
 .toggle-btn {
+    margin-top: 15px;
+    margin-left: 10px;
     position: absolute;
     transition: transform 0.3s;
 }
