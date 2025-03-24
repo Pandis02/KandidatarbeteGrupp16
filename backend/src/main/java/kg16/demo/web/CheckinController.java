@@ -4,7 +4,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import kg16.Utils;
+import kg16.demo.model.services.AdminSettingsService;
 import kg16.demo.model.services.CheckinService;
+
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,21 +15,24 @@ import org.slf4j.LoggerFactory;
 @RestController
 public class CheckinController {
     private final CheckinService checkinService;
+    private final AdminSettingsService assc;
     private static final Logger logger = LoggerFactory.getLogger(CheckinController.class);
 
-    public CheckinController(CheckinService checkinService) {
+    public CheckinController(CheckinService checkinService, AdminSettingsService assc) {
         this.checkinService = checkinService;
+        this.assc = assc;
     }
 
     @PostMapping("/checkin")
-    public void onCheckIn(@RequestBody BodyOfCheckIn body) {
+    public Map<String, Object> onCheckIn(@RequestBody BodyOfCheckIn body) {
         if (!body.isValid()) {
             logger.error("Invalid check-in request: " + body);
-            return;
+            return Map.of("success", false, "message", "invalid mac");
         }
 
         checkinService.upsertCheckin(body.macAddress());
         logger.info(body.macAddress() + " has checked in!");
+        return Map.of("success", true, "interval", assc.getSettings().getCheckinIntervalSeconds());
     }
 }
 
