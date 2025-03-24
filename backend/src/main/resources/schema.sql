@@ -131,3 +131,48 @@ INSERT INTO Locations (building, room) VALUES
 
 INSERT INTO AdminSettings (id, alert_threshold_minutes, checkin_interval_seconds)
 VALUES (1, 3, 15);
+/*
+-- EmailList stores the emails of those that will be notified
+Create Table
+    EmailList (
+        mail_address VARCHAR(255) PRIMARY KEY,
+        user_name VARCHAR(255),
+        sms VARCHAR(255),
+        type VARCHAR(15) NOT NULL CHECK (type IN ('security', 'admin'))
+    );
+
+-- TODO list that queues email alerts to be sent
+Create Table 
+    ToBeSentEMail (
+        mail_address VARCHAR(255) NOT NULL, 
+        mac_address CHAR(17) NOT NULL , 
+        last_seen TIMESTAMP NOT NULL,
+        PRIMARY KEY (mac_address, mail_address)
+    );
+
+-- TODO list that queues sms alerts to be sent
+Create Table 
+    ToBeSentSMS (
+        sms VARCHAR(255) NOT NULL,
+        mac_address CHAR(17) NOT NULL ,
+        last_seen TIMESTAMP NOT NULL,
+        PRIMARY KEY (mac_address, sms)
+    ); */
+
+/* --So that every alert is not sent to every contact on the contact list
+Create Table 
+    ResponsibilityGroups (
+        group VARCHAR(255),
+        building VARCHAR(255),
+        PRIMARY KEY (group, building)
+    );
+*/
+
+/* 
+Create Table 
+    GroupsMail (
+        group VARCHAR(255),
+        mail_address VARCHAR(255),
+        PRIMARY KEY (group, building)
+    );
+*/
