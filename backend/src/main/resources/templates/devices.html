@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +9,7 @@
     <link rel="stylesheet" href="css/main.css">
     <title>Notification</title>
 </head>
+
 <body>
     <!-- Sidebar -->
     <nav class="sidebar">
@@ -37,7 +39,7 @@
             </a>
             <a href="login.html" class="nav-link sign-out">
                 <i class="bi bi-box-arrow-left fs-3 pe-2"></i>
-                <span class="nav-text">Logout</span> 
+                <span class="nav-text">Logout</span>
             </a>
         </div>
     </nav>
@@ -58,19 +60,13 @@
             <!-- Filter and sorting option -->
             <div class="row py-3">
                 <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="d-flex gap-2">
-                            <button class="nav-button btn btn-outline-dark themeButton">Filter</button>
-                            <div class="input-group form-inline">
-                                <form class="form-inline">
-                                    <div class="input-group">
-                                      <div class="input-group-prepend">
-                                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
-                                      </div>
-                                      <input type="text" class="form-control border-start-0 test" placeholder="Search..."  id="search">
-                                    </div>
-                                  </form>
-                            </div>
+                    <div class="d-flex gap-2">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input type="text" class="form-control border-start-0 ps-0" placeholder="Search..."
+                                id="search">
                         </div>
                     </div>
                     <div>
@@ -85,17 +81,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <!-- bubble -->
-            <div class="row">
-                <hr>
-                <div class="col pb-3">
-                    <div class="d-inline-flex align-items-center border border-2 border-success rounded-pill">
-                        <span class="ps-3 pe-2">Tracking: On</span>
-                        <button type="button" class="btn-close btn-close-sm me-2 shadow-none"></button>
-                    </div>
-                </div>
-                <hr>
             </div>
             <!-- Table -->
             <div class="row">
@@ -118,10 +103,12 @@
                             <td class="pop" th:text="${device.macAddress}"></td>
                             <td th:text="${device.building}"></td>
                             <td th:text="${device.room}"></td>
-                            <td><span class="badge p-2" th:classappend="${device.status == 'Online' ? 'bg-success' : (device.status == 'Offline' ? 'bg-danger' : 'bg-warning')}" th:text="${device.status}"></span></td>
+                            <td><span class="badge p-2"
+                                    th:classappend="${device.status == 'Online' ? 'bg-success' : (device.status == 'Offline' ? 'bg-danger' : 'bg-warning')}"
+                                    th:text="${device.status}"></span></td>
                             <td>
                                 <label class="switch">
-                                    <input type="checkbox" th:checked="${device.enabled}" 
+                                    <input type="checkbox" th:checked="${device.enabled}"
                                         th:onclick="updateStatus(this, [[${device.macAddress}]])">
                                     <span class="slider"></span>
                                 </label>
@@ -135,16 +122,23 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <label class="table-gray" for="rowsSelector">Rows per page:</label>
-                        <select class="ps-1 border-0 table-gray" id="rowsSelector">
-                            <option value="name">5</option>
-                            <option value="last-checkin">10</option>
+                        <select class="ps-1 border-0 table-gray" id="rowsSelector"
+                            th:attr="onchange='window.location.href=\'/devices?page=' + ${page} + '&rows=\' + this.value'">
+                            <option th:selected="${rows == 5}" value="5">5</option>
+                            <option th:selected="${rows == 10}" value="10">10</option>
                         </select>
                     </div>
                     <div class="d-flex justify-content-between align-items-center">
-                        <span class="table-gray pe-3">1-5 of 1</span>
+                        <span class="table-gray pe-3" th:text="${page} + ' of ' + ${pages}"></span>
                         <div class="d-flex gap-2">
-                            <button class="nav-button btn btn-outline-dark themeButton"><i class="bi bi-caret-left-fill"></i></button>
-                            <button class="nav-button btn btn-outline-dark themeButton"><i class="bi bi-caret-right-fill"></i></button>
+                            <a class="nav-button btn btn-outline-dark themeButton"
+                                th:href="@{/devices(page=${page + 1}, rows=${rows})}"
+                                th:classappend="${page} == 1 ? 'disabled' : ''"><i
+                                    class="bi bi-caret-left-fill"></i></a>
+                            <a class="nav-button btn btn-outline-dark themeButton"
+                                th:href="@{/devices(page=${page + 1}, rows=${rows})}"
+                                th:classappend="${page} == ${pages} ? 'disabled' : ''"><i
+                                    class="bi bi-caret-right-fill"></i></a>
                         </div>
                     </div>
                 </div>
@@ -166,4 +160,5 @@
         }
     </script>
 </body>
+
 </html>

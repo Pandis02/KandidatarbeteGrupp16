@@ -17,7 +17,7 @@ public class DeviceService {
     // get all devices in tracked 
     public List<Instance> getAllDevices() {
         String sql = """
-                SELECT td.custom_name, c.last_checkin, td.mac_address, loc.building, loc.room,
+                    SELECT td.custom_name, c.last_checkin, td.mac_address, loc.building, loc.room,
                     CASE
                         WHEN EXISTS (
                             SELECT 1
