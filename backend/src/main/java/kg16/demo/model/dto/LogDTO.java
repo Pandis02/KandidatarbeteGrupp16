@@ -10,7 +10,6 @@ public class LogDTO {
     private String hostname;
     private String ipAddress;
     private String macAddress;
-    private String lastSeen;
     private String offlineSince;
     private String restoredAt;
 }
