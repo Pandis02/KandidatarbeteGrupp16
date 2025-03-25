@@ -4,13 +4,19 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 import kg16.demo.model.dto.LogDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 public class LogService {
+    private static final Logger logger = LoggerFactory.getLogger(LogService.class);
     private final JdbcTemplate jdbcTemplate;
+
     public LogService(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
@@ -44,6 +50,11 @@ public class LogService {
 
         query.append(" ORDER BY OfflineEvents.offline_since DESC");
 
-        return jdbcTemplate.query(query.toString(), params.toArray(), logRowMapper);
+        try {
+            return jdbcTemplate.query(query.toString(), params.toArray(), logRowMapper);
+        } catch (DataAccessException e) {
+            logger.error("Failed to fetch offline events logs", e);
+            return new ArrayList<>(); // Return an empty list in case of an error
+        }
     }
 }
