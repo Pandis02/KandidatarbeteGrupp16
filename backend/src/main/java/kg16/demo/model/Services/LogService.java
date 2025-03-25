@@ -23,32 +23,46 @@ public class LogService {
 
     private final RowMapper<LogDTO> logRowMapper = (rs, rowNum) -> new LogDTO(
             rs.getString("hostname"),
-            rs.getString("ip_address"),
             rs.getString("mac_address"),
             rs.getString("offline_since"),
-            rs.getString("restored_at")
+            rs.getString("restored_at"),
+            rs.getBoolean("alert_sent"),
+            rs.getString("notification_message"),
+            rs.getString("notification_timestamp"),
+            rs.getString("notification_recipient"),
+            rs.getString("notification_type")
     );
 
     public List<LogDTO> findOfflineEvents(LocalDate startDate, LocalDate endDate) {
         StringBuilder query = new StringBuilder(
-                "SELECT Scans.hostname, Scans.ip_address, Scans.mac_address, " +
-                "OfflineEvents.offline_since, OfflineEvents.restored_at " +
-                "FROM OfflineEvents " +
-                "JOIN Scans ON OfflineEvents.mac_address = Scans.mac_address WHERE 1=1"
+                "SELECT td.custom_name AS hostname, " +
+                "oe.mac_address, " +
+                "oe.offline_since, " +
+                "oe.restored_at, " +
+                "ne.message AS notification_message, " +
+                "ne.timestamp AS notification_timestamp, " +
+                "nr.recipient AS notification_recipient, " +
+                "nr.type AS notification_type, " +
+                "CASE WHEN ne.event_id IS NOT NULL THEN TRUE ELSE FALSE END AS alert_sent " +
+                "FROM OfflineEvents oe " +
+                "JOIN TrackedDevices td ON oe.mac_address = td.mac_address " +
+                "LEFT JOIN NotificationEvents ne ON oe.mac_address = ne.mac_address " +
+                "LEFT JOIN NotificationRecipients nr ON ne.event_id = nr.event_id " +
+                "WHERE 1=1"
         );
 
         List<Object> params = new ArrayList<>();
 
         if (startDate != null) {
-            query.append(" AND OfflineEvents.offline_since >= ?");
+            query.append(" AND oe.offline_since >= ?");
             params.add(startDate.atStartOfDay()); 
         }
         if (endDate != null) {
-            query.append(" AND OfflineEvents.offline_since < ?"); 
+            query.append(" AND oe.offline_since < ?"); 
             params.add(endDate.plusDays(1).atStartOfDay()); 
         }
 
-        query.append(" ORDER BY OfflineEvents.offline_since DESC");
+        query.append(" ORDER BY oe.offline_since DESC");
 
         try {
             return jdbcTemplate.query(query.toString(), params.toArray(), logRowMapper);

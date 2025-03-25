@@ -8,8 +8,12 @@ import lombok.*;
 @AllArgsConstructor
 public class LogDTO {
     private String hostname;
-    private String ipAddress;
     private String macAddress;
     private String offlineSince;
     private String restoredAt;
+    private boolean alertSent;
+    private String notificationMessage;
+    private String notificationTimestamp;
+    private String notificationRecipient;
+    private String notificationType;
 }

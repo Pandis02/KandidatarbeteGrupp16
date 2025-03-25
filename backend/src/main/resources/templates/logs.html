@@ -48,7 +48,7 @@
         <div class="container">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h1 class="py-3">Logs</h1>
+                    <h1 class="py-3">Logs & Events</h1>
                 </div>
                 <div>
                     <select class="p-2 rounded" id="themeSelector">
@@ -57,34 +57,128 @@
                     </select>
                 </div>
             </div>
-            <!-- Table -->
+            <!-- Filter and sorting option -->
+            <div class="row py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="d-flex gap-2">
+                            <button class="nav-button btn btn-outline-dark themeButton">Filter</button>
+                            <div class="input-group form-inline">
+                                <form class="form-inline">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                                        </div>
+                                        <input type="text" class="form-control border-start-0 test" placeholder="Search..." id="search">
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div>
+                            <label for="sortBySelector">Sort by</label>
+                            <select class="ps-1 border-0 fw-bold" id="sortBySelector">
+                                <option class="fw-normal" value="hostname">Hostname</option>
+                                <option class="fw-normal" value="macAddress">MAC Address</option>
+                                <option class="fw-normal" value="offlineSince">Offline Since</option>
+                                <option class="fw-normal" value="restoredAt">Restored At</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- TODO: bubble row-->
             <div class="row">
-                <table class="table log-table">
-                    <thead>
-                        <tr>
-                            <th scope="col">Hostname</th>
-                            <th scope="col">IP Address</th>
-                            <th scope="col">MAC Address</th>
-                            <th scope="col">Offline Since</th>
-                            <th scope="col">Restored At</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="log : ${logs}">
-                            <td scope="row" th:text="${log.hostname}"></td>
-                            <td th:text="${log.ipAddress}"></td>
-                            <td th:text="${log.macAddress}"></td>
-                            <td th:text="${log.offlineSince}"></td>
-                            <td th:text="${log.restoredAt}"></td>
-                        </tr>
-                    </tbody>
-                </table>
+                <hr>
+                <div class="col pb-3">
+                    <div class="d-inline-flex align-items-center border border-2 border-success rounded-pill">
+                        <span class="ps-3 pe-2">Tracking: On</span>
+                        <button type="button" class="btn-close btn-close-sm me-2 shadow-none"></button>
+                    </div>
+                </div>
+                <hr>
+            </div>
+            <!-- Offline Events -->
+            <h5 class="mb-3">Offline Events</h5>
+            <!-- Dynamic Cards for Offline Events -->
+            <div th:each="log : ${logs}">
+                <div class="row pb-3">
+                    <div id="offlineEvent">
+                        <div class="card-header" th:classappend="${log.offlineSince != null} ? 'offline' : 'temp-offline'" data-bs-toggle="collapse" th:href="'#offline' + ${log.macAddress}">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <span class="fw-bold" th:text="${log.macAddress}"></span>
+                                </div>
+                                <div>
+                                    <span class="badge me-2" th:classappend="${log.offlineSince != null} ? 'bg-danger' : 'bg-temp'" th:text="${log.offlineSince != null} ? 'Offline' : 'Temporary Offline'"></span>
+                                    <span class="text-muted" th:text="${log.hostname}"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div th:id="'offline' + ${log.macAddress}" class="collapse">
+                            <div class="card-body">
+                                <div class="detail-item">
+                                    <span class="detail-label">Name:</span>
+                                    <span th:text="${log.hostname}"></span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Offline Since:</span>
+                                    <span th:text="${log.offlineSince}"></span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Alert Sent:</span>
+                                    <span class="badge bg-success" th:text="${log.alertSent} ? 'Yes' : 'No'"></span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Restored At:</span>
+                                    <span th:text="${log.restoredAt}"></span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Notification Message:</span>
+                                    <span th:text="${log.notificationMessage}"></span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Notification Timestamp:</span>
+                                    <span th:text="${log.notificationTimestamp}"></span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Notification Recipient:</span>
+                                    <span th:text="${log.notificationRecipient}"></span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Notification Type:</span>
+                                    <span th:text="${log.notificationType}"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Footer -->
+            <div class="row pt-2">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <label class="table-gray" for="rowsSelector">Rows per page:</label>
+                        <select class="ps-1 border-0 table-gray" id="rowsSelector">
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                        </select>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="table-gray pe-3">1-5 of 1</span>
+                        <div class="d-flex gap-2">
+                            <button class="nav-button btn btn-outline-dark themeButton"><i class="bi bi-caret-left-fill"></i></button>
+                            <button class="nav-button btn btn-outline-dark themeButton"><i class="bi bi-caret-right-fill"></i></button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
     <!-- Javascript-->
-    <script src="js/site.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/site.js"></script>
 </body>
 
 </html>
