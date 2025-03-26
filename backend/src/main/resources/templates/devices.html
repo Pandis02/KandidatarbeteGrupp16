@@ -66,7 +66,8 @@
                                 <i class="bi bi-search"></i>
                             </span>
                             <input type="text" class="form-control border-start-0 ps-0" placeholder="Search..."
-                                id="search">
+                                id="search" th:value="${search}" 
+                                th:onchange="|window.location.href = '/devices?page=${page}&rows=${rows}&search=' + this.value|">
                         </div>
                     </div>
                     <div>
@@ -98,7 +99,7 @@
                     </thead>
                     <tbody>
                         <tr th:each="device : ${devices}">
-                            <td scope="row" th:text="${device.customName}"></td>
+                            <td scope="row" th:text="${device.name}"></td>
                             <td th:text="${device.lastCheckin}"></td>
                             <td class="pop" th:text="${device.macAddress}"></td>
                             <td th:text="${device.building}"></td>
@@ -123,7 +124,7 @@
                     <div>
                         <label class="table-gray" for="rowsSelector">Rows per page:</label>
                         <select class="ps-1 border-0 table-gray" id="rowsSelector"
-                            th:attr="onchange='window.location.href=\'/devices?page=' + ${page} + '&rows=\' + this.value'">
+                            th:onchange="|window.location.href = '/devices?page=${page}&rows=' + this.value|">
                             <option th:selected="${rows == 5}" value="5">5</option>
                             <option th:selected="${rows == 10}" value="10">10</option>
                         </select>
@@ -132,7 +133,7 @@
                         <span class="table-gray pe-3" th:text="${page} + ' of ' + ${pages}"></span>
                         <div class="d-flex gap-2">
                             <a class="nav-button btn btn-outline-dark themeButton"
-                                th:href="@{/devices(page=${page + 1}, rows=${rows})}"
+                                th:href="@{/devices(page=${page - 1}, rows=${rows})}"
                                 th:classappend="${page} == 1 ? 'disabled' : ''"><i
                                     class="bi bi-caret-left-fill"></i></a>
                             <a class="nav-button btn btn-outline-dark themeButton"
