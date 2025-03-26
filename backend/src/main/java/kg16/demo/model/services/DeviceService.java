@@ -56,8 +56,8 @@ public class DeviceService {
         jdbc.update(sql, enabled, macAddress);
     }
 
-    record Instance(
-            String customName,
+    public record Instance(
+            String name,
             Timestamp lastCheckin,
             String macAddress,
             String building,

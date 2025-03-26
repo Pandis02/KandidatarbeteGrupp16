@@ -19,8 +19,22 @@ public class ViewDevices {
     public String onDevices(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "5") int rows,
+            @RequestParam(required = false) String search,
             Model model) {
+
         var allDevices = ds.getAllDevices();
+
+        // Apply search filtering if a search term is provided
+        if (search != null && !search.trim().isEmpty()) {
+            String lowerCaseSearch = search.toLowerCase();
+
+            allDevices = allDevices.stream()
+                    .filter(
+                            device -> device.macAddress().toLowerCase().contains(lowerCaseSearch) ||
+                                    device.name().toLowerCase().contains(lowerCaseSearch))
+                    .toList();
+        }
+
         int totalPages = Math.ceilDiv(allDevices.size(), rows);
 
         // Ensure page is within valid range
@@ -36,6 +50,7 @@ public class ViewDevices {
         model.addAttribute("page", page);
         model.addAttribute("pages", totalPages);
         model.addAttribute("rows", rows);
+        model.addAttribute("search", search);
 
         return "devices";
     }
