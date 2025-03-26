@@ -16,4 +16,6 @@ public class LogDTO {
     private String notificationTimestamp;
     private String notificationRecipient;
     private String notificationType;
+    private String building;
+    private String room;
 }

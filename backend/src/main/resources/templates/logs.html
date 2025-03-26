@@ -8,6 +8,24 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="css/main.css">
     <title>Logs</title>
+    <style>
+        .filter-button.active {
+            background-color: #007bff;
+            color: white;
+        }
+        .filter-button {
+            background-color: #f8f9fa;
+            color: #343a40;
+        }
+        .badge-temp {
+            background-color: #ffc107;
+            color: black;
+        }
+        .badge-notification {
+            background-color: #007bff;
+            color: white;
+        }
+    </style>
 </head>
 
 <body>
@@ -62,14 +80,13 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <div class="d-flex gap-2">
-                            <button class="nav-button btn btn-outline-dark themeButton">Filter</button>
                             <div class="input-group form-inline">
                                 <form class="form-inline">
                                     <div class="input-group">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
                                         </div>
-                                        <input type="text" class="form-control border-start-0 test" placeholder="Search..." id="search">
+                                        <input type="text" class="form-control border-start-0 test" placeholder="Search..." id="search" oninput="filterLogs('search')">
                                     </div>
                                 </form>
                             </div>
@@ -100,55 +117,67 @@
                 <hr>
             </div>
             <!-- Offline Events -->
-            <h5 class="mb-3">Offline Events</h5>
+            <h5 class="mb-3" id="eventsHeading">Offline Events</h5>
             <!-- Dynamic Cards for Offline Events -->
-            <div th:each="log : ${logs}">
-                <div class="row pb-3">
-                    <div id="offlineEvent">
-                        <div class="card-header" th:classappend="${log.offlineSince != null} ? 'offline' : 'temp-offline'" data-bs-toggle="collapse" th:href="'#offline' + ${log.macAddress}">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <span class="fw-bold" th:text="${log.macAddress}"></span>
-                                </div>
-                                <div>
-                                    <span class="badge me-2" th:classappend="${log.offlineSince != null} ? 'bg-danger' : 'bg-temp'" th:text="${log.offlineSince != null} ? 'Offline' : 'Temporary Offline'"></span>
-                                    <span class="text-muted" th:text="${log.hostname}"></span>
+            <div id="logsContainer">
+                <div th:each="log : ${logs}">
+                    <div class="row pb-3 log-item" th:data-alert-sent="${log.alertSent}">
+                        <div id="offlineEvent">
+                            <div class="card-header" th:classappend="${log.alertSent} ? 'offline' : 'temp-offline'" data-bs-toggle="collapse" th:href="'#offline' + ${log.macAddress}">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <span class="fw-bold" th:text="${log.macAddress}"></span>
+                                        <span class="text-muted" th:text="${#strings.substring(log.offlineSince, 0, 19)}"></span>
+                                    </div>
+                                    <div>
+                                        <span class="badge me-2 badge-notification" th:text="${log.notificationType}"></span>
+                                        <span class="badge me-2" th:classappend="${log.alertSent} ? 'bg-danger' : 'badge-temp'" th:text="${log.alertSent} ? 'Offline' : 'Temporary Offline'"></span>
+                                        <span class="text-muted" th:text="${log.hostname}"></span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div th:id="'offline' + ${log.macAddress}" class="collapse">
-                            <div class="card-body">
-                                <div class="detail-item">
-                                    <span class="detail-label">Name:</span>
-                                    <span th:text="${log.hostname}"></span>
-                                </div>
-                                <div class="detail-item">
-                                    <span class="detail-label">Offline Since:</span>
-                                    <span th:text="${log.offlineSince}"></span>
-                                </div>
-                                <div class="detail-item">
-                                    <span class="detail-label">Alert Sent:</span>
-                                    <span class="badge bg-success" th:text="${log.alertSent} ? 'Yes' : 'No'"></span>
-                                </div>
-                                <div class="detail-item">
-                                    <span class="detail-label">Restored At:</span>
-                                    <span th:text="${log.restoredAt}"></span>
-                                </div>
-                                <div class="detail-item">
-                                    <span class="detail-label">Notification Message:</span>
-                                    <span th:text="${log.notificationMessage}"></span>
-                                </div>
-                                <div class="detail-item">
-                                    <span class="detail-label">Notification Timestamp:</span>
-                                    <span th:text="${log.notificationTimestamp}"></span>
-                                </div>
-                                <div class="detail-item">
-                                    <span class="detail-label">Notification Recipient:</span>
-                                    <span th:text="${log.notificationRecipient}"></span>
-                                </div>
-                                <div class="detail-item">
-                                    <span class="detail-label">Notification Type:</span>
-                                    <span th:text="${log.notificationType}"></span>
+                            <div th:id="'offline' + ${log.macAddress}" class="collapse">
+                                <div class="card-body">
+                                    <div class="detail-item">
+                                        <span class="detail-label">Device Name:</span>
+                                        <span th:text="${log.hostname}"></span>
+                                    </div>
+                                    <div class="detail-item" th:if="${log.building}">
+                                        <span class="detail-label">Device Building:</span>
+                                        <span th:text="${log.building}"></span>
+                                    </div>
+                                    <div class="detail-item" th:if="${log.room}">
+                                        <span class="detail-label">Device Room:</span>
+                                        <span th:text="${log.room}"></span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Offline Since:</span>
+                                        <span th:text="${#strings.substring(log.offlineSince, 0, 19)}"></span> 
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Alert Sent:</span>
+                                        <span class="badge" th:classappend="${log.alertSent} ? 'bg-success' : 'bg-danger'" th:text="${log.alertSent} ? 'Yes' : 'No'"></span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Restored At:</span>
+                                        <span th:text="${#strings.substring(log.restoredAt, 0, 19)}"></span>
+                                    </div>
+                                    <div class="detail-item" th:if="${log.alertSent}">
+                                        <span class="detail-label">Notification Message:</span>
+                                        <span th:text="${log.notificationMessage}"></span>
+                                    </div>
+                                    <div class="detail-item" th:if="${log.alertSent}">
+                                        <span class="detail-label">Notification Timestamp:</span>
+                                        <span th:text="${log.notificationTimestamp}"></span>
+                                    </div>
+                                    <div class="detail-item" th:if="${log.alertSent}">
+                                        <span class="detail-label">Notification Recipient:</span>
+                                        <span th:text="${log.notificationRecipient}"></span>
+                                    </div>
+                                    <div class="detail-item" th:if="${log.alertSent}">
+                                        <span class="detail-label">Notification Type:</span>
+                                        <span th:text="${log.notificationType}"></span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -179,6 +208,54 @@
     <!-- Javascript-->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/site.js"></script>
+    <script>
+        function filterLogs(filter, button) {
+            const logs = document.querySelectorAll('.log-item');
+            const eventsHeading = document.getElementById('eventsHeading');
+            const filterButtons = document.querySelectorAll('.filter-button');
+            
+            // Reset display for all logs
+            logs.forEach(log => {
+                log.style.display = '';
+            });
+
+            // Remove active class from all filter buttons
+            filterButtons.forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Add active class to the clicked button
+            button.classList.add('active');
+
+            // Apply filter
+            logs.forEach(log => {
+                const alertSent = log.getAttribute('data-alert-sent') === 'true';
+                if (filter === 'notifications' && !alertSent) {
+                    log.style.display = 'none';
+                } else if (filter === 'noNotifications' && alertSent) {
+                    log.style.display = 'none';
+                } else if (filter === 'search') {
+                    const searchQuery = document.getElementById('search').value.toLowerCase();
+                    const hostname = log.querySelector('.detail-item span[th\\:text="${log.hostname}"]').textContent.toLowerCase();
+                    const macAddress = log.querySelector('.fw-bold').textContent.toLowerCase();
+                    if (hostname.includes(searchQuery) || macAddress.includes(searchQuery)) {
+                        log.style.display = '';
+                    } else {
+                        log.style.display = 'none';
+                    }
+                }
+            });
+
+            // Update heading
+            if (filter === 'notifications') {
+                eventsHeading.textContent = 'Notifications Sent';
+            } else if (filter === 'noNotifications') {
+                eventsHeading.textContent = 'No Notifications Sent';
+            } else {
+                eventsHeading.textContent = 'Offline Events';
+            }
+        }
+    </script>
 </body>
 
 </html>

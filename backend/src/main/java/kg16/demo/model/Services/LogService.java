@@ -30,10 +30,12 @@ public class LogService {
             rs.getString("notification_message"),
             rs.getString("notification_timestamp"),
             rs.getString("notification_recipient"),
-            rs.getString("notification_type")
+            rs.getString("notification_type"),
+            rs.getString("building"),
+            rs.getString("room")
     );
 
-    public List<LogDTO> findOfflineEvents(LocalDate startDate, LocalDate endDate) {
+    public List<LogDTO> findOfflineEvents(LocalDate startDate, LocalDate endDate) { 
         StringBuilder query = new StringBuilder(
             "SELECT " +
             "    oe.event_id, " +
@@ -41,6 +43,8 @@ public class LogService {
             "    oe.offline_since, " +
             "    oe.restored_at, " +
             "    td.custom_name AS hostname, " +
+            "    l.building, " + 
+            "    l.room, " + 
             "    ne.message AS notification_message, " +
             "    ne.timestamp AS notification_timestamp, " +
             "    nr.recipient AS notification_recipient, " +
@@ -53,6 +57,8 @@ public class LogService {
             "    OfflineEvents oe " +
             "JOIN " +
             "    TrackedDevices td ON oe.mac_address = td.mac_address " +
+            "LEFT JOIN " +
+            "    Locations l ON td.location_id = l.location_id " + 
             "LEFT JOIN " +
             "    NotificationEvents ne ON oe.mac_address = ne.mac_address " +
             "    AND oe.event_id = ne.event_id " +
