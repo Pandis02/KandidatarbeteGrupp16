@@ -60,16 +60,14 @@ public class LogService {
             "LEFT JOIN " +
             "    Locations l ON td.location_id = l.location_id " + 
             "LEFT JOIN " +
-            "    NotificationEvents ne ON oe.mac_address = ne.mac_address " +
-            "    AND oe.event_id = ne.event_id " +
+            "    NotificationEvents ne ON oe.mac_address = ne.mac_address " + 
             "LEFT JOIN " +
             "    NotificationRecipients nr ON ne.event_id = nr.event_id " +
-            "ORDER BY " +
-            "    oe.offline_since DESC"
+            "WHERE 1=1 "
         );
-
+    
+        // Apply filtering based on startDate and endDate
         List<Object> params = new ArrayList<>();
-
         if (startDate != null) {
             query.append(" AND oe.offline_since >= ?");
             params.add(startDate.atStartOfDay()); 
@@ -78,12 +76,10 @@ public class LogService {
             query.append(" AND oe.offline_since < ?"); 
             params.add(endDate.plusDays(1).atStartOfDay()); 
         }
-
-        try {
-            return jdbcTemplate.query(query.toString(), params.toArray(), logRowMapper);
-        } catch (DataAccessException e) {
-            logger.error("Failed to fetch offline events logs", e);
-            return new ArrayList<>(); // Return an empty list in case of an error
-        }
+    
+        // Execute the query with parameters
+        return jdbcTemplate.query(query.toString(), params.toArray(), logRowMapper);
     }
+    
+    
 }
