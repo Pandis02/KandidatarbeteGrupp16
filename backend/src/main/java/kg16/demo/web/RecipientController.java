@@ -39,7 +39,7 @@ public class RecipientController {
      * @param value the value of the recipient (e.g., email address, phone number, push token)
      * @return the added recipient
      */
-    @PostMapping("/add-recipient")
+    @GetMapping("/add-recipient")
     public String addRecipient(@RequestParam String type, @RequestParam String value, RedirectAttributes rda) {
         try {
             rs.addRecipient(type, value);

@@ -9,16 +9,16 @@ public class Utils {
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
     private static final Pattern PHONE_PATTERN = Pattern.compile("^\\+?[1-9]\\d{1,14}$");
 
-    public static boolean isValidMacAddress(String mac) {
-        return mac != null && MAC_PATTERN.matcher(mac).matches();
+    public static boolean isValidMacAddress(String input) {
+        return input != null && MAC_PATTERN.matcher(input).matches();
     }
 
-    public static boolean isValidEmail(String mac) {
-        return mac != null && EMAIL_PATTERN.matcher(mac).matches();
+    public static boolean isValidEmail(String input) {
+        return input != null && EMAIL_PATTERN.matcher(input).matches();
     }
 
-    public static boolean isValidPhone(String mac) {
-        return mac != null && PHONE_PATTERN.matcher(mac).matches();
+    public static boolean isValidPhone(String input) {
+        return input != null && PHONE_PATTERN.matcher(input).matches();
     }
 
     public static boolean isEmpty(String... strings) {
