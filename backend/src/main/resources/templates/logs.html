@@ -125,7 +125,7 @@
                                     <div>
                                         <span class="badge me-2 badge-notification" th:text="${log.notificationType}"></span>
                                         <span class="badge me-2" th:classappend="${log.alertSent} ? 'bg-danger' : 'badge-temp'" 
-                                              th:text="${log.alertSent} ? 'Offline' : 'Temporary Offline'"></span>
+                                              th:text="${log.alertSent} ? 'Alert Sent' : 'Disconnected'"></span>
                                         <span class="text-muted" th:text="${log.hostname}"></span>
                                     </div>
                                 </div>
