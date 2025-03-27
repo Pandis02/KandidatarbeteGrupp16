@@ -1,5 +1,7 @@
 package kg16.demo.web;
 
+import java.util.Comparator;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,6 +22,7 @@ public class ViewDevices {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "5") int rows,
             @RequestParam(required = false) String search,
+            @RequestParam(required = false, defaultValue = "name") String sortBy,
             Model model) {
 
         var allDevices = ds.getAllDevices();
@@ -28,12 +31,39 @@ public class ViewDevices {
         if (search != null && !search.trim().isEmpty()) {
             String lowerCaseSearch = search.toLowerCase();
 
-            allDevices = allDevices.stream()
-                    .filter(
-                            device -> device.macAddress().toLowerCase().contains(lowerCaseSearch) ||
-                                    device.name().toLowerCase().contains(lowerCaseSearch))
+            allDevices = allDevices.stream().filter(
+                    device -> device.macAddress().toLowerCase().contains(lowerCaseSearch) ||
+                            device.name().toLowerCase().contains(lowerCaseSearch))
                     .toList();
         }
+
+        // Apply sorting based on the sortBy parameter
+        allDevices = switch (sortBy) {
+            case "name" -> allDevices.stream()
+                    .sorted(Comparator.comparing(DeviceService.Instance::name,
+                            String.CASE_INSENSITIVE_ORDER))
+                    .toList();
+            case "location" -> allDevices.stream()
+                    .sorted(Comparator
+                            .comparing(DeviceService.Instance::building,
+                                    Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
+                            .thenComparing(DeviceService.Instance::room,
+                                    Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)))
+                    .toList();
+            case "tracking" -> allDevices.stream()
+                    .sorted(Comparator.comparing(DeviceService.Instance::enabled))
+                    .toList();
+            case "status" -> allDevices.stream()
+                    .sorted(Comparator.comparing(DeviceService.Instance::status))
+                    .toList();
+            case "lastCheckin" -> allDevices.stream()
+                    .sorted(Comparator.comparing(DeviceService.Instance::lastCheckin).reversed())
+                    .toList();
+            default -> allDevices.stream()
+                    .sorted(Comparator.comparing(DeviceService.Instance::name,
+                            String.CASE_INSENSITIVE_ORDER))
+                    .toList();
+        };
 
         int totalPages = Math.ceilDiv(allDevices.size(), rows);
 
@@ -51,6 +81,7 @@ public class ViewDevices {
         model.addAttribute("pages", totalPages);
         model.addAttribute("rows", rows);
         model.addAttribute("search", search);
+        model.addAttribute("sortBy", sortBy);
 
         return "devices";
     }
