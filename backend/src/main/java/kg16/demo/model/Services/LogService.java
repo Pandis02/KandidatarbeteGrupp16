@@ -60,26 +60,36 @@ public class LogService {
             "LEFT JOIN " +
             "    Locations l ON td.location_id = l.location_id " + 
             "LEFT JOIN " +
-            "    NotificationEvents ne ON oe.mac_address = ne.mac_address " + 
+            "    NotificationEvents ne ON oe.mac_address = ne.mac_address AND oe.event_id = ne.event_id " +
             "LEFT JOIN " +
-            "    NotificationRecipients nr ON ne.event_id = nr.event_id " +
-            "WHERE 1=1 "
+            "    NotificationRecipients nr ON ne.event_id = nr.event_id "
         );
     
         // Apply filtering based on startDate and endDate
         List<Object> params = new ArrayList<>();
-        if (startDate != null) {
-            query.append(" AND oe.offline_since >= ?");
-            params.add(startDate.atStartOfDay()); 
+        if (startDate != null || endDate != null) {
+            query.append("WHERE ");
+            if (startDate != null) {
+                query.append("oe.offline_since >= ? ");
+                params.add(startDate.atStartOfDay());
+            }
+            if (endDate != null) {
+                if (startDate != null) {
+                    query.append("AND ");
+                }
+                query.append("oe.offline_since < ? ");
+                params.add(endDate.plusDays(1).atStartOfDay());
+            }
         }
-        if (endDate != null) {
-            query.append(" AND oe.offline_since < ?"); 
-            params.add(endDate.plusDays(1).atStartOfDay()); 
-        }
+    
+        // Add ORDER BY clause
+        query.append("ORDER BY oe.offline_since DESC");
     
         // Execute the query with parameters
         return jdbcTemplate.query(query.toString(), params.toArray(), logRowMapper);
     }
+
+    
     
     
 }
