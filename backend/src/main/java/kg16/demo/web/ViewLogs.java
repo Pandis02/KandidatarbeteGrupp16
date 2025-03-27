@@ -27,7 +27,11 @@ public class ViewLogs {
             @RequestParam(defaultValue = "10") int rows,
             @RequestParam(required = false) String search,
             Model model) {
-        
+
+    
+        // Ensure search is not null
+        search = (search != null) ? search.trim() : "";
+    
         // Fetch logs based on date range
         List<LogDTO> logs = logService.findOfflineEvents(startDate, endDate);
     
@@ -41,20 +45,13 @@ public class ViewLogs {
                     .toList();
         }
     
-        // Calculate total pages
         int totalPages = Math.ceilDiv(logs.size(), rows);
-    
-        // Ensure page is within valid range
         page = Math.max(1, Math.min(page, totalPages));
-    
-        // Calculate start and end indices for pagination
         int startIndex = (page - 1) * rows;
         int endIndex = Math.min(startIndex + rows, logs.size());
-    
-        // Get paginated logs
         List<LogDTO> paginatedLogs = logs.subList(startIndex, endIndex);
     
-        // Add attributes to the model
+
         model.addAttribute("logs", paginatedLogs);
         model.addAttribute("page", page);
         model.addAttribute("pages", totalPages);

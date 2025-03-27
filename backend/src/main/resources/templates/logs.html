@@ -184,26 +184,33 @@
                     <div>
                         <label class="table-gray" for="rowsSelector">Rows per page:</label>
                         <select class="ps-1 border-0 table-gray" id="rowsSelector"
-                            data-base-url="/logs"
-                            data-page="${page}"
-                            data-search="${search}"
-                            data-start-date="${startDate}"
-                            data-end-date="${endDate}"
+                            th:data-page="${page}" 
+                            th:data-search="${search}" 
+                            th:data-start-date="${startDate}" 
+                            th:data-end-date="${endDate}"
                             onchange="updateRowsPerPage(this)">
-                            <option th:selected="${rows == 5}" value="5">5</option>
-                            <option th:selected="${rows == 10}" value="10">10</option>
-                            <option th:selected="${rows == 20}" value="20">20</option>
-                        </select>
+                        <option th:selected="${rows == 5}" value="5">5</option>
+                        <option th:selected="${rows == 10}" value="10">10</option>
+                        <option th:selected="${rows == 20}" value="20">20</option>
+                    </select>
+                
+                    
+                    
                     </div>
                     <div class="d-flex justify-content-between align-items-center">
                         <span class="table-gray pe-3" th:text="${page} + ' of ' + ${pages}"></span>
                         <div class="d-flex gap-2">
                             <a class="nav-button btn btn-outline-dark themeButton"
-                                th:href="@{/logs(page=${page - 1}, rows=${rows}, search=${search}, startDate=${startDate}, endDate=${endDate})}"
-                                th:classappend="${page} == 1 ? 'disabled' : ''"><i class="bi bi-caret-left-fill"></i></a>
-                            <a class="nav-button btn btn-outline-dark themeButton"
-                                th:href="@{/logs(page=${page + 1}, rows=${rows}, search=${search}, startDate=${startDate}, endDate=${endDate})}"
-                                th:classappend="${page} == ${pages} ? 'disabled' : ''"><i class="bi bi-caret-right-fill"></i></a>
+                            th:href="@{/logs(page=${page - 1}, rows=${rows}, search=${search}, startDate=${startDate}, endDate=${endDate})}"
+                            th:classappend="${page} == 1 ? 'disabled' : ''">
+                            <i class="bi bi-caret-left-fill"></i>
+                         </a>
+                         <a class="nav-button btn btn-outline-dark themeButton"
+                            th:href="@{/logs(page=${page + 1}, rows=${rows}, search=${search}, startDate=${startDate}, endDate=${endDate})}"
+                            th:classappend="${page} == ${pages} ? 'disabled' : ''">
+                            <i class="bi bi-caret-right-fill"></i>
+                         </a>
+                         
                         </div>
                     </div>
                 </div>
@@ -218,54 +225,23 @@
             const collapsibleElements = document.querySelectorAll('.collapse');
             collapsibleElements.forEach(element => {
                 element.classList.remove('show'); // Ensure all collapsible elements are collapsed
-        });
-    }
-        function filterLogs(filter, button) {
-            const logs = document.querySelectorAll('.log-item');
-            const eventsHeading = document.getElementById('eventsHeading');
-            const filterButtons = document.querySelectorAll('.filter-button');
-            
-            // Reset display for all logs
-            logs.forEach(log => {
-                log.style.display = '';
             });
-
-            // Remove active class from all filter buttons
-            filterButtons.forEach(btn => {
-                btn.classList.remove('active');
-            });
-
-            // Add active class to the clicked button
-            button.classList.add('active');
-
-            // Apply filter
-            logs.forEach(log => {
-                const alertSent = log.getAttribute('data-alert-sent') === 'true';
-                if (filter === 'notifications' && !alertSent) {
-                    log.style.display = 'none';
-                } else if (filter === 'noNotifications' && alertSent) {
-                    log.style.display = 'none';
-                } else if (filter === 'search') {
-                    const searchQuery = document.getElementById('search').value.toLowerCase();
-                    const hostname = log.querySelector('.detail-item span[th\\:text="${log.hostname}"]').textContent.toLowerCase();
-                    const macAddress = log.querySelector('.fw-bold').textContent.toLowerCase();
-                    if (hostname.includes(searchQuery) || macAddress.includes(searchQuery)) {
-                        log.style.display = '';
-                    } else {
-                        log.style.display = 'none';
-                    }
-                }
-            });
-
-            // Update heading
-            if (filter === 'notifications') {
-                eventsHeading.textContent = 'Notifications Sent';
-            } else if (filter === 'noNotifications') {
-                eventsHeading.textContent = 'No Notifications Sent';
-            } else {
-                eventsHeading.textContent = 'Offline Events';
-            }
         }
+
+        function updateRowsPerPage(selector) {
+            const baseUrl = '/logs'; 
+            const page = selector.getAttribute('data-page') || 1; 
+            const search = selector.getAttribute('data-search') || '';
+            const startDate = selector.getAttribute('data-start-date') || '';
+            const endDate = selector.getAttribute('data-end-date') || '';
+            const rows = selector.value; 
+            const url = `${baseUrl}?page=${page}&rows=${rows}&search=${search}&startDate=${startDate}&endDate=${endDate}`;
+            window.location.href = url;
+        }
+
+
+
+
     </script>
 </body>
 
