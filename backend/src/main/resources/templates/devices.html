@@ -66,18 +66,24 @@
                                 <i class="bi bi-search"></i>
                             </span>
                             <input type="text" class="form-control border-start-0 ps-0" placeholder="Search..."
-                                id="search" th:value="${search}" 
+                                id="search" th:value="${search}"
                                 th:onchange="|window.location.href = '/devices?page=${page}&rows=${rows}&search=' + this.value|">
                         </div>
                     </div>
                     <div>
                         <div>
                             <label for="sortBySelector">Sort by</label>
-                            <select class="ps-1 border-0 fw-bold" id="sortBySelector">
-                                <option class="fw-normal" value="name">Name</option>
-                                <option class="fw-normal" value="last-checkin">Last checkin</option>
-                                <option class="fw-normal" value="name">Status</option>
-                                <option class="fw-normal" value="name">Tracking</option>
+                            <select class="ps-1 border-0 fw-bold" id="sortBySelector"
+                                th:onchange="|window.location.href = '/devices?page=${page}&rows=${rows}&sortBy=' + this.value|">
+                                <option class="fw-normal" th:selected="${sortBy == 'name'}" value="name">Name</option>
+                                <option class="fw-normal" th:selected="${sortBy == 'lastCheckin'}" value="lastCheckin">
+                                    Last checkin</option>
+                                <option class="fw-normal" th:selected="${sortBy == 'location'}" value="location">
+                                    Location</option>
+                                <option class="fw-normal" th:selected="${sortBy == 'status'}" value="status">Status
+                                </option>
+                                <option class="fw-normal" th:selected="${sortBy == 'tracking'}" value="tracking">
+                                    Tracking</option>
                             </select>
                         </div>
                     </div>
@@ -123,8 +129,9 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <label class="table-gray" for="rowsSelector">Rows per page:</label>
-                        <select class="ps-1 border-0 table-gray" id="rowsSelector"
-                            th:onchange="|window.location.href = '/devices?page=${page}&rows=' + this.value|">
+                        <select class="ps-1 border-0 table-gray" id="rowsSelector" th:data-sort-by="${sortBy}"
+                            th:data-page="${page}"
+                            onchange="window.location.href = '/devices?page=' + this.getAttribute('data-page') + '&rows=' + this.value + '&sortBy=' + this.getAttribute('data-sort-by')">
                             <option th:selected="${rows == 5}" value="5">5</option>
                             <option th:selected="${rows == 10}" value="10">10</option>
                         </select>
@@ -133,11 +140,11 @@
                         <span class="table-gray pe-3" th:text="${page} + ' of ' + ${pages}"></span>
                         <div class="d-flex gap-2">
                             <a class="nav-button btn btn-outline-dark themeButton"
-                                th:href="@{/devices(page=${page - 1}, rows=${rows})}"
+                                th:href="@{/devices(page=${page - 1}, rows=${rows}, sortBy=${sortBy})}"
                                 th:classappend="${page} == 1 ? 'disabled' : ''"><i
                                     class="bi bi-caret-left-fill"></i></a>
                             <a class="nav-button btn btn-outline-dark themeButton"
-                                th:href="@{/devices(page=${page + 1}, rows=${rows})}"
+                                th:href="@{/devices(page=${page + 1}, rows=${rows}, sortBy=${sortBy})}"
                                 th:classappend="${page} == ${pages} ? 'disabled' : ''"><i
                                     class="bi bi-caret-right-fill"></i></a>
                         </div>
