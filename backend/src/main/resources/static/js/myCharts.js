@@ -1,5 +1,5 @@
 var xValues = ["Mon", "Tue", "Wed", "Thu", "Sat", "Sun"];
-var yValues = [11,2, 7, 5, 1, 1];
+var yValues = [1,0, 2, 1, 0, 5];
 var color = 'rgba(54, 87, 235, 0.47)';
 
 new Chart("alertChart", {
