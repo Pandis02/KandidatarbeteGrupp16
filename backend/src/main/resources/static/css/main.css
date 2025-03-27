@@ -23,13 +23,13 @@ body, table.log-table td{
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.card-body p, .card{
+.card-body p, .card, .card-body, .list-group-item{
     background-color: var(--bg-color);
     color: var(--text-color);
     border-color: var(--text-color);
 }
 
-.card-header .fw-bold{
+.card-header .fw-bold, .card-header.h2{
     color: var(--always-dark);
 }
 
