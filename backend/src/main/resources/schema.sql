@@ -131,48 +131,45 @@ INSERT INTO Locations (building, room) VALUES
 
 INSERT INTO AdminSettings (id, alert_threshold_minutes, checkin_interval_seconds)
 VALUES (1, 3, 15);
-/*
--- EmailList stores the emails of those that will be notified
-Create Table
-    EmailList (
-        mail_address VARCHAR(255) PRIMARY KEY,
-        user_name VARCHAR(255),
-        sms VARCHAR(255),
-        type VARCHAR(15) NOT NULL CHECK (type IN ('security', 'admin'))
-    );
 
 -- TODO list that queues email alerts to be sent
 Create Table 
     ToBeSentEMail (
-        mail_address VARCHAR(255) NOT NULL, 
+        recipient_value VARCHAR(255) NOT NULL, 
         mac_address CHAR(17) NOT NULL , 
         last_seen TIMESTAMP NOT NULL,
-        PRIMARY KEY (mac_address, mail_address)
+        PRIMARY KEY (recipient_value ,mac_address)
     );
 
 -- TODO list that queues sms alerts to be sent
 Create Table 
     ToBeSentSMS (
-        sms VARCHAR(255) NOT NULL,
+        recipient_value VARCHAR(255) NOT NULL,
         mac_address CHAR(17) NOT NULL ,
         last_seen TIMESTAMP NOT NULL,
-        PRIMARY KEY (mac_address, sms)
-    ); */
+        PRIMARY KEY (recipient_value ,mac_address)
+    ); 
 
-/* --So that every alert is not sent to every contact on the contact list
+ --determines which recipients a group alerts 
 Create Table 
-    ResponsibilityGroups (
-        group VARCHAR(255),
-        building VARCHAR(255),
-        PRIMARY KEY (group, building)
+    GroupRecipients (
+        group VARCHAR(255) REFERENCES GroupLocations(group) ON DELETE CASCADE,
+        recipient_id BIGINT REFERENCES Recipients(recipient_id) ON DELETE CASCADE,
+        PRIMARY KEY (group, recipient_id)
     );
-*/
 
-/* 
+ --determines which locations a group will be notified of
 Create Table 
-    GroupsMail (
-        group VARCHAR(255),
-        mail_address VARCHAR(255),
-        PRIMARY KEY (group, building)
+    GroupLocations (
+        group VARCHAR(255) NOT NULL,
+        location_id BIGINT REFERENCES Locations(location_id) ON DELETE CASCADE,
+        PRIMARY KEY (group, location_id)
     );
-*/
+
+-- View that collects and shows which recipients should be alerted for a location_id
+CREATE View GroupContactView AS
+    SELECT DISTINCT rec.recipient_id, rec.recipient_type, rec.recipient_value, gl.location_id 
+    FROM GroupLocations AS gl
+    LEFT JOIN GroupRecipients AS gr ON  gr.group = gl.group
+    LEFT JOIN Recipients AS rec ON  rec.recipient_id = gr.recipient_id;
+

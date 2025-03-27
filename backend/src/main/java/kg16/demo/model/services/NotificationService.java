@@ -11,7 +11,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 import kg16.demo.model.Services.AlarmEventListener;
 import kg16.demo.model.dto.LogDTO;
-import kg16.demo.model.dto.MailDTO;
 import kg16.demo.model.records.ScanRecord;
 
 @Service
@@ -27,25 +26,26 @@ public class NotificationService {
 
     public void UpdateToSend (String mac, Timestamp last) {
         String sql = """                
-                    INSERT INTO ToBeSentEMail (mail_address, mac_address, last_seen )  
-                    SELECT  el.mail_address, ?, ? 
-                    FROM EmailList AS el;
+                    INSERT INTO ToBeSentEMail (recipient_value, mac_address, last_seen )  
+                    SELECT  rec.recipient_value, ?, ? 
+                    FROM Recipients AS rec
+                    WHERE rec.recipient_type = 'email';
                """;
-        // version 2 that incorporates responsibilitygroups
+        // version 2 that incorporates groups
         /*String sql = """                
-                INSERT INTO ToBeSentEMail (mail_address, mac_address, last_seen )  
-                SELECT  el.mail_address, ?, ? 
-                FROM GroupsMail AS gm 
-                INNER JOIN ResponsibilityGroups AS rg ON  rg.group = gm.group
-                WHERE rg.building = ? ;
+                INSERT INTO ToBeSentEMail (recipient_value, mac_address, last_seen )  
+                SELECT  gcv.recipient_value, ?, ? 
+                FROM GroupContactView AS gcv
+                WHERE (gcv.location_id = ?) AND (gcv.recipient_type = 'email') ;
            """;*/
 
 
         /* Example for sms      
         String sql2 = """                
-                    INSERT INTO ToBeSentSMS (sms, mac_address, last_seen )  
-                    SELECT  el.sms, ?, ? 
-                    FROM EmailList AS el;
+                    INSERT INTO ToBeSentSMS (recipient_value, mac_address, last_seen )  
+                    SELECT  rec.recipient_value, ?, ? 
+                    FROM Recipients AS rec
+                    WHERE rec.recipient_type = 'sms';
                 """;*/
         try {
             jdbc.update(sql, mac, last);
@@ -54,15 +54,13 @@ public class NotificationService {
         }
     }
 
-    /*public void SendSMS (String mac, String name, Timestamp last) {
-
-    } */
+    
 
     public void SendEmail() {
         List<EmailToSend> mailList = getAllEmailToSend();
         String sql = """
                     DELETE FROM TOBESENTEMAIL;
-                """;
+                """;  
         try {
             jdbc.execute(sql);
         } catch (DataAccessException e) {
@@ -85,14 +83,14 @@ public class NotificationService {
 
     private List<EmailToSend> getAllEmailToSend() {
         String sql = """
-                    SELECT mail_address, user_name, type, mac_address, last_seen
+                    SELECT recipient_value, mac_address, last_seen
                     FROM ToBeSentEMail se
-                    ORDER BY mail_address ;
+                    ORDER BY recipient_value;
                 """;
 
         return jdbc.query(String.format(sql), (r, rowNum) -> {
             return new EmailToSend(
-                    r.getString("mail_address"),
+                    r.getString("recipient_value"),
                     r.getString("mac_address"),
                     r.getTimestamp("last_seen"));
         });
