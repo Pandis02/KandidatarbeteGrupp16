@@ -9,8 +9,7 @@
     <title>Logs</title>
 </head>
 <body>
-    <!-- Sidebar -->
-    <nav class="sidebar">
+    <nav class="sidebar" id="sidebar">
         <button class="btn toggle-btn nav-link nav-toggle-icon" onclick="toggleSidebar()">
             <i class="bi bi-chevron-left text-white"></i>
         </button>
@@ -19,17 +18,21 @@
                 <i class="bi bi-grid fs-3 pe-2"></i>
                 <span class="nav-text">Dashboard</span>
             </a>
-            <a href="notification.html" class="nav-link">
+            <a href="scanningPage.html" class="nav-link">
+                <i class="bi bi-wifi fs-3 pe-2"></i>
+                <span class="nav-text">Scans</span>
+            </a>
+            <a href="tracked-devices.html" class="nav-link">
                 <i class="bi bi-bell fs-3 pe-2"></i>
-                <span class="nav-text">Notification</span>
+                <span class="nav-text">Tracked Devices</span>
             </a>
-            <a href="logs.html" class="nav-link active">
+            <a href="logs.html" class="nav-link">
                 <i class="bi bi-pencil fs-3 pe-2"></i>
-                <span class="nav-text">Logs</span>
+                <span class="nav-text">Logs and Events</span>
             </a>
-            <a href="online-computers.html" class="nav-link">
+            <a href="checkin-discovery.html" class="nav-link">
                 <i class="bi bi-pc-display fs-3 pe-2"></i>
-                <span class="nav-text">Online computers</span>
+                <span class="nav-text">Checkin Discovery</span>
             </a>
             <a href="settings.html" class="nav-link">
                 <i class="bi bi-gear fs-3 pe-2"></i>
@@ -37,10 +40,11 @@
             </a>
             <a href="login.html" class="nav-link sign-out">
                 <i class="bi bi-box-arrow-left fs-3 pe-2"></i>
-                <span class="nav-text">Logout</span> 
+                <span class="nav-text">Logout</span>
             </a>
         </div>
     </nav>
+
     <!-- Main Content -->
     <div class="main-content p-4">
         <div class="container">
