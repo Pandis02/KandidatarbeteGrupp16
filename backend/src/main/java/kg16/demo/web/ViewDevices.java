@@ -29,11 +29,10 @@ public class ViewDevices {
 
         // Apply search filtering if a search term is provided
         if (search != null && !search.trim().isEmpty()) {
-            String lowerCaseSearch = search.toLowerCase();
-
+            String lcs = search.toLowerCase();
             allDevices = allDevices.stream().filter(
-                    device -> device.macAddress().toLowerCase().contains(lowerCaseSearch) ||
-                            device.name().toLowerCase().contains(lowerCaseSearch))
+                    device -> device.macAddress().toLowerCase().contains(lcs) ||
+                            device.name().toLowerCase().contains(lcs))
                     .toList();
         }
 
