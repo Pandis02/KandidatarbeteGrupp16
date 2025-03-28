@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap CSS-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Custom css-->
+    <link rel="stylesheet" href="css/main.css">
+    <title>Settings</title>
+</head>
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <button class="btn toggle-btn nav-link nav-toggle-icon" onclick="toggleSidebar()">
+            <i class="bi bi-chevron-left text-white"></i>
+        </button>
+        <div class="nav flex-column pt-5">
+            <a href="index.html" class="nav-link">
+                <i class="bi bi-grid fs-3 pe-2"></i>
+                <span class="nav-text">Dashboard</span>
+            </a>
+            <a href="devices" class="nav-link">
+                <i class="bi bi-pc-display fs-3 pe-2"></i>
+                <span class="nav-text">Tracked Devices</span>
+            </a>
+            <a href="logs" class="nav-link">
+                <i class="bi bi-pencil fs-3 pe-2"></i>
+                <span class="nav-text">Logs</span>
+            </a>
+            <a href="online-computers.html" class="nav-link">
+                <i class="bi bi-pc-display fs-3 pe-2"></i>
+                <span class="nav-text">Online computers</span>
+            </a>
+            <a href="settings" class="nav-link active">
+                <i class="bi bi-gear fs-3 pe-2"></i>
+                <span class="nav-text">Settings</span>
+            </a>
+            <a href="login.html" class="nav-link sign-out">
+                <i class="bi bi-box-arrow-left fs-3 pe-2"></i>
+                <span class="nav-text">Logout</span> 
+            </a>
+        </div>
+    </nav>
+    <!-- Main Content -->
+    <div class="main-content p-4">
+        <div class="container">
+            <h1 class="py-3 mb-3">Settings</h1>
+            <!-- Main Tabs Navigation -->
+            <nav>
+                <div class="nav nav-tabs border-3" id="main-tabs" role="tablist">
+                    <button class="nav-link active" id="admin-tab" data-bs-toggle="tab" data-bs-target="#admin" type="button" role="tab">Admin Settings</button>
+                    <button class="nav-link" id="preferences-tab" data-bs-toggle="tab" data-bs-target="#preferences" type="button" role="tab"> Preferences</button>
+                    <button class="nav-link" id="info-tab" data-bs-toggle="tab" data-bs-target="#info" type="button" role="tab">Info</button>
+                </div>
+            </nav>
+        
+            <!-- Tab Content -->
+            <div class="tab-content pt-4">
+                <!-- Admin Settings Tab -->
+                <div class="tab-pane fade show active" id="admin" role="tabpanel">
+                    <div class="card card-body">
+                        <!-- Email List -->
+                        <div class="row mx-3 mt-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p><span class="fw-bold">Notification Recipients</span> <br>
+                                    Select where you would like the emails and sms to be sent.</p>
+                                </div>
+                                <a class="btn btn-outline-dark themeButton btn-sm mt-2" href="/recipients">Configure</a>
+                            </div>
+                        </div>
+                        <!-- Alert threshold -->
+                        <div class="row mx-3 mt-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p><span class="fw-bold">Alert threshold</span> <br>
+                                        Set the time a computer must be disconnected before a notification is triggered.</p>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <input type="number" class="form-control" th:value="${alertThresholdMinutes}" min="1" th:onchange="|window.location.href = '/settings-set?alertThresholdMinutes=' + this.value|">
+                                    <p class="m-0">minutes</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Checkin interval -->
+                        <div class="row mx-3 my-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p><span class="fw-bold">Checkin interval</span> <br>
+                                        How often devices are configured to checkin.</p>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <input type="number" class="form-control" th:value="${checkinIntervalSeconds}" min="1" th:onchange="|window.location.href = '/settings-set?checkinIntervalSeconds=' + this.value|">
+                                    <p class="m-0">seconds</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preferences Tab -->
+                <div class="tab-pane fade" id="preferences" role="tabpanel">
+                    <div class="card card-body">
+                        <!--Lightmode/Darkmode-->
+                        <div class="row mx-3 mt-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p><span class="fw-bold"> <i class="bi bi-moon pe-2"></i> Appearance</span> <br>
+                                    Choose your preferred theme for the interface.</p>
+                                </div>
+                                <div>
+                                    <select class="p-2 rounded" id="themeSelector">
+                                        <option value="light">Light</option>
+                                        <option value="dark">Dark</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Language -->
+                        <div class="row mx-3 mt-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p><span class="pt-1 fw-bold"> <i class="bi bi-globe-americas pe-2"></i>Language</span><br> 
+                                        Change the language used in the interface.</p>
+                                </div>
+                                <div>
+                                    <select class="p-2 rounded" id="language-select" disabled>
+                                        <option value="english">Default (English)</option>
+                                        <option value="swedish">Swedish</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Colorblind mode -->
+                        <div class="row mx-3 my-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p><span class="pt-1 fw-bold"> <i class="bi bi-paint-bucket pe-2"></i>Colorblind Mode</span><br> 
+                                        Enable this setting to adjust the colors in the interface for improved readability for users with color vision deficiences. </p>
+                                </div>
+                                <div>
+                                    <select class="p-2 rounded" id="select-colorblind" disabled>
+                                        <option value="" selected>Unavailable</option>
+                                        <option value="colorblind-off">Off</option>
+                                        <option value="colorblind-on">On</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preferences Tab -->
+                <div class="tab-pane fade" id="info" role="tabpanel">
+                    <div class="card card-body">
+                        <!-- User manual -->
+                        <div class="row mx-3 my-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p><span class="fw-bold">User Manual</span> <br>
+                                    View system details, architecture and key technologies used.</p>
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-outline-dark themeButton" data-bs-toggle="modal" data-bs-target="#manualModal">More</button>
+                                    <div class="modal" id="manualModal" tabindex="-1" role="dialog">
+                                        <div class="modal-dialog modal-lg">
+                                          <div class="modal-content">
+                                            <div class="modal-header">
+                                              <h5 class="modal-title"><i class="bi bi-book pe-2"></i>User manual</h5>
+                                              <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                              <p>Modal body text goes here.</p>
+                                            </div>
+                                          </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- About us section-->
+                        <div class="row mx-3 my-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p><span class="fw-bold">About Us</span> <br>
+                                    Learn more about our team and mission behind this system.</p>
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-outline-dark themeButton" data-bs-toggle="modal" data-bs-target="#aboutUsModal">More</button>
+                                    <div class="modal" id="aboutUsModal" tabindex="-1" role="dialog">
+                                        <div class="modal-dialog  modal-lg">
+                                          <div class="modal-content">
+                                            <div class="modal-header">
+                                              <h5 class="modal-title"><i class="bi bi-book pe-2"></i>About us</h5>
+                                              <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                              <p>Modal body text goes here.</p>
+                                            </div>
+                                          </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Javascript-->
+    <script src="js/site.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
