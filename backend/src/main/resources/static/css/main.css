@@ -402,7 +402,7 @@ a.nav-link:focus{
 
 /* BAG ICON + ARROWS IN REDIRECT MODAL*/
 
-.modal-content {
+.modal-content.redirect{
     background-color: #0A3B62;
     color: white;
 }
