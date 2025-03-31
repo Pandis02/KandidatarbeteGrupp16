@@ -28,3 +28,9 @@ VALUES
     ((SELECT MAX(event_id) FROM NotificationEvents), 'sms', '0707123456');
 
 COMMIT;
+
+INSERT INTO Recipients (recipient_type, recipient_value) VALUES ("email", "your-email@example.com"), ("email", "test-email@example.com");
+INSERT INTO ToBeSentEMail (recipient_value, mac_address, last_seen )
+                     SELECT  Recipients.recipient_value, 'AA:BB:CC:DD:EE:01', NOW()
+                     FROM Recipients 
+                     WHERE Recipients.recipient_type = 'email';

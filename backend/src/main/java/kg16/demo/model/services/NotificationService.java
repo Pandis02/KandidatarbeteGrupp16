@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -16,37 +18,41 @@ import kg16.demo.model.records.ScanRecord;
 @Service
 public class NotificationService {
 
-    private final Services.AlarmEventListener ael;
+    private final EmailService es;
     private final JdbcTemplate jdbc;
+    private final Logger logger = LoggerFactory.getLogger(NotificationService.class);
 
-    public NotificationService(JdbcTemplate jdbc, Services.AlarmEventListener alarmEventListener) {
+    public NotificationService(JdbcTemplate jdbc, EmailService es) {
         this.jdbc = jdbc;
-        this.ael = alarmEventListener;
+        this.es = es;
     }
 
-    public void UpdateToSend (String mac, Timestamp last) {
-        String sql = """                
-                    INSERT INTO ToBeSentEMail (recipient_value, mac_address, last_seen )  
-                    SELECT  rec.recipient_value, ?, ? 
-                    FROM Recipients AS rec
-                    WHERE rec.recipient_type = 'email';
-               """;
+    public void UpdateToSend(String mac, Timestamp last) {
+        String sql = """
+                     INSERT INTO ToBeSentEMail (recipient_value, mac_address, last_seen )
+                     SELECT  rec.recipient_value, ?, ?
+                     FROM Recipients AS rec
+                     WHERE rec.recipient_type = 'email';
+                """;
         // version 2 that incorporates groups
-        /*String sql = """                
-                INSERT INTO ToBeSentEMail (recipient_value, mac_address, last_seen )  
-                SELECT  gcv.recipient_value, ?, ? 
-                FROM GroupContactView AS gcv
-                WHERE (gcv.location_id = ?) AND (gcv.recipient_type = 'email') ;
-           """;*/
+        /*
+         * String sql = """
+         * INSERT INTO ToBeSentEMail (recipient_value, mac_address, last_seen )
+         * SELECT gcv.recipient_value, ?, ?
+         * FROM GroupContactView AS gcv
+         * WHERE (gcv.location_id = ?) AND (gcv.recipient_type = 'email') ;
+         * """;
+         */
 
-
-        /* Example for sms      
-        String sql2 = """                
-                    INSERT INTO ToBeSentSMS (recipient_value, mac_address, last_seen )  
-                    SELECT  rec.recipient_value, ?, ? 
-                    FROM Recipients AS rec
-                    WHERE rec.recipient_type = 'sms';
-                """;*/
+        /*
+         * Example for sms
+         * String sql2 = """
+         * INSERT INTO ToBeSentSMS (recipient_value, mac_address, last_seen )
+         * SELECT rec.recipient_value, ?, ?
+         * FROM Recipients AS rec
+         * WHERE rec.recipient_type = 'sms';
+         * """;
+         */
         try {
             jdbc.update(sql, mac, last);
         } catch (DataAccessException e) {
@@ -54,13 +60,11 @@ public class NotificationService {
         }
     }
 
-    
-
     public void SendEmail() {
         List<EmailToSend> mailList = getAllEmailToSend();
         String sql = """
                     DELETE FROM TOBESENTEMAIL;
-                """;  
+                """;
         try {
             jdbc.execute(sql);
         } catch (DataAccessException e) {
@@ -68,17 +72,17 @@ public class NotificationService {
         }
         String cmail = mailList.get(0).mailAddress;
         List<String> offline = new ArrayList<>();
-        for (EmailToSend mail : mailList) { 
+        for (EmailToSend mail : mailList) {
             if (!cmail.equals(mail.mailAddress)) {
-                // send to email service the list and the current mail address cmail
+                es.sendAlarmEmail(cmail, String.join(", ", offline), "TestRoom", "TestBuilding");
                 cmail = mail.mailAddress;
                 offline.clear();
             }
 
             offline.add(mail.macAddress);
         }
-        // send to email service the list and the current mail address cmail
-        
+        es.sendAlarmEmail(cmail, String.join(", ", offline), "TestRoom", "TestBuilding");
+
     }
 
     private List<EmailToSend> getAllEmailToSend() {
@@ -96,7 +100,7 @@ public class NotificationService {
         });
     }
 
-    public void NotificationLog (String mac , String message) {
+    public void NotificationLog(String mac, String message) {
         String sql = """
                     INSERT INTO NotificationEvents (mac_address, message)
                         VALUES (?, ?);
@@ -113,6 +117,6 @@ public class NotificationService {
             String mailAddress,
             String macAddress,
             Timestamp lastSeen) {
-            }
+    }
 
 }
