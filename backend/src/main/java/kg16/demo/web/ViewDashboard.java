@@ -18,11 +18,11 @@ public class ViewDashboard {
     @GetMapping("/dashboard")
     public String onDashboard(Model model){
 
-        var counts = ds.getDeviceStatusCount();
+        var counts = ds.getCounts();
         var recentOfflineDevices = ds.getTopRecentOfflineDevices(3);
 
         model.addAttribute("devices", recentOfflineDevices);
-        model.addAttribute("status", counts);
+        model.addAttribute("counts", counts);
 
         return "dashboard";
     }

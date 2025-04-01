@@ -61,46 +61,46 @@
             <hr class="pb-3">
             <!-- CARDS ROW -->
             <div class="row">
-                <div class="col ">
+                <div class="col">
+                    <div class="card status-card total h-100">
+                        <div class="card-body">
+                            <i class="bi bi-pc-display-horizontal text-primary card-icon"></i>
+                            <div class="card-content flex-grow-1 text-center">
+                                <p class="h6">Tracking devices</p>
+                                <p class="fw-bold h3" th:text="${counts.totalComputers}"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
                     <div class="card status-card online h-100">
                         <div class="card-body">
                             <i class="bi bi-shield-check text-success card-icon"></i>
                             <div class="card-content flex-grow-1 text-center">
                                 <p class="h6">Online</p>
-                                <p class="fw-bold h3"></p>
+                                <p class="fw-bold h3" th:text="${counts.online}"></p>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="col ">
+                <div class="col">
                     <div class="card status-card temp-offline h-100">
                         <div class="card-body">
                             <i class="bi bi-clock-history text-warning card-icon"></i>
                             <div class="card-content flex-grow-1 text-center">
-                                <p class="h6">Temporary offline</p>
-                                <p class="fw-bold h3"></p>
+                                <p class="h6">Unreachable</p>
+                                <p class="fw-bold h3" th:text="${counts.tempOffline}"></p>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="col ">
+                <div class="col">
                     <div class="card status-card offline h-100">
                         <div class="card-body">
                             <i class="bi bi-exclamation-triangle text-danger card-icon"></i>
                             <div class="card-content flex-grow-1 text-center">
-                                <p class="h6">Offline</p>
-                                <p class="fw-bold h3"></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col ">
-                    <div class="card status-card total h-100">
-                        <div class="card-body">
-                            <i class="bi bi-pc-display-horizontal text-primary card-icon"></i>
-                            <div class="card-content flex-grow-1 text-center">
-                                <p class="h6">Total computers</p>
-                                <p class="fw-bold h3"></p>
+                                <p class="h6">Flagged</p>
+                                <p class="fw-bold h3" th:text="${counts.offline}"></p>
                             </div>
                         </div>
                     </div>

@@ -10,9 +10,39 @@ import org.springframework.stereotype.Service;
 @Service
 public class DashboardService {
     private final JdbcTemplate jdbc;
+    private final AdminSettingsService settings;
 
-    public DashboardService(JdbcTemplate jdbcTemplate) {
+    public DashboardService(AdminSettingsService settings, JdbcTemplate jdbcTemplate) {
         this.jdbc = jdbcTemplate;
+        this.settings = settings;
+    }
+
+    public DeviceStatusCount getCounts() {
+        var minutes = settings.getSettings().getAlertThresholdMinutes();
+        String sql = """
+                SELECT
+                    COUNT(td.mac_address) AS total,
+                    COUNT(oe.mac_address) AS total_unreachable_devices_prior_alert_threshold,
+                    COUNT(DISTINCT oe2.mac_address) AS total_unreachable_devices_past_alert_threshold
+                FROM
+                    TrackedDevices td
+                LEFT JOIN
+                    OfflineEvents oe ON td.mac_address = oe.mac_address AND oe.restored_at IS NULL AND oe.offline_since > NOW() - INTERVAL '%d' MINUTE
+                LEFT JOIN
+                    OfflineEvents oe2 ON td.mac_address = oe2.mac_address AND oe2.restored_at IS NULL AND oe2.offline_since < NOW() - INTERVAL '%d' MINUTE
+                WHERE
+                    td.enabled = TRUE;
+                """;
+
+        return jdbc.queryForObject(String.format(sql, minutes, minutes), (r, rowNum) -> {
+            return new DeviceStatusCount(
+                    r.getInt("total_unreachable_devices_prior_alert_threshold"),
+                    r.getInt("total_unreachable_devices_past_alert_threshold"),
+                    r.getInt("total"),
+                    r.getInt("total") -
+                            r.getInt("total_unreachable_devices_prior_alert_threshold") -
+                            r.getInt("total_unreachable_devices_past_alert_threshold"));
+        });
     }
 
     private List<TopNRecentAlerts> getDashboardDeviceInfo() {
@@ -80,10 +110,10 @@ public class DashboardService {
     }
 
     public record DeviceStatusCount(
-            int online,
             int tempOffline,
             int offline,
-            int totalComputers) {
+            int totalComputers,
+            int online) {
     }
 
 }
