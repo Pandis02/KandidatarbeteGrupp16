@@ -50,6 +50,35 @@ option {
     border-color: lightgray;       
 }
 
+/* PADDING */
+.ms-customDashboard {
+    margin-left: 21px;
+    margin-top: 1px;
+    margin-bottom: 1px;
+  }
+
+.row{
+    display: flex; 
+}
+.col-sm{
+    display: flex; 
+    flex-direction: column;
+}
+
+.card{
+    flex:1;
+}
+
+.list-group-item-cards{
+    height:auto; 
+}
+
+.card-body{
+    padding: 1rem;
+}
+
+
+
 /*     DASHBOARD CARDS     */
 .status-card {
     border: none;
