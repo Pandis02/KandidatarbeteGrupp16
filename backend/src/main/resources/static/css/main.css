@@ -50,6 +50,10 @@ option {
     border-color: lightgray;       
 }
 
+select:hover{
+    cursor: pointer;
+}
+
 /* PADDING */
 .ms-customDashboard {
     margin-left: 21px;
