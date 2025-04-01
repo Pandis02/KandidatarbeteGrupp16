@@ -29,13 +29,12 @@ new Chart("alertChart", {
           display: true,
         },
         ticks: {
-          stepSize: 1 
+          stepSize: 1   
         }
       }
     }
   }
 });
-
 
 
 /* LINE CHART */
