@@ -61,24 +61,29 @@ select:hover{
     margin-bottom: 1px;
   }
 
-.row{
-    display: flex; 
-}
-.col-sm{
-    display: flex; 
-    flex-direction: column;
-}
-
-.card{
-    flex:1;
-}
-
 .list-group-item-cards{
-    height:auto; 
+    margin-top: 0.5rem; 
+    margin-bottom: 0.5rem; 
 }
 
-.card-body{
-    padding: 1rem;
+.card-body.padding{
+    padding-top: 1rem;
+    padding-bottom: 1rem; 
+    padding-left: 2rem; 
+    padding-right: 2rem; 
+}
+
+.card-body > div:first-child {
+    margin-bottom: 1rem;  
+}
+
+.list-group-item{
+    border-top: 1px solid #ccc;
+    border-top: 1px solid #ccc;
+}
+
+.list-group-item:last-child {
+    border-bottom: none;
 }
 
 
