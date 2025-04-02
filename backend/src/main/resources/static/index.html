@@ -11,6 +11,7 @@
     <title>Dashboard</title>
 </head>
 <body>
+    <!-- TODO: FIX LOGS CARDS-->
     <nav class="sidebar" id="sidebar">
         <button class="btn toggle-btn nav-link nav-toggle-icon" onclick="toggleSidebar()">
             <i class="bi bi-chevron-left text-white"></i>
@@ -64,120 +65,119 @@
             <hr class="pb-3">
             <!-- CARDS ROW -->
             <div class="row">
-                <div class="col ">
-                    <div class="card status-card online h-100">
+                <div class="card">
+                    <div class="card-body">
+                        <h4>System status: <span class="bg-info">Attention Needed/Normal</span></h4>
+                        <p>n devices offline accross the buildings. Check below.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row py-3">
+                <!--LIST AND SUBLIST COL -->
+                <div class="col">
+                    <div class="card">
+                        <div class="card-header">Text</div>
                         <div class="card-body">
-                            <i class="bi bi-shield-check text-success card-icon"></i>
-                            <div class="card-content flex-grow-1 text-center">
-                                <p class="h6">Online</p>
-                                <p class="fw-bold h3" id="online-count">5</p>
-                            </div>
+                            <ul>
+                                <!-- BUILDING 1-->
+                                <li class="pb-3">
+                                    <div class="" data-bs-toggle="collapse" data-bs-target="#edit">
+                                        <span>EDIT</span>
+                                        <span>10/12</span>
+                                    </div>
+                                    <!-- ROOMS IN BUILDING 1-->
+                                    <ul  class="collapse show" id="edit">
+                                        <li>
+                                            <span class="text-danger">*</span>
+                                            <a class="" href="#">ED-XXX1</a>
+                                        </li>
+                                        <li>
+                                            <span class="text-success">*</span>
+                                            <a class="" href="#">ED-XXX2</a>
+                                        </li>
+                                        <li>
+                                            <span class="text-success">*</span>
+                                            <a class="" href="#">ED-XXX3</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <!-- BUILDING 2-->
+                                <li class="pb-3">
+                                    <div class="" data-bs-toggle="collapse" data-bs-target="#sam">
+                                        <span>Samhällsbyggnaden</span>
+                                        <span>10/12</span>
+                                    </div>
+                                    <!-- ROOMS IN BUILDING 2-->
+                                    <ul  class="collapse show" id="sam">
+                                        <li>
+                                            <span class="text-danger">*</span>
+                                            <a class="" href="#">SB-XXX1</a>
+                                        </li>
+                                        <li>
+                                            <span class="text-success">*</span>
+                                            <a class="" href="#">SB-XXX2</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
                         </div>
                     </div>
                 </div>
-                <div class="col ">
-                    <div class="card status-card temp-offline h-100">
+                <!-- Recent activity list -->
+                <div class="col">
+                    <div class="card">
+                        <div class="card-header">Recent activity</div>
                         <div class="card-body">
-                            <i class="bi bi-clock-history text-warning card-icon"></i>
-                            <div class="card-content flex-grow-1 text-center">
-                                <p class="h6">Temporary offline</p>
-                                <p class="fw-bold h3" id="online-count">0</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col ">
-                    <div class="card status-card offline h-100">
-                        <div class="card-body">
-                            <i class="bi bi-exclamation-triangle text-danger card-icon"></i>
-                            <div class="card-content flex-grow-1 text-center">
-                                <p class="h6">Offline</p>
-                                <p class="fw-bold h3" id="online-count">0</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col ">
-                    <div class="card status-card total h-100">
-                        <div class="card-body">
-                            <i class="bi bi-pc-display-horizontal text-primary card-icon"></i>
-                            <div class="card-content flex-grow-1 text-center">
-                                <p class="h6">Total computers</p>
-                                <p class="fw-bold h3" id="online-count">5</p>
-                            </div>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Location</th>
+                                        <th>Device</th>
+                                        <th>Event</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>12:00</td>
+                                        <td>EDIT</td>
+                                        <td>Computer 1</td>
+                                        <td>Computer went offline</td>
+                                    </tr>
+                                    <tr>
+                                        <td>12:00</td>
+                                        <td>EDIT</td>
+                                        <td>Computer 2</td>
+                                        <td>Computer went offline</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="row py-3 pt-5">
-                <!-- RECENT NOTIFICATIONS COL-->
-                <div class="col-sm p3-3 pe-5">
+            <!-- One or two charts. May move these later. -->
+            <div class="row">
+                <!-- Chart 1-->
+                <div class="col">   
                     <div class="card">
-                        <div class="card-header border-0">
-                            <h2>Recent notifications</h2>
-                        </div>
-                        <ul class="list-group list-group-flush">
-                          <div class="mb-3 list-group-item">
-                              <div class="card-body padding d-flex justify-content-between align-items-center">
-                                  <div>
-                                      <h5 class="fw-bold">Lab computer 3</h5>
-                                      A1:B2:C3:D4:E5 <br>
-                                      21 Feb 2025 17:55
-                                  </div>
-                                  <div>
-                                      <button type="button" class="btn btn-outline-dark themeButton">Resolve</button>
-                                      <button type="button" class="btn btn-outline-dark themeButton">Info</button>                         
-                                  </div>
-                              </div>
-                            </div>
-                            <div class="mb-3 list-group-item">
-                              <div class="card-body padding d-flex justify-content-between align-items-center">
-                                  <div>
-                                      <h5 class="fw-bold">Lab computer 4</h5>
-                                      A1:B2:C3:D4:E5 <br>
-                                      21 Feb 2025 17:55
-                                  </div>
-                                  <div>
-                                      <button type="button" class="btn btn-outline-dark themeButton">Resolve</button>
-                                      <button type="button" class="btn btn-outline-dark themeButton">Info</button>                         
-                                  </div>
-                              </div>
-                            </div>
-                            <div class="mb-3 list-group-item">
-                                <div class="card-body padding d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <h5 class="fw-bold">Lab computer 5</h5>
-                                        A1:B2:C3:D4:E5 <br>
-                                        21 Feb 2025 17:55
-                                    </div>
-                                    <div>
-                                        <button type="button" class="btn btn-outline-dark themeButton">Resolve</button>
-                                        <button type="button" class="btn btn-outline-dark themeButton">Info</button>                         
-                                    </div>
-                                </div>
-                              </div>
-                        </ul>
-                    </div>
-                </div>
-                <!-- CHART -->
-                <div class="col-sm">
-                    <div class="row pb-3">
-                        <div class="card">
-                            <div class="card-body">
-                                <canvas id="alertChart" style="width:100%;max-width:600px"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="card">
-                            <div class="card-body">
-                                <canvas id="notificationChart" style="width:100%;max-width:600px"></canvas>
-                            </div>
+                        <div class="card-body">
+                            <canvas id="notificationChart" style="width:100%;max-width:600px"></canvas>
                         </div>
                     </div>
                 </div>
+
+                <!-- Chart 2-->
+                 <div class="col">
+                    <div class="card">
+                        <div class="card-body">
+                            <canvas id="alertChart" style="width:100%;max-width:600px"></canvas>
+                        </div>
+                    </div>
+                 </div>
             </div>
+
         </div>
     </div>
 
@@ -186,30 +186,5 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/site.js"></script>
     <script src="js/myCharts.js"></script>
-    <script>
-        const ctx = document.getElementById('notificationChart').getContext('2d');
-        const notificationChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00", "23:59"], 
-                datasets: [{
-                    label: 'Number of Notifications',
-                    data: [5, 10, 15, 8, 12, 18, 7], 
-                    borderColor: 'blue',
-                    fill: false,
-                    tension: 0.3
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    x: { title: { display: true, text: "Time of Day" } },
-                    y: { title: { display: true, text: "Number of Notifications" }, beginAtZero: true }
-                }
-            }
-        });
-    </script>
-    
-
 </body>
 </html>
