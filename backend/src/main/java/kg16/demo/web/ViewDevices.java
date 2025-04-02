@@ -25,7 +25,7 @@ public class ViewDevices {
             @RequestParam(required = false, defaultValue = "name") String sortBy,
             Model model) {
 
-        var allDevices = ds.getAllDevices();
+        var allDevices = ds.getAllRegisteredDevices();
 
         // Apply search filtering if a search term is provided
         if (search != null && !search.trim().isEmpty()) {

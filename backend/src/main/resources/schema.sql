@@ -58,6 +58,7 @@ CREATE TABLE Scans (
 
 CREATE TABLE Checkins (
     mac_address CHAR(17) PRIMARY KEY,
+    hostname VARCHAR(255) NOT NULL,
     last_checkin TIMESTAMP NOT NULL
 );
 

@@ -7,7 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="css/main.css">
-    <title>Notification</title>
+    <title>Registered Devices</title>
 </head>
 
 <body>
@@ -17,21 +17,21 @@
             <i class="bi bi-chevron-left text-white"></i>
         </button>
         <div class="nav flex-column pt-5">
-            <a href="index.html" class="nav-link">
+            <a href="dashboard" class="nav-link">
                 <i class="bi bi-grid fs-3 pe-2"></i>
                 <span class="nav-text">Dashboard</span>
             </a>
             <a href="devices" class="nav-link active">
                 <i class="bi bi-pc-display fs-3 pe-2"></i>
-                <span class="nav-text">Tracked Devices</span>
+                <span class="nav-text">Registered Devices</span>
             </a>
             <a href="logs" class="nav-link">
                 <i class="bi bi-pencil fs-3 pe-2"></i>
                 <span class="nav-text">Logs</span>
             </a>
-            <a href="online-computers.html" class="nav-link">
-                <i class="bi bi-pc-display fs-3 pe-2"></i>
-                <span class="nav-text">Online computers</span>
+            <a href="discovery" class="nav-link">
+                <i class="bi bi-broadcast fs-3 pe-2"></i>
+                <span class="nav-text">Checkin Discovery</span>
             </a>
             <a href="settings" class="nav-link">
                 <i class="bi bi-gear fs-3 pe-2"></i>
@@ -48,7 +48,7 @@
         <div class="container">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h1 class="py-3">Tracked Devices</h1>
+                    <h1 class="py-3">Registered Devices</h1>
                 </div>
                 <div>
                     <select class="p-2 rounded" id="themeSelector">
@@ -106,7 +106,8 @@
                     <tbody>
                         <tr th:each="device : ${devices}">
                             <td scope="row" th:text="${device.name}"></td>
-                            <td th:text="${device.lastCheckin}"></td>
+                            <td th:data-time="${device.lastCheckin.toInstant().toEpochMilli()}" class="relative-time">
+                            </td>
                             <td class="pop" th:text="${device.macAddress}"></td>
                             <td th:text="${device.building}"></td>
                             <td th:text="${device.room}"></td>
@@ -173,6 +174,26 @@
             const rows = element.value;
 
             window.location.href = `/devices?page=${page}&rows=${rows}&sortBy=${sortBy}&search=${encodeURIComponent(search)}`;
+        }
+
+        document.querySelectorAll('.relative-time').forEach(el => {
+            const timestamp = parseInt(el.getAttribute('data-time'));
+            el.textContent = getRelativeTime(timestamp);
+        });
+
+        function getRelativeTime(timestamp) {
+            const now = Date.now();
+            const diff = now - timestamp;
+
+            const seconds = Math.floor(diff / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+
+            if (seconds < 60) return `${seconds} seconds ago`;
+            if (minutes < 60) return `${minutes} minutes ago`;
+            if (hours < 24) return `${hours} hours ago`;
+            return `${days} days ago`;
         }
 
         function updateStatus(checkbox, macAddress) {

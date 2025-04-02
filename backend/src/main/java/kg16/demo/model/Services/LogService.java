@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
@@ -22,7 +21,7 @@ public class LogService {
     }
 
     private final RowMapper<LogDTO> logRowMapper = (rs, rowNum) -> new LogDTO(
-            rs.getString("hostname"),
+            rs.getString("name"),
             rs.getString("mac_address"),
             rs.getString("offline_since"),
             rs.getString("restored_at"),
@@ -42,7 +41,7 @@ public class LogService {
             "    oe.mac_address, " +
             "    oe.offline_since, " +
             "    oe.restored_at, " +
-            "    td.custom_name AS hostname, " +
+            "    COALESCE(td.custom_name, c.hostname) AS name, " +
             "    l.building, " + 
             "    l.room, " + 
             "    ne.message AS notification_message, " +
@@ -59,6 +58,8 @@ public class LogService {
             "    TrackedDevices td ON oe.mac_address = td.mac_address " +
             "LEFT JOIN " +
             "    Locations l ON td.location_id = l.location_id " + 
+            "LEFT JOIN " +
+            "    Checkins c ON td.mac_address = c.mac_address " + 
             "LEFT JOIN " +
             "    NotificationEvents ne ON oe.mac_address = ne.mac_address AND oe.event_id = ne.event_id " +
             "LEFT JOIN " +

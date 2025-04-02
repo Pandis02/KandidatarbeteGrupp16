@@ -14,10 +14,10 @@ public class DeviceService {
         this.jdbc = jdbcTemplate;
     }
 
-    // get all devices in tracked 
-    public List<Instance> getAllDevices() {
+    // get all devices in tracked table
+    public List<Instance> getAllRegisteredDevices() {
         String sql = """
-                    SELECT td.custom_name, c.last_checkin, td.mac_address, loc.building, loc.room,
+                    SELECT COALESCE(td.custom_name, c.hostname) AS name, c.last_checkin, td.mac_address, loc.building, loc.room,
                     CASE
                         WHEN EXISTS (
                             SELECT 1
@@ -40,7 +40,7 @@ public class DeviceService {
                 status = r.getBoolean("online") ? "Online" : "Offline";
             }
             return new Instance(
-                    r.getString("custom_name"),
+                    r.getString("name"),
                     r.getTimestamp("last_checkin"),
                     r.getString("mac_address"),
                     r.getString("building"),

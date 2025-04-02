@@ -11,6 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <title>Dashboard</title>
 </head>
+
 <body>
     <!-- Sidebar -->
     <nav class="sidebar">
@@ -18,29 +19,29 @@
             <i class="bi bi-chevron-left text-white"></i>
         </button>
         <div class="nav flex-column pt-5">
-            <a href="index.html" class="nav-link active">
+            <a href="dashboard" class="nav-link active">
                 <i class="bi bi-grid fs-3 pe-2"></i>
                 <span class="nav-text">Dashboard</span>
             </a>
-            <a href="notification.html" class="nav-link">
-                <i class="bi bi-bell fs-3 pe-2"></i>
-                <span class="nav-text">Notification</span>
+            <a href="devices" class="nav-link">
+                <i class="bi bi-pc-display fs-3 pe-2"></i>
+                <span class="nav-text">Registered Devices</span>
             </a>
-            <a href="logs.html" class="nav-link">
+            <a href="logs" class="nav-link">
                 <i class="bi bi-pencil fs-3 pe-2"></i>
                 <span class="nav-text">Logs</span>
             </a>
-            <a href="online-computers.html" class="nav-link">
-                <i class="bi bi-pc-display fs-3 pe-2"></i>
-                <span class="nav-text">Online computers</span>
+            <a href="discovery" class="nav-link">
+                <i class="bi bi-broadcast fs-3 pe-2"></i>
+                <span class="nav-text">Checkin Discovery</span>
             </a>
-            <a href="settings.html" class="nav-link">
+            <a href="settings" class="nav-link">
                 <i class="bi bi-gear fs-3 pe-2"></i>
                 <span class="nav-text">Settings</span>
             </a>
             <a href="login.html" class="nav-link sign-out">
                 <i class="bi bi-box-arrow-left fs-3 pe-2"></i>
-                <span class="nav-text">Logout</span> 
+                <span class="nav-text">Logout</span>
             </a>
         </div>
     </nav>
@@ -115,31 +116,31 @@
                             <h2>Recent notifications <i class="bi bi-bell fs-3"></i></h2>
                         </div>
                         <ul class="list-group list-group-flush">
-                          <div class="mb-3 list-group-item">
-                              <div class="card-body d-flex justify-content-between align-items-center">
-                                  <div>
-                                      <h5 class="fw-bold">Lab computer 3</h5>
-                                      A1:B2:C3:D4:E5 <br>
-                                      21 Feb 2025 17:55
-                                  </div>
-                                  <div>
-                                      <button type="button" class="btn btn-outline-dark themeButton">Resolve</button>
-                                      <button type="button" class="btn btn-outline-dark themeButton">Info</button>                         
-                                  </div>
-                              </div>
+                            <div class="mb-3 list-group-item">
+                                <div class="card-body d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="fw-bold">Lab computer 3</h5>
+                                        A1:B2:C3:D4:E5 <br>
+                                        21 Feb 2025 17:55
+                                    </div>
+                                    <div>
+                                        <button type="button" class="btn btn-outline-dark themeButton">Resolve</button>
+                                        <button type="button" class="btn btn-outline-dark themeButton">Info</button>
+                                    </div>
+                                </div>
                             </div>
                             <div class="mb-3 list-group-item">
-                              <div class="card-body d-flex justify-content-between align-items-center">
-                                  <div>
-                                      <h5 class="fw-bold">Lab computer 4</h5>
-                                      A1:B2:C3:D4:E5 <br>
-                                      21 Feb 2025 17:55
-                                  </div>
-                                  <div>
-                                      <button type="button" class="btn btn-outline-dark themeButton">Resolve</button>
-                                      <button type="button" class="btn btn-outline-dark themeButton">Info</button>                         
-                                  </div>
-                              </div>
+                                <div class="card-body d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="fw-bold">Lab computer 4</h5>
+                                        A1:B2:C3:D4:E5 <br>
+                                        21 Feb 2025 17:55
+                                    </div>
+                                    <div>
+                                        <button type="button" class="btn btn-outline-dark themeButton">Resolve</button>
+                                        <button type="button" class="btn btn-outline-dark themeButton">Info</button>
+                                    </div>
+                                </div>
                             </div>
                             <div class="mb-3 list-group-item">
                                 <div class="card-body d-flex justify-content-between align-items-center">
@@ -150,10 +151,10 @@
                                     </div>
                                     <div>
                                         <button type="button" class="btn btn-outline-dark themeButton">Resolve</button>
-                                        <button type="button" class="btn btn-outline-dark themeButton">Info</button>                         
+                                        <button type="button" class="btn btn-outline-dark themeButton">Info</button>
                                     </div>
                                 </div>
-                              </div>
+                            </div>
                         </ul>
                     </div>
                 </div>
@@ -169,12 +170,13 @@
         </div>
     </div>
 
-    
+
     <!-- Javascript-->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/site.js"></script>
     <script src="js/myCharts.js"></script>
-    
+
 
 </body>
+
 </html>

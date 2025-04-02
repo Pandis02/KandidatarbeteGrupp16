@@ -30,13 +30,13 @@ public class CheckinController {
             return Map.of("success", false, "message", "invalid mac");
         }
 
-        checkinService.upsertCheckin(body.macAddress());
+        checkinService.upsertCheckin(body.macAddress(), body.hostname());
         logger.info(body.macAddress() + " has checked in!");
         return Map.of("success", true, "interval", assc.getSettings().getCheckinIntervalSeconds());
     }
 }
 
-record BodyOfCheckIn(String macAddress) {
+record BodyOfCheckIn(String macAddress, String hostname) {
     boolean isValid() {
         return macAddress != null && macAddress.length() == 17 && Utils.isValidMacAddress(macAddress);
     }

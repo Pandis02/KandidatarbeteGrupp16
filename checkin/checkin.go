@@ -8,6 +8,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 )
@@ -18,9 +19,16 @@ var interval = 15
 
 type RequestBody struct {
 	MacAddress string `json:"macAddress"`
+	Hostname   string `json:"hostname"`
 }
 
 func main() {
+	hostname, err := os.Hostname()
+	if err != nil {
+		fmt.Println("Error finding hostname:", err)
+		return
+	}
+
 	// Get the interface that's most likely to be used for internet connectivity
 	primaryInterface, err := getPrimaryInterface()
 	if err != nil {
@@ -34,9 +42,9 @@ func main() {
 	// Now looks like 04-7C-16-DE-4E-08
 
 	// Forever while loop
-	fmt.Printf("Started checkin routine with MAC: %s to HOST: %s\n", mac, server)
+	fmt.Printf("Started checkin routine from %s(%s) to: %s\n", hostname, mac, server)
 	for {
-		newInterval, err := checkin(mac)
+		newInterval, err := checkin(mac, hostname)
 		if err != nil {
 			fmt.Println("Error checking in:", err)
 			time.Sleep(time.Second * 1)
@@ -54,9 +62,9 @@ func main() {
 	}
 }
 
-func checkin(mac string) (interval int, err error) {
+func checkin(mac string, hostname string) (interval int, err error) {
 	// Prepare body
-	jsonData, err := json.Marshal(RequestBody{MacAddress: mac})
+	jsonData, err := json.Marshal(RequestBody{MacAddress: mac, Hostname: hostname})
 	if err != nil {
 		return 0, err
 	}
