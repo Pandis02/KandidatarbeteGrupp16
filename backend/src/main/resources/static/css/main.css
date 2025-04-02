@@ -54,40 +54,6 @@ select:hover{
     cursor: pointer;
 }
 
-/* PADDING */
-.ms-customDashboard {
-    margin-left: 21px;
-    margin-top: 1px;
-    margin-bottom: 1px;
-  }
-
-.list-group-item-cards{
-    margin-top: 0.5rem; 
-    margin-bottom: 0.5rem; 
-}
-
-.card-body.padding{
-    padding-top: 1rem;
-    padding-bottom: 1rem; 
-    padding-left: 2rem; 
-    padding-right: 2rem; 
-}
-
-.card-body > div:first-child {
-    margin-bottom: 1rem;  
-}
-
-.list-group-item{
-    border-top: 1px solid #ccc;
-    border-top: 1px solid #ccc;
-}
-
-.list-group-item:last-child {
-    border-bottom: none;
-}
-
-
-
 /*     DASHBOARD CARDS     */
 .status-card {
     border: none;
@@ -107,12 +73,14 @@ select:hover{
     transform: translateY(-50%);
 }
 
-.card-content {
+
+/* TODO: CHANGE NAME OF THIS CLASS IN CHECKIN DISCOVERY*/
+/*.card-content {
     margin-left: 80px;
     padding-left: 10px;
     border-left: 1px solid lightgray;
     text-align: center;
-}
+}*/
 
 /*     LEFT BORDER COLORS     */
 .status-card.online {
@@ -154,12 +122,8 @@ select:hover{
 
 
 /*     LOGS CARDS     */
-.card-header {
-    cursor: pointer;
-    background-color: #E4E5FF;
-    padding: 10px;
-    border-left: 4px solid;
-}
+/*TODO: FIX CARD HEADER */
+
 
 .bg-temp{
     background-color: #DD9A19;
