@@ -11,7 +11,6 @@
     <title>Dashboard</title>
 </head>
 <body>
-    <!-- TODO: FIX LOGS CARDS-->
     <nav class="sidebar" id="sidebar">
         <button class="btn toggle-btn nav-link nav-toggle-icon" onclick="toggleSidebar()">
             <i class="bi bi-chevron-left text-white"></i>
@@ -64,59 +63,84 @@
             </div>
             <hr class="pb-3">
             <!-- CARDS ROW -->
-            <div class="row">
-                <div class="card">
-                    <div class="card-body">
-                        <!--Red if X% of computers in a room is offline else green. -->
-                        <h4>System status: <span class="bg-info">Attention Needed/Normal</span></h4>
-                        <p>n devices offline accross the buildings. Check below.</p>
+            <div class="row pb-3">
+                <div class="col">
+                    <div class="card p-4 bg-awesome">
+                        <!--bg-danger if X% of computers in a room is offline else bg-success. -->
+                        <h4 class="fw-bold">System status: <span class="bg-danger badge">Attention Needed</span></h4>
+                        <p class="fw-600"> <span class="fw-bold badge bg-danger">10</span> devices offline accross the network. Check the locations below. </p>
                     </div>
                 </div>
             </div>
-            <div class="row py-3">
+            <div class="row pb-3">
                 <!--LIST AND SUBLIST COL -->
                 <div class="col">
                     <div class="card">
-                        <div class="card-header">Text</div>
+                        <div class="bg-navy card-header d-flex justify-content-between align-items-center c-default">
+                            <span class="fw-bold text-white">Device Status by Building - Most offline First</span>
+                            <span class="badge bg-danger">39/50</span>
+                        </div>
+
                         <div class="card-body">
-                            <ul>
+                            <ul class="status-list pt-3">
                                 <!-- BUILDING 1-->
                                 <li class="pb-3">
                                     <div class="" data-bs-toggle="collapse" data-bs-target="#edit">
-                                        <span>EDIT</span>
-                                        <span>10/12</span>
+                                        <span class="c-pointer">
+                                            <i class="bi bi-caret-right-fill pe-2"></i>
+                                            EDIT
+                                            <span class="badge bg-danger">20/30 </span>
+                                        </span>
                                     </div>
                                     <!-- ROOMS IN BUILDING 1-->
-                                    <ul  class="collapse show" id="edit">
+                                    <ul  class="collapse show list-unstyled" id="edit">
                                         <li>
-                                            <span class="text-danger">*</span>
-                                            <a class="" href="#">ED-XXX1</a>
+                                            <a class="status-item" href="#">
+                                                <span class="status-cicle bg-danger"></span>
+                                                ED-XXX1
+                                                <span class="badge bg-danger">1/10</span>
+                                            </a>
                                         </li>
                                         <li>
-                                            <span class="text-success">*</span>
-                                            <a class="" href="#">ED-XXX2</a>
+                                            <a class="status-item" href="#">
+                                                <span class="status-cicle bg-warning"></span>
+                                                ED-XXX1
+                                                <span class="badge bg-warning">9/10</span>
+                                            </a>
                                         </li>
                                         <li>
-                                            <span class="text-success">*</span>
-                                            <a class="" href="#">ED-XXX3</a>
+                                            <a class="status-item" href="#">
+                                                <span class="status-cicle bg-success"></span>
+                                                ED-XXX1
+                                                <span class="badge bg-success">10/10</span>
+                                            </a>
                                         </li>
                                     </ul>
                                 </li>
                                 <!-- BUILDING 2-->
                                 <li class="pb-3">
-                                    <div class="" data-bs-toggle="collapse" data-bs-target="#sam">
-                                        <span>Samhällsbyggnaden</span>
-                                        <span>10/12</span>
+                                    <div data-bs-toggle="collapse" data-bs-target="#sam">
+                                        <span class="c-pointer"> 
+                                            <i class="bi bi-caret-right-fill pe-2"></i> 
+                                            Samhällsbyggnad
+                                            <span class="badge bg-warning">19/20 </span>
+                                        </span>
                                     </div>
                                     <!-- ROOMS IN BUILDING 2-->
-                                    <ul  class="collapse show" id="sam">
+                                    <ul  class="collapse list-unstyled" id="sam">
                                         <li>
-                                            <span class="text-danger">*</span>
-                                            <a class="" href="#">SB-XXX1</a>
+                                            <a class="status-item" href="#">
+                                                <span class="status-cicle bg-warning"></span>
+                                                SB-XXX1
+                                                <span class="badge bg-warning">9/10</span>
+                                            </a>
                                         </li>
                                         <li>
-                                            <span class="text-success">*</span>
-                                            <a class="" href="#">SB-XXX2</a>
+                                            <a class="status-item" href="#">
+                                                <span class="status-cicle bg-success"></span>
+                                                SB-XXX1
+                                                <span class="badge bg-success">10/10</span>
+                                            </a>
                                         </li>
                                     </ul>
                                 </li>
@@ -127,29 +151,33 @@
                 <!-- Recent activity list -->
                 <div class="col">
                     <div class="card">
-                        <div class="card-header">Recent activity</div>
+                        <div class="card-header bg-navy fw-bold text-white c-default d-flex justify-content-between align-items-center">
+                            <div>Recent Activity</div>
+                            <!-- Link to checkin discovery or tracked devices page -->
+                            <a href="#" class="text-white">View all</a>
+                        </div>
                         <div class="card-body">
-                            <table class="table">
-                                <thead>
+                            <table class="table activity-table table-hover">
+                                <thead class="text-center">
                                     <tr>
                                         <th>Time</th>
-                                        <th>Location</th>
+                                        <th>Room</th>
                                         <th>Device</th>
                                         <th>Event</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody class="text-center">
                                     <tr>
                                         <td>12:00</td>
-                                        <td>EDIT</td>
+                                        <td>ED-XXX2</td>
                                         <td>Computer 1</td>
-                                        <td>Computer went offline</td>
+                                        <td>Device went offline</td>
                                     </tr>
                                     <tr>
                                         <td>12:00</td>
-                                        <td>EDIT</td>
+                                        <td>ED-XXX1</td>
                                         <td>Computer 2</td>
-                                        <td>Computer went offline</td>
+                                        <td>Device went offline</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -157,12 +185,7 @@
                     </div>
                 </div>
             </div>
-
-            <!-- 
-                One or two charts. May move these later. Feel free to change the content of the chart(s).
-                Content suggestion: Number of alerts per time of the day.
-            -->
-            <div class="row">
+            <div class="row pb-3">
                 <!-- Chart 1-->
                 <div class="col">   
                     <div class="card">
@@ -174,21 +197,40 @@
 
                 <!-- Chart 2-->
                  <div class="col">
-                    <div class="card">
+                    <div class="card ">
                         <div class="card-body">
                             <canvas id="alertChart" style="width:100%;max-width:600px"></canvas>
                         </div>
                     </div>
                  </div>
             </div>
-
         </div>
     </div>
-
-    
     <!-- Javascript-->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/site.js"></script>
     <script src="js/myCharts.js"></script>
+    <script> // Change toggle icon on collapse/toggle
+        document.addEventListener("DOMContentLoaded", () => {
+            document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(trigger => {
+                const targetSelector = trigger.dataset.bsTarget;
+                const target = document.querySelector(targetSelector);
+                const icon = trigger.querySelector('i.bi');
+            
+                if (!target || !icon) return; // Check if element exist
+            
+                const updateIcon = (isExpanded) => {
+                    icon.classList.replace(
+                        isExpanded ? 'bi-caret-right-fill' : 'bi-caret-down-fill',
+                        isExpanded ? 'bi-caret-down-fill' : 'bi-caret-right-fill'
+                    );
+                };
+            
+                updateIcon(target.classList.contains('show'));
+                target.addEventListener('show.bs.collapse', () => updateIcon(true));
+                target.addEventListener('hide.bs.collapse', () => updateIcon(false));
+            });
+        });
+    </script>
 </body>
 </html>

@@ -1,10 +1,11 @@
 /* Default theme: Light so no need for data-theme="light" */
 :root {
-    --bg-color: #ffffff;
+    --bg-color: #f8f9fa;
     --text-color: #333333;
     --shadow-color: rgba(0,0,0,0.1);
     --table-lable: #6c757d;
     --always-dark: #333333;
+    --gradiant: #E4E5FF;
     --pop: #0A3B62;
 }
 
@@ -14,10 +15,11 @@
     --text-color: #ffffff;
     --shadow-color: rgba(255, 255, 255, 0.1);
     --table-lable: white;
+    --gradiant: #0A3B62;
     --pop:white;
 }
 
-body, table.log-table td{
+body, table.log-table td, table.activity-table td, table.activity-table th{
     background-color: var(--bg-color);
     color: var(--text-color);
     transition: background-color 0.3s ease, color 0.3s ease;
@@ -54,16 +56,77 @@ select:hover{
     cursor: pointer;
 }
 
-/*     DASHBOARD CARDS     */
+/* COLORS */
+
+.bg-navy{
+    background-color: #0A3B62;
+}
+
+.bg-awesome{
+    background-image: linear-gradient(to left, var(--bg-color) , var(--gradiant));
+}
+
+.fw-600{
+    font-weight: 600;
+}
+
+.card{
+    border-color: #d2d2d2;
+}
+
+.bg-warning {
+    background-color: #DD9A19 !important; 
+}
+
+.bg-success{
+    background-color: #008767 !important;
+}
+
+/* CURSOR */
+.c-pointer{
+    cursor: pointer;
+}
+
+.c-default{
+    cursor: default;
+}
+
+/* DASHBOARD CARDS */
+
+.status-item{
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--text-color);
+}
+
+.status-item:hover{
+    border-left: 4px solid;
+}
+
+.status-list{
+    list-style-type: none;
+    font-weight: 600;
+}
+
+.status-list li{
+    padding-top: 15px;
+}
+
+.status-cicle{
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 10px;
+    margin-left: 30px;
+}
+
+/*     CHECKIN DISCOVERY CARDS     */
+
 .status-card {
     border: none;
     border-left: 4px solid;
     box-shadow: 0 2px 4px var(--shadow-color);
-    transition: transform 0.3s;
-}
-
-.status-card:hover {
-    transform: translateY(-5px);
 }
 
 .card-icon {
@@ -73,14 +136,12 @@ select:hover{
     transform: translateY(-50%);
 }
 
-
-/* TODO: CHANGE NAME OF THIS CLASS IN CHECKIN DISCOVERY*/
-/*.card-content {
+.card-content {
     margin-left: 80px;
     padding-left: 10px;
     border-left: 1px solid lightgray;
     text-align: center;
-}*/
+}
 
 /*     LEFT BORDER COLORS     */
 .status-card.online {
@@ -122,8 +183,11 @@ select:hover{
 
 
 /*     LOGS CARDS     */
-/*TODO: FIX CARD HEADER */
-
+.logs-header{
+    background-color: #E4E5FF;
+    padding: 10px;
+    cursor: pointer;
+}
 
 .bg-temp{
     background-color: #DD9A19;
