@@ -99,8 +99,13 @@ select:hover{
     color: var(--text-color);
 }
 
+.status-item{
+    display: inline-block;
+    transition: transform 0.4s;
+}
+
 .status-item:hover{
-    border-left: 4px solid;
+    transform: translateX(7px);
 }
 
 .status-list{
