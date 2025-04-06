@@ -1,8 +1,6 @@
 package kg16.demo.model.services;
 
-import java.sql.Timestamp;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.*;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -45,68 +43,110 @@ public class DashboardService {
         });
     }
 
-    private List<TopNRecentAlerts> getDashboardDeviceInfo() {
-        // Repeat CASE in ORDER BY because H2 does not allow referencing an alias (like status) in the ORDER BY clause
+    private List<Location> getLocationsBriefing() {
+        var minutes = settings.getSettings().getAlertThresholdMinutes();
         String sql = """
-                    SELECT c.mac_address, c.last_checkin,
-                    CASE
-                        WHEN oe.restored_at IS NOT NULL THEN 'online'
-                        WHEN TIMESTAMPDIFF(MINUTE, c.last_checkin, NOW()) < a.alert_threshold_minutes THEN 'paused'
-                        ELSE 'offline'
-                    END AS status
-                    FROM Checkins c
-                    LEFT JOIN OfflineEvents oe ON c.mac_address = oe.mac_address
-                    CROSS JOIN (SELECT alert_threshold_minutes FROM AdminSettings ORDER BY id DESC LIMIT 1) a
-                    ORDER BY
-                        CASE
-                            WHEN oe.restored_at IS NOT NULL THEN 3
-                            WHEN TIMESTAMPDIFF(MINUTE, c.last_checkin, NOW()) < a.alert_threshold_minutes THEN 2
-                            ELSE 1
-                        END,
-                    c.last_checkin DESC;
+                SELECT
+                    loc.location_id,
+                    loc.building,
+                    loc.room,
+                    COUNT(td.mac_address) AS total_devices,
+                    COUNT(oe.mac_address) AS offline_devices
+                FROM
+                    Locations loc
+                LEFT JOIN
+                    TrackedDevices td on td.location_id = loc.location_id AND td.enabled
+                LEFT JOIN
+                    OfflineEvents oe ON td.mac_address = oe.mac_address AND oe.restored_at IS NULL
+                    AND oe.offline_since < NOW() - INTERVAL '%d' MINUTE AND td.enabled
+                GROUP BY
+                    loc.location_id
+                ORDER BY
+                    loc.building ASC;
                 """;
 
-        return jdbc.query(sql, (r, rowNum) -> {
-            return new TopNRecentAlerts(
-                    r.getString("mac_address"),
-                    r.getTimestamp("last_checkin"),
-                    r.getString("status"));
+        return jdbc.query(String.format(sql, minutes), (r, rowNum) -> {
+            return new Location(
+                    r.getInt("location_id"),
+                    r.getString("building"),
+                    r.getString("room"),
+                    r.getInt("total_devices"),
+                    r.getInt("offline_devices"));
         });
     }
 
-    public DeviceStatusCount getDeviceStatusCount() {
+    public List<Building> getBuildingsInfo() {
+        var locations = getLocationsBriefing();
 
-        var devices = getDashboardDeviceInfo();
+        // Group locations by building name and transform each into Room objects
+        Map<String, List<Room>> buildingToRooms = new HashMap<>();
 
-        int onlineCount = 0;
-        int tempOfflineCount = 0;
-        int offlineCount = 0;
+        for (var location : locations) {
+            Room room = new Room(
+                    location.locationId(),
+                    location.room(),
+                    location.totalEnabledDevices(),
+                    location.totalEnabledOffline(),
+                    location.totalEnabledDevices() - location.totalEnabledOffline());
 
-        for (TopNRecentAlerts device : devices) {
-            switch (device.status) {
-                case "online" -> onlineCount++;
-                case "paused" -> tempOfflineCount++;
-                default -> offlineCount++;
+            String buildingName = location.building();
+
+            // If we haven't seen this building before, create a new list
+            if (!buildingToRooms.containsKey(buildingName)) {
+                buildingToRooms.put(buildingName, new ArrayList<>());
             }
+
+            // Add the room to the appropriate building
+            buildingToRooms.get(buildingName).add(room);
         }
-        int totalComputers = onlineCount + tempOfflineCount + offlineCount;
 
-        return new DeviceStatusCount(onlineCount, tempOfflineCount, offlineCount, totalComputers);
+        // Transform the map into a list of Building objects
+        List<Building> buildings = new ArrayList<>();
+        for (Map.Entry<String, List<Room>> entry : buildingToRooms.entrySet()) {
+            String buildingName = entry.getKey();
+            List<Room> rooms = entry.getValue();
+
+            // Calculate building-level totals
+            int buildingTotalDevices = 0;
+            int buildingOfflineDevices = 0;
+
+            for (Room room : rooms) {
+                buildingTotalDevices += room.totalDevices();
+                buildingOfflineDevices += room.offlineDevices();
+            }
+
+            var onlineDevices = buildingTotalDevices - buildingOfflineDevices;
+
+            Building building = new Building(rooms, buildingName, buildingTotalDevices, buildingOfflineDevices,
+                    onlineDevices);
+            buildings.add(building);
+        }
+
+        return buildings;
     }
 
-    public List<TopNRecentAlerts> getTopRecentOfflineDevices(int n) {
-        var devices = getDashboardDeviceInfo();
-        return devices.stream()
-                .filter(d -> "offline"
-                        .equals(d.status()))
-                .limit(n)
-                .collect(Collectors.toList());
+    private record Location(
+            int locationId,
+            String building,
+            String room,
+            int totalEnabledDevices,
+            int totalEnabledOffline) {
     }
 
-    public record TopNRecentAlerts(
-            String macAddress,
-            Timestamp lastCheckin,
-            String status) {
+    public record Room(
+            int locationId,
+            String name,
+            int totalDevices,
+            int offlineDevices,
+            int onlineDevices) {
+    }
+
+    public record Building(
+            List<Room> rooms,
+            String name,
+            int totalDevices,
+            int offlineDevices,
+            int onlineDevices) {
     }
 
     public record DeviceStatusCount(
