@@ -21,7 +21,7 @@ public class LogService {
     }
 
     private final RowMapper<LogDTO> logRowMapper = (rs, rowNum) -> new LogDTO(
-            rs.getString("name"),
+            rs.getString("device_name"),
             rs.getString("mac_address"),
             rs.getString("offline_since"),
             rs.getString("restored_at"),
@@ -31,41 +31,42 @@ public class LogService {
             rs.getString("notification_recipient"),
             rs.getString("notification_type"),
             rs.getString("building"),
-            rs.getString("room")
-    );
+            rs.getString("room"));
 
-    public List<LogDTO> findOfflineEvents(LocalDate startDate, LocalDate endDate) { 
-        StringBuilder query = new StringBuilder(
-            "SELECT " +
-            "    oe.event_id, " +
-            "    oe.mac_address, " +
-            "    oe.offline_since, " +
-            "    oe.restored_at, " +
-            "    COALESCE(td.custom_name, c.hostname) AS name, " +
-            "    l.building, " + 
-            "    l.room, " + 
-            "    ne.message AS notification_message, " +
-            "    ne.timestamp AS notification_timestamp, " +
-            "    nr.recipient AS notification_recipient, " +
-            "    nr.type AS notification_type, " +
-            "    CASE " +
-            "        WHEN ne.event_id IS NOT NULL THEN TRUE " +
-            "        ELSE FALSE " +
-            "    END AS alert_sent " +
-            "FROM " +
-            "    OfflineEvents oe " +
-            "JOIN " +
-            "    TrackedDevices td ON oe.mac_address = td.mac_address " +
-            "LEFT JOIN " +
-            "    Locations l ON td.location_id = l.location_id " + 
-            "LEFT JOIN " +
-            "    Checkins c ON td.mac_address = c.mac_address " + 
-            "LEFT JOIN " +
-            "    NotificationEvents ne ON oe.mac_address = ne.mac_address AND oe.event_id = ne.event_id " +
-            "LEFT JOIN " +
-            "    NotificationRecipients nr ON ne.event_id = nr.event_id "
-        );
-    
+    public List<LogDTO> findOfflineEvents(LocalDate startDate, LocalDate endDate) {
+        StringBuilder query = new StringBuilder("""
+                SELECT
+                    oe.event_id,
+                    oe.mac_address,
+                    oe.offline_since,
+                    oe.restored_at,
+                    COALESCE(td.custom_name, c.hostname) AS device_name,
+                    l.building,
+                    l.room,
+                    nc.message AS notification_message,
+                    nc.timestamp AS notification_timestamp,
+                    rp.recipient_value AS notification_recipient,
+                    rp.recipient_type AS notification_type,
+                    CASE
+                        WHEN nc.event_id IS NOT NULL THEN TRUE
+                        ELSE FALSE
+                    END AS alert_sent
+                FROM
+                    OfflineEvents oe
+                JOIN
+                    TrackedDevices td ON oe.mac_address = td.mac_address
+                LEFT JOIN
+                    Locations l ON td.location_id = l.location_id
+                LEFT JOIN
+                    Checkins c ON td.mac_address = c.mac_address
+                LEFT JOIN
+                    Notifications nc ON nc.event_id = oe.event_id
+                LEFT JOIN
+                    NotificationRecipients nr ON nr.notification_id = nc.notification_id
+                LEFT JOIN
+                    Recipients rp ON rp.recipient_id = nr.recipient_id
+                """);
+
         // Apply filtering based on startDate and endDate
         List<Object> params = new ArrayList<>();
         if (startDate != null || endDate != null) {
@@ -82,15 +83,12 @@ public class LogService {
                 params.add(endDate.plusDays(1).atStartOfDay());
             }
         }
-    
+
         // Add ORDER BY clause
         query.append("ORDER BY oe.offline_since DESC");
-    
+
         // Execute the query with parameters
         return jdbcTemplate.query(query.toString(), params.toArray(), logRowMapper);
     }
 
-    
-    
-    
 }

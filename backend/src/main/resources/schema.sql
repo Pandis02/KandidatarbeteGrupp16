@@ -3,14 +3,13 @@ DROP TABLE IF EXISTS AdminSettings CASCADE;
 DROP TABLE IF EXISTS Locations CASCADE;
 DROP TABLE IF EXISTS TrackedDevices CASCADE;
 DROP TABLE IF EXISTS Scans CASCADE;
-DROP TABLE IF EXISTS OfflineEvents CASCADE;
-DROP TABLE IF EXISTS AlertTypes CASCADE;
 DROP TABLE IF EXISTS Checkins CASCADE;
-DROP TABLE IF EXISTS NotificationTriggers CASCADE;
+DROP TABLE IF EXISTS OfflineEvents CASCADE;
+DROP TABLE IF EXISTS Notifications CASCADE;
 DROP TABLE IF EXISTS Roles CASCADE;
 DROP TABLE IF EXISTS Recipients CASCADE;
 DROP TABLE IF EXISTS RecipientRoles CASCADE;
-DROP TABLE IF EXISTS NotificationRecipientEvents CASCADE;
+DROP TABLE IF EXISTS NotificationRecipients CASCADE;
 
 
 -- CREATE TABLES
@@ -70,9 +69,9 @@ CREATE TABLE OfflineEvents (
     CONSTRAINT chk_timestamps CHECK (restored_at IS NULL OR restored_at > offline_since)
 );
 
-CREATE TABLE NotificationTriggers (
-    event_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    mac_address CHAR(17) NOT NULL,
+CREATE TABLE Notifications (
+    notification_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    event_id BIGINT NOT NULL REFERENCES OfflineEvents(event_id),
     message TEXT NOT NULL,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -101,12 +100,10 @@ CREATE TABLE RecipientRoles (
     FOREIGN KEY (role_id) REFERENCES Roles(role_id)
 );
 
-CREATE TABLE NotificationRecipientEvents (
-    event_id BIGINT,
-    recipient_id BIGINT,
-    PRIMARY KEY (event_id, recipient_id),
-    FOREIGN KEY (event_id) REFERENCES NotificationTriggers(event_id) ON DELETE CASCADE,
-    FOREIGN KEY (recipient_id) REFERENCES Recipients(recipient_id) ON DELETE CASCADE
+CREATE TABLE NotificationRecipients (
+    notification_id BIGINT REFERENCES Notifications(notification_id) ON DELETE CASCADE,
+    recipient_id BIGINT REFERENCES Recipients(recipient_id) ON DELETE CASCADE,
+    PRIMARY KEY (notification_id, recipient_id)
 );
 
 -- Hard coded mock data
