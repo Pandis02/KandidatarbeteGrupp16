@@ -58,7 +58,6 @@ public class DashboardService {
                     TrackedDevices td on td.location_id = loc.location_id AND td.enabled
                 LEFT JOIN
                     OfflineEvents oe ON td.mac_address = oe.mac_address AND oe.restored_at IS NULL
-                    AND oe.offline_since < NOW() - INTERVAL '%d' MINUTE AND td.enabled
                 GROUP BY
                     loc.location_id
                 ORDER BY
