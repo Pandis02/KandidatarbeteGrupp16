@@ -24,16 +24,15 @@
         <table class="table table-bordered">
             <thead>
                 <tr>
-                    <th>#</th>
                     <th>Type</th>
                     <th>Value</th>
                     <th>Roles</th>
                     <th>Action</th>
                 </tr>
             </thead>
-            <tbody id="recipientTable">
+            
+            <tbody>
                 <tr th:each="recipient : ${recipients}">
-                    <td th:text="${recipient.recipientId}"></td>
                     <td th:text="${recipient.recipientType}"></td>
                     <td th:text="${recipient.recipientValue}"></td>
                     <td>
