@@ -64,8 +64,10 @@
             <div class="row pb-3">
                 <div class="col">
                     <div class="card p-4 bg-awesome">
-                        <!--bg-danger if X% of computers in a room is offline else bg-success. -->
-                        <h4 class="fw-bold">System status: <span class="bg-danger badge">Attention Needed</span></h4>
+                        <h4 class="fw-bold">System status: <span class="badge" th:classappend="${status.color == 'red' ? 'bg-danger' : 
+                            (status.color == 'green' ? 'bg-success' : 
+                              (status.color == 'yellow' ? 'bg-warning' : ''))}" th:text="${status.text}">
+                            </span></h4>
                         <p class="fw-600"> <span th:class="'fw-bold badge ' + (${totalOnline == totalDevices} ? 'bg-success' : 
                             (${totalOnline >= totalDevices * 0.75} ? 'bg-warning' : 'bg-danger'))"
                                 th:text="${totalOffline}"></span>

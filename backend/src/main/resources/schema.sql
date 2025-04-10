@@ -45,7 +45,7 @@ CREATE TABLE TrackedDevices (
     mac_address CHAR(17) PRIMARY KEY,
     custom_name VARCHAR(255),
     enabled BOOLEAN DEFAULT TRUE,
-    location_id BIGINT REFERENCES Locations(location_id) ON DELETE SET NULL
+    location_id BIGINT NOT NULL REFERENCES Locations(location_id) ON DELETE CASCADE
 );
 
 CREATE TABLE Scans (
@@ -71,7 +71,7 @@ CREATE TABLE OfflineEvents (
 
 CREATE TABLE Notifications (
     notification_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    event_id BIGINT NOT NULL REFERENCES OfflineEvents(event_id),
+    event_id BIGINT NOT NULL REFERENCES OfflineEvents(event_id) ON DELETE CASCADE,
     message TEXT NOT NULL,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

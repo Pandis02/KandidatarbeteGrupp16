@@ -1,12 +1,18 @@
 package kg16.demo.model.services;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import kg16.demo.model.dto.AdminSettings;
 
@@ -15,16 +21,14 @@ import org.slf4j.LoggerFactory;
 
 @Service
 public class TrackerService {
-    private final ScanService sc;
-    private final CheckinService cs;
+    private final RecipientService rs;
     private final AdminSettingsService assc;
     private final JdbcTemplate jdbc;
 
     private static final Logger logger = LoggerFactory.getLogger(TrackerService.class);
 
-    public TrackerService(ScanService sc, CheckinService cs, AdminSettingsService assc, JdbcTemplate jdbc) {
-        this.sc = sc;
-        this.cs = cs;
+    public TrackerService(RecipientService rs, AdminSettingsService assc, JdbcTemplate jdbc) {
+        this.rs = rs;
         this.assc = assc;
         this.jdbc = jdbc;
     }
@@ -34,11 +38,6 @@ public class TrackerService {
     */
     @Scheduled(fixedDelay = 1000, initialDelay = 16000)
     public void track() {
-        /* 
-            1. Get tracked devices that are currently not flagged offline but should be according to our threshold
-            2. Flag as offline in the OfflineEvents table
-        */
-
         // Prep
         AdminSettings as = assc.getSettings();
         int intervalSafeEpsilonSeconds = 3;
@@ -51,6 +50,14 @@ public class TrackerService {
         for (SummarizedDevice device : unflaggedDevices) {
             flag(device);
         }
+
+        // Step 3: Get all offline devices that we should send notifications for
+        List<OfflineEvent> events = getAllUnNotifiedOfflineEvents(as.getAlertThresholdMinutes());
+
+        // Step 4: Send notifications for each event
+        for (OfflineEvent event : events) {
+            notify(event);
+        }
     }
 
     /** 
@@ -59,15 +66,12 @@ public class TrackerService {
      */
     private List<SummarizedDevice> getAllUnflaggedDevicesNotSeenIn(int seconds) {
         String sql = """
-                    SELECT td.mac_address, td.custom_name, s.hostname, s.ip_address, s.last_seen, c.last_checkin
+                    SELECT td.mac_address, COALESCE(td.custom_name, c.hostname) as name, c.last_checkin
                     FROM TrackedDevices td
-                    LEFT JOIN Scans s ON td.mac_address = s.mac_address
-                    LEFT JOIN Checkins c ON td.mac_address = c.mac_address
-                    WHERE (
-                        GREATEST (COALESCE(s.last_seen, '1970-01-01'), COALESCE(c.last_checkin, '1970-01-01')) < NOW() - INTERVAL '%d' SECOND
-                    )
-                    AND td.enabled = TRUE  -- Only consider enabled devices
-                    AND NOT EXISTS (
+                    JOIN Checkins c ON td.mac_address = c.mac_address
+                    WHERE td.enabled = TRUE AND (
+                        c.last_checkin < NOW() - INTERVAL '%d' SECOND
+                    ) AND NOT EXISTS (
                         SELECT 1 FROM OfflineEvents oe
                         WHERE oe.mac_address = td.mac_address
                         AND oe.restored_at IS NULL
@@ -77,11 +81,35 @@ public class TrackerService {
         return jdbc.query(String.format(sql, seconds), (r, rowNum) -> {
             return new SummarizedDevice(
                     r.getString("mac_address"),
-                    r.getString("custom_name"),
-                    r.getString("hostname"),
-                    r.getString("ip_address"),
-                    r.getTimestamp("last_seen"),
+                    r.getString("name"),
                     r.getTimestamp("last_checkin"));
+        });
+    }
+
+    /** 
+     * Get all devices in OfflineEvents that have been offline for x minutes and no notification has yet been sent
+     */
+    private List<OfflineEvent> getAllUnNotifiedOfflineEvents(int minutes) {
+        String sql = """
+                SELECT oe.event_id, oe.mac_address, COALESCE(td.custom_name, c.hostname) as device_name, oe.offline_since, l.building, l.room
+                FROM OfflineEvents oe
+                JOIN TrackedDevices td ON td.mac_address = oe.mac_address
+                LEFT JOIN Locations l ON l.location_id = td.location_id
+                LEFT JOIN Checkins c ON c.mac_address = td.mac_address
+                LEFT JOIN Notifications n ON n.event_id = oe.event_id
+                WHERE td.enabled AND oe.restored_at IS NULL AND n.notification_id IS NULL AND (
+                    oe.offline_since < NOW() - INTERVAL '%d' MINUTE
+                );
+                """;
+
+        return jdbc.query(String.format(sql, minutes), (r, rowNum) -> {
+            return new OfflineEvent(
+                    r.getLong("event_id"),
+                    r.getString("mac_address"),
+                    r.getString("device_name"),
+                    r.getTimestamp("offline_since"),
+                    r.getString("building"),
+                    r.getString("room"));
         });
     }
 
@@ -95,32 +123,83 @@ public class TrackerService {
                 """;
 
         try {
-            jdbc.update(sql, device.macAddress, device.lastActive());
-            logger.info("Device " + device.macAddress + " flagged as offline.");
+            jdbc.update(sql, device.macAddress(), device.lastCheckin());
+            logger.info("Device " + device.macAddress() + " flagged as offline.");
         } catch (DataAccessException e) {
-            logger.error("Failed to update OfflineEvents for mac address: " + device.macAddress, e);
+            logger.error("Failed to update OfflineEvents for mac address: " + device.macAddress(), e);
         }
+    }
+
+    /**
+     * Send notification for a certain event
+     */
+    @Transactional
+    private void notify(OfflineEvent event) {
+        var recipients = rs.getAllRecipients();
+
+        // Calculate minutes between
+        var duration = ChronoUnit.MINUTES.between(event.offlineSince.toLocalDateTime(), LocalDateTime.now());
+
+        String message = String.format(
+                "Device with the name '%s' and mac address '%s' has been offline for %d minutes now.",
+                event.deviceName(), event.macAddress(), duration);
+
+        try {
+            // Create SimpleJdbcInsert for notifications
+            SimpleJdbcInsert notificationInsert = new SimpleJdbcInsert(jdbc)
+                    .withTableName("Notifications")
+                    .usingGeneratedKeyColumns("notification_id");
+
+            // Create parameters map
+            Map<String, Object> params = new HashMap<>();
+            params.put("event_id", event.id);
+            params.put("message", message);
+
+            // Execute insert and get generated key
+            Long notificationId = notificationInsert.executeAndReturnKey(params).longValue();
+
+            logger.info("Notification sent for Device(" + event.macAddress() + ")");
+
+            // Insert recipients
+            for (var recipient : recipients) {
+                if (!recipient.getRecipientType().equals("email"))
+                    continue;
+
+                jdbc.update("INSERT INTO NotificationRecipients (notification_id, recipient_id) VALUES (?, ?)",
+                        notificationId, recipient.getRecipientId());
+            }
+
+            for (var recipient : recipients) {
+                if (!recipient.getRecipientType().equals("email"))
+                    continue;
+                sendMail(recipient.getRecipientValue(), message);
+            }
+        } catch (DataAccessException e) {
+            logger.error("Failed to notify for mac address: " + event.macAddress(), e);
+        }
+    }
+
+    void sendMail(String reciever, String message) {
+
     }
 
     private record SummarizedDevice(
             String macAddress,
-            String customName,
-            String hostname,
-            String ipAddress,
-            Timestamp lastSeen,
+            String name,
             Timestamp lastCheckin) {
-
-        Timestamp lastActive() {
-            if (lastSeen == null)
-                return lastCheckin;
-            if (lastCheckin == null)
-                throw new RuntimeException("Both last_seen & last_checkin cannot be NULL, this is impossible");
-            return lastSeen.toLocalDateTime().isAfter(lastCheckin.toLocalDateTime()) ? lastSeen : lastCheckin;
-        }
 
         @Override
         public String toString() {
             return "Device(" + macAddress + ")";
         }
+    }
+
+    private record OfflineEvent(
+            Long id,
+            String macAddress,
+            String deviceName,
+            Timestamp offlineSince,
+            String building,
+            String room) {
     }
 }
