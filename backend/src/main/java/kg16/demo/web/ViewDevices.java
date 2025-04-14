@@ -21,8 +21,8 @@ public class ViewDevices {
     public String onDevices(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "5") int rows,
-            @RequestParam(required = false) String search,
-            @RequestParam(required = false, defaultValue = "name") String sortBy,
+            @RequestParam(defaultValue = "") String search,
+            @RequestParam(defaultValue = "name") String sortBy,
             Model model) {
 
         var allDevices = ds.getAllRegisteredDevices();
@@ -85,9 +85,15 @@ public class ViewDevices {
         return "devices";
     }
 
-    @GetMapping("/device-update-state")
+    @GetMapping("/devices-update-state")
     public ResponseEntity<Void> onEnabledTracking(@RequestParam String macAddress, @RequestParam Boolean enabled) {
         ds.setEnabled(macAddress, enabled);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/devices-unregister")
+    public String onUnRegister(@RequestParam String macAddress) {
+        ds.delete(macAddress);
+        return "redirect:/devices";
     }
 }

@@ -12,7 +12,7 @@
 
 <body>
     <!-- Sidebar -->
-    <nav class="sidebar">
+    <nav class="sidebar" id="sidebar">
         <button class="btn toggle-btn nav-link nav-toggle-icon" onclick="toggleSidebar()">
             <i class="bi bi-chevron-left text-white"></i>
         </button>
@@ -48,7 +48,7 @@
         <div class="container">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h1 class="py-3">Registered Devices</h1>
+                    <h1 class="pt-3">Registered Devices</h1>
                 </div>
                 <div>
                     <select class="p-2 rounded" id="themeSelector">
@@ -57,6 +57,7 @@
                     </select>
                 </div>
             </div>
+            <hr class="pb-1">
             <!-- Filter and sorting option -->
             <div class="row py-3">
                 <div class="d-flex justify-content-between align-items-center">
@@ -66,8 +67,7 @@
                                 <i class="bi bi-search"></i>
                             </span>
                             <input type="text" class="form-control border-start-0 ps-0" placeholder="Search..."
-                                th:value="${search}" th:data-sort-by="${sortBy}" th:data-page="${page}"
-                                th:data-rows="${rows}" onchange="performSearch(this)">
+                                th:value="${search}" onchange="performSearch(this)">
                         </div>
                     </div>
                     <div>
@@ -101,6 +101,7 @@
                             <th scope="col">ROOM</th>
                             <th scope="col">STATUS</th>
                             <th scope="col">TRACKING</th>
+                            <th scope="col">UNREGISTER</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -121,6 +122,13 @@
                                     <span class="slider"></span>
                                 </label>
                             </td>
+                            <td>
+                                <a class="btn btn-sm btn-danger"
+                                    th:href="@{/devices-unregister(macAddress=${device.macAddress})}"
+                                    onclick="return confirm('Are you sure you want to unregister this device?');">
+                                    <i class="bi bi-x"></i>
+                                </a>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -130,8 +138,7 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <label class="table-gray" for="rowsSelector">Rows per page:</label>
-                        <select class="ps-1 border-0 table-gray" id="rowsSelector" th:data-sort-by="${sortBy}"
-                            th:data-page="${page}" th:data-search="${search}" onchange="updateRowsPerPage(this)">
+                        <select class="ps-1 border-0 table-gray" id="rowsSelector" onchange="updateRowsPerPage(this)">
                             <option th:selected="${rows == 5}" value="5">5</option>
                             <option th:selected="${rows == 10}" value="10">10</option>
                         </select>
@@ -157,23 +164,21 @@
     <script src="js/site.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+
+    <script th:inline="javascript">
+        const sortBy = /*[[${sortBy}]]*/ 'name';
+        const page = /*[[${page}]]*/ 0;
+        const search = /*[[${search}]]*/ '';
+        const rows = /*[[${rows}]]*/ 10;
+    </script>
+
     <script>
         function performSearch(element) {
-            const page = element.dataset.page;
-            const rows = element.dataset.rows;
-            const sortBy = element.dataset.sortBy;
-            const searchValue = element.value;
-
-            window.location.href = `/devices?page=${page}&rows=${rows}&sortBy=${sortBy}&search=${encodeURIComponent(searchValue)}`;
+            window.location.href = `/devices?page=${page}&rows=${rows}&sortBy=${sortBy}&search=${element.value}`;
         }
 
         function updateRowsPerPage(element) {
-            const page = element.dataset.page;
-            const sortBy = element.dataset.sortBy;
-            const search = element.dataset.search;
-            const rows = element.value;
-
-            window.location.href = `/devices?page=${page}&rows=${rows}&sortBy=${sortBy}&search=${encodeURIComponent(search)}`;
+            window.location.href = `/devices?page=${page}&rows=${element.value}&sortBy=${sortBy}&search=${search}`;
         }
 
         document.querySelectorAll('.relative-time').forEach(el => {
@@ -197,7 +202,7 @@
         }
 
         function updateStatus(checkbox, macAddress) {
-            fetch(`/device-update-state?macAddress=${macAddress}&enabled=${checkbox.checked}`, {
+            fetch(`/devices-update-state?macAddress=${macAddress}&enabled=${checkbox.checked}`, {
                 method: 'GET'
             }).catch(error => {
                 console.error('Error:', error);

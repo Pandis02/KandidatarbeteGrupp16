@@ -56,6 +56,12 @@ public class DeviceService {
         jdbc.update(sql, enabled, macAddress);
     }
 
+    // delete a particular device
+    public void delete(String macAddress) {
+        String sql = "DELETE FROM TrackedDevices WHERE mac_address = ?;";
+        jdbc.update(sql, macAddress);
+    }
+
     public record Instance(
             String name,
             Timestamp lastCheckin,

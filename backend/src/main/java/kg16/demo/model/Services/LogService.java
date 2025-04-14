@@ -30,14 +30,14 @@ public class LogService {
             rs.getString("notification_timestamp"),
             rs.getString("notification_recipient"),
             rs.getString("notification_type"),
-            rs.getString("building"),
-            rs.getString("room"));
+            rs.getString("location"));
 
     public List<LogDTO> findOfflineEvents(LocalDate startDate, LocalDate endDate) {
         StringBuilder query = new StringBuilder("""
                 SELECT
                     oe.event_id,
                     oe.mac_address,
+                    oe.location,
                     oe.offline_since,
                     oe.restored_at,
                     COALESCE(td.custom_name, c.hostname) AS device_name,

@@ -24,6 +24,7 @@ public class TrackerService {
     private final RecipientService rs;
     private final AdminSettingsService assc;
     private final JdbcTemplate jdbc;
+    private boolean noRecipientsErrorWarned = false;
 
     private static final Logger logger = LoggerFactory.getLogger(TrackerService.class);
 
@@ -66,8 +67,9 @@ public class TrackerService {
      */
     private List<SummarizedDevice> getAllUnflaggedDevicesNotSeenIn(int seconds) {
         String sql = """
-                    SELECT td.mac_address, COALESCE(td.custom_name, c.hostname) as name, c.last_checkin
+                    SELECT td.mac_address, COALESCE(td.custom_name, c.hostname) as name, c.last_checkin, l.building, l.room
                     FROM TrackedDevices td
+                    LEFT JOIN Locations l ON l.location_id = td.location_id
                     JOIN Checkins c ON td.mac_address = c.mac_address
                     WHERE td.enabled = TRUE AND (
                         c.last_checkin < NOW() - INTERVAL '%d' SECOND
@@ -82,7 +84,9 @@ public class TrackerService {
             return new SummarizedDevice(
                     r.getString("mac_address"),
                     r.getString("name"),
-                    r.getTimestamp("last_checkin"));
+                    r.getTimestamp("last_checkin"),
+                    r.getString("building"),
+                    r.getString("room"));
         });
     }
 
@@ -118,12 +122,12 @@ public class TrackerService {
      */
     private void flag(SummarizedDevice device) {
         String sql = """
-                    INSERT INTO OfflineEvents (mac_address, offline_since)
-                    VALUES (?, ?)
+                    INSERT INTO OfflineEvents (mac_address, location, offline_since)
+                    VALUES (?, ?, ?)
                 """;
 
         try {
-            jdbc.update(sql, device.macAddress(), device.lastCheckin());
+            jdbc.update(sql, device.macAddress(), device.building() + " " + device.room(), device.lastCheckin());
             logger.info("Device " + device.macAddress() + " flagged as offline.");
         } catch (DataAccessException e) {
             logger.error("Failed to update OfflineEvents for mac address: " + device.macAddress(), e);
@@ -136,6 +140,15 @@ public class TrackerService {
     @Transactional
     private void notify(OfflineEvent event) {
         var recipients = rs.getAllRecipients();
+
+        // Warn only once if no recipients are configured
+        if ((recipients == null || recipients.isEmpty())) {
+            if (!noRecipientsErrorWarned) {
+                noRecipientsErrorWarned = true;
+                logger.error("There are no recipients configured for emails.");
+            }
+            return;
+        }
 
         // Calculate minutes between
         var duration = ChronoUnit.MINUTES.between(event.offlineSince.toLocalDateTime(), LocalDateTime.now());
@@ -186,7 +199,9 @@ public class TrackerService {
     private record SummarizedDevice(
             String macAddress,
             String name,
-            Timestamp lastCheckin) {
+            Timestamp lastCheckin,
+            String building,
+            String room) {
 
         @Override
         public String toString() {

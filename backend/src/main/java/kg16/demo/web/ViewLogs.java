@@ -23,7 +23,7 @@ public class ViewLogs {
     public String onViewLogs(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int rows,
-            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "") String search,
             Model model) {
 
         // Ensure search is not null

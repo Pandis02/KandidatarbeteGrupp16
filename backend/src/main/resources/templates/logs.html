@@ -13,17 +13,10 @@
             background-color: #007bff;
             color: white;
         }
+
         .filter-button {
             background-color: #f8f9fa;
             color: #343a40;
-        }
-        .badge-temp {
-            background-color: #ffc107;
-            color: black;
-        }
-        .badge-notification {
-            background-color: #007bff;
-            color: white;
         }
     </style>
 </head>
@@ -66,7 +59,7 @@
         <div class="container">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h1 class="py-3">Logs & Events</h1>
+                    <h1 class="pt-3">Logs & Events</h1>
                 </div>
                 <div>
                     <select class="p-2 rounded" id="themeSelector">
@@ -75,6 +68,7 @@
                     </select>
                 </div>
             </div>
+            <hr class="pb-1">
             <!-- Filter and sorting option -->
             <div class="row py-3">
                 <div class="d-flex justify-content-between align-items-center">
@@ -91,73 +85,61 @@
                 </div>
             </div>
             <!-- Offline Events -->
-            <!-- Dynamic Cards for Offline Events -->
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 id="eventsHeading">Offline Events</h5>
                 <button class="btn btn-sm btn-outline-secondary" onclick="collapseAll()">Collapse All</button>
             </div>
-            <div id="logsContainer">
-                <div th:each="log, iterStat : ${logs}">
-                    <div class="row pb-3 log-item" th:data-alert-sent="${log.alertSent}">
-                        <div id="offlineEvent">
-                            <div class="card-header" th:classappend="${log.alertSent} ? 'offline' : 'temp-offline'" 
-                                 data-bs-toggle="collapse" th:href="'#offline' + ${iterStat.index}">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <span class="fw-bold" th:text="${log.macAddress}"></span>
-                                        <span class="text-muted" th:text="${#strings.substring(log.offlineSince, 0, 19)}"></span>
-                                    </div>
-                                    <div>
-                                        <span class="badge me-2 badge-notification" th:text="${log.notificationType}"></span>
-                                        <span class="badge me-2" th:classappend="${log.alertSent} ? 'bg-danger' : 'badge-temp'" 
-                                              th:text="${log.alertSent} ? 'Alert Sent' : 'Disconnected'"></span>
-                                        <span class="text-muted" th:text="${log.hostname}"></span>
-                                    </div>
-                                </div>
+            <div th:each="log, iterStat : ${logs}" class="row pb-3 log-item">
+                <div id="offlineEvent">
+                    <div class="card-header logs-header" data-bs-toggle="collapse"
+                        th:href="'#offline' + ${iterStat.index}">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <span class="fw-bold" th:text="${log.macAddress}"></span>
+                                <span class="text-muted"
+                                    th:text="${#strings.substring(log.offlineSince, 0, 19)}"></span>
                             </div>
-                            <div th:id="'offline' + ${iterStat.index}" class="collapse">
-                                <div class="card-body">
-                                    <div class="detail-item">
-                                        <span class="detail-label">Device Name:</span>
-                                        <span th:text="${log.hostname}"></span>
-                                    </div>
-                                    <div class="detail-item" th:if="${log.building}">
-                                        <span class="detail-label">Device Building:</span>
-                                        <span th:text="${log.building}"></span>
-                                    </div>
-                                    <div class="detail-item" th:if="${log.room}">
-                                        <span class="detail-label">Device Room:</span>
-                                        <span th:text="${log.room}"></span>
-                                    </div>
-                                    <div class="detail-item">
-                                        <span class="detail-label">Offline Since:</span>
-                                        <span th:text="${#strings.substring(log.offlineSince, 0, 19)}"></span> 
-                                    </div>
-                                    <div class="detail-item">
-                                        <span class="detail-label">Alert Sent:</span>
-                                        <span class="badge" th:classappend="${log.alertSent} ? 'bg-success' : 'bg-danger'" th:text="${log.alertSent} ? 'Yes' : 'No'"></span>
-                                    </div>
-                                    <div class="detail-item">
-                                        <span class="detail-label">Restored At:</span>
-                                        <span th:text="${#strings.substring(log.restoredAt, 0, 19)}"></span>
-                                    </div>
-                                    <div class="detail-item" th:if="${log.alertSent}">
-                                        <span class="detail-label">Notification Message:</span>
-                                        <span th:text="${log.notificationMessage}"></span>
-                                    </div>
-                                    <div class="detail-item" th:if="${log.alertSent}">
-                                        <span class="detail-label">Notification Timestamp:</span>
-                                        <span th:text="${log.notificationTimestamp}"></span>
-                                    </div>
-                                    <div class="detail-item" th:if="${log.alertSent}">
-                                        <span class="detail-label">Notification Recipient:</span>
-                                        <span th:text="${log.notificationRecipient}"></span>
-                                    </div>
-                                    <div class="detail-item" th:if="${log.alertSent}">
-                                        <span class="detail-label">Notification Type:</span>
-                                        <span th:text="${log.notificationType}"></span>
-                                    </div>
-                                </div>
+                            <div>
+                                <span class="badge me-2 bg-warning">Disconnected</span>
+                                <span class="badge me-2 bg-danger" th:if="${log.alertSent}">Alert Sent</span>
+                                <span class="badge me-2 bg-success" th:if="${log.restoredAt}">Restored</span>
+                                <span class="text-muted" th:text="${log.hostname}"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div th:id="'offline' + ${iterStat.index}" class="collapse">
+                        <div class="card-body">
+                            <div class="detail-item">
+                                <span class="detail-label">Device Name:</span>
+                                <span th:text="${log.hostname}"></span>
+                            </div>
+                            <div class="detail-item" th:if="${log.location}">
+                                <span class="detail-label">Device Location:</span>
+                                <span th:text="${log.location}"></span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Offline Since:</span>
+                                <span th:text="${#strings.substring(log.offlineSince, 0, 19)}"></span>
+                            </div>
+                            <div class="detail-item" th:if="${log.restoredAt}">
+                                <span class="detail-label">Restored At:</span>
+                                <span th:text="${#strings.substring(log.restoredAt, 0, 19)}"></span>
+                            </div>
+                            <div class="detail-item" th:if="${log.notificationMessage}">
+                                <span class="detail-label">Notification Message:</span>
+                                <span th:text="${log.notificationMessage}"></span>
+                            </div>
+                            <div class="detail-item" th:if="${log.notificationTimestamp}">
+                                <span class="detail-label">Notification Timestamp:</span>
+                                <span th:text="${log.notificationTimestamp}"></span>
+                            </div>
+                            <div class="detail-item" th:if="${log.notificationRecipient}">
+                                <span class="detail-label">Notification Recipient:</span>
+                                <span th:text="${log.notificationRecipient}"></span>
+                            </div>
+                            <div class="detail-item" th:if="${log.notificationType}">
+                                <span class="detail-label">Notification Type:</span>
+                                <span th:text="${log.notificationType}"></span>
                             </div>
                         </div>
                     </div>
@@ -168,32 +150,30 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <label class="table-gray" for="rowsSelector">Rows per page:</label>
-                        <select class="ps-1 border-0 table-gray" id="rowsSelector"
-                            th:data-page="${page}" 
-                            th:data-search="${search}" 
-                            onchange="updateRowsPerPage(this)">
-                        <option th:selected="${rows == 5}" value="5">5</option>
-                        <option th:selected="${rows == 10}" value="10">10</option>
-                        <option th:selected="${rows == 20}" value="20">20</option>
-                    </select>
-                
-                    
-                    
+                        <select class="ps-1 border-0 table-gray" id="rowsSelector" th:data-page="${page}"
+                            th:data-search="${search}" onchange="updateRowsPerPage(this)">
+                            <option th:selected="${rows == 5}" value="5">5</option>
+                            <option th:selected="${rows == 10}" value="10">10</option>
+                            <option th:selected="${rows == 20}" value="20">20</option>
+                        </select>
+
+
+
                     </div>
                     <div class="d-flex justify-content-between align-items-center">
                         <span class="table-gray pe-3" th:text="${page} + ' of ' + ${pages}"></span>
                         <div class="d-flex gap-2">
                             <a class="nav-button btn btn-outline-dark themeButton"
-                            th:href="@{/logs(page=${page - 1}, rows=${rows}, search=${search})}"
-                            th:classappend="${page} == 1 ? 'disabled' : ''">
-                            <i class="bi bi-caret-left-fill"></i>
-                         </a>
-                         <a class="nav-button btn btn-outline-dark themeButton"
-                            th:href="@{/logs(page=${page + 1}, rows=${rows}, search=${search})}"
-                            th:classappend="${page} == ${pages} ? 'disabled' : ''">
-                            <i class="bi bi-caret-right-fill"></i>
-                         </a>
-                         
+                                th:href="@{/logs(page=${page - 1}, rows=${rows}, search=${search})}"
+                                th:classappend="${page} == 1 ? 'disabled' : ''">
+                                <i class="bi bi-caret-left-fill"></i>
+                            </a>
+                            <a class="nav-button btn btn-outline-dark themeButton"
+                                th:href="@{/logs(page=${page + 1}, rows=${rows}, search=${search})}"
+                                th:classappend="${page} == ${pages} ? 'disabled' : ''">
+                                <i class="bi bi-caret-right-fill"></i>
+                            </a>
+
                         </div>
                     </div>
                 </div>
@@ -212,10 +192,10 @@
         }
 
         function updateRowsPerPage(selector) {
-            const baseUrl = '/logs'; 
-            const page = selector.getAttribute('data-page') || 1; 
+            const baseUrl = '/logs';
+            const page = selector.getAttribute('data-page') || 1;
             const search = selector.getAttribute('data-search') || '';
-            const rows = selector.value; 
+            const rows = selector.value;
             const url = `${baseUrl}?page=${page}&rows=${rows}&search=${search}`;
             window.location.href = url;
         }
