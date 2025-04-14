@@ -82,6 +82,16 @@ select:hover{
     background-color: #008767 !important;
 }
 
+.btn-primary{
+    background-color: #2a628f;
+    border-color: #2a628f;
+}
+
+.btn-primary:hover{
+    background-color: #235279;
+    border-color: #235279;
+}
+
 /* CURSOR */
 .c-pointer{
     cursor: pointer;
@@ -228,6 +238,12 @@ select:hover{
 
 .table-gray{
     color: #687182;
+}
+
+/*      TABLE IN locations      */
+
+.table.locations-table th{
+    border-bottom: 2px solid #003050;
 }
 
 
