@@ -14,6 +14,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.mail.MessagingException;
 import kg16.demo.model.dto.AdminSettings;
 
 import org.slf4j.Logger;
@@ -23,14 +24,16 @@ import org.slf4j.LoggerFactory;
 public class TrackerService {
     private final RecipientService rs;
     private final AdminSettingsService assc;
+    private final EmailService es;
     private final JdbcTemplate jdbc;
     private boolean noRecipientsErrorWarned = false;
 
     private static final Logger logger = LoggerFactory.getLogger(TrackerService.class);
 
-    public TrackerService(RecipientService rs, AdminSettingsService assc, JdbcTemplate jdbc) {
+    public TrackerService(RecipientService rs, AdminSettingsService assc, EmailService es, JdbcTemplate jdbc) {
         this.rs = rs;
         this.assc = assc;
+        this.es = es;
         this.jdbc = jdbc;
     }
 
@@ -185,15 +188,20 @@ public class TrackerService {
             for (var recipient : recipients) {
                 if (!recipient.getRecipientType().equals("email"))
                     continue;
-                sendMail(recipient.getRecipientValue(), message);
+                sendMail(recipient.getRecipientValue(), event);
             }
         } catch (DataAccessException e) {
             logger.error("Failed to notify for mac address: " + event.macAddress(), e);
         }
     }
 
-    void sendMail(String reciever, String message) {
-
+    void sendMail(String recieverEmail, OfflineEvent event) {
+        try {
+            es.sendAlarmEmail(recieverEmail, event.deviceName() + "(" + event.macAddress() + ")", event.room(),
+                    event.building());
+        } catch (MessagingException e) {
+            logger.error("Failed to send email", e);
+        }
     }
 
     private record SummarizedDevice(
