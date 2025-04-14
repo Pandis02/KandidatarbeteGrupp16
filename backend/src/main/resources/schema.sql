@@ -102,8 +102,8 @@ CREATE TABLE RecipientRoles (
 
 CREATE TABLE NotificationRecipients (
     notification_id BIGINT REFERENCES Notifications(notification_id) ON DELETE CASCADE,
-    recipient_id BIGINT REFERENCES Recipients(recipient_id) ON DELETE CASCADE,
-    PRIMARY KEY (notification_id, recipient_id)
+    recipient_value VARCHAR(255) NOT NULL,
+    PRIMARY KEY (notification_id, recipient_value)
 );
 
 -- Hard coded mock data

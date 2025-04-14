@@ -27,8 +27,7 @@ public class LogService {
             rs.getString("restored_at"),
             rs.getBoolean("alert_sent"),
             rs.getString("notification_timestamp"),
-            rs.getString("notification_recipient"),
-            rs.getString("notification_type"),
+            rs.getString("notification_recipients"),
             rs.getString("location"));
 
     public List<LogDTO> findOfflineEvents(LocalDate startDate, LocalDate endDate) {
@@ -40,11 +39,8 @@ public class LogService {
                     oe.offline_since,
                     oe.restored_at,
                     COALESCE(td.custom_name, c.hostname) AS device_name,
-                    l.building,
-                    l.room,
                     nc.timestamp AS notification_timestamp,
-                    rp.recipient_value AS notification_recipient,
-                    rp.recipient_type AS notification_type,
+                    STRING_AGG(nr.recipient_value, '; ') AS notification_recipients,
                     CASE
                         WHEN nc.event_id IS NOT NULL THEN TRUE
                         ELSE FALSE
@@ -61,8 +57,7 @@ public class LogService {
                     Notifications nc ON nc.event_id = oe.event_id
                 LEFT JOIN
                     NotificationRecipients nr ON nr.notification_id = nc.notification_id
-                LEFT JOIN
-                    Recipients rp ON rp.recipient_id = nr.recipient_id
+                GROUP BY oe.event_id
                 """);
 
         // Apply filtering based on startDate and endDate

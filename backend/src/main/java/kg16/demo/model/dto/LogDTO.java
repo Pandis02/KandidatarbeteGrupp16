@@ -13,7 +13,6 @@ public class LogDTO {
     private String restoredAt;
     private boolean alertSent;
     private String notificationTimestamp;
-    private String notificationRecipient;
-    private String notificationType;
+    private String notificationRecipients;
     private String location;
 }

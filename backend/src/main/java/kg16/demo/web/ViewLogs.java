@@ -37,9 +37,7 @@ public class ViewLogs {
             String lcs = search.toLowerCase();
             logs = logs.stream().filter(
                     log -> log.getMacAddress().toLowerCase().contains(lcs) ||
-                            log.getHostname().toLowerCase().contains(lcs) ||
-                            (log.getNotificationType() != null
-                                    && log.getNotificationType().toLowerCase().contains(lcs)))
+                            log.getHostname().toLowerCase().contains(lcs))
                     .toList();
         }
 

@@ -162,6 +162,7 @@ public class TrackerService {
             // Create parameters map
             Map<String, Object> params = new HashMap<>();
             params.put("event_id", event.id);
+            params.put("timestamp", Timestamp.valueOf(LocalDateTime.now()));
 
             // Execute insert and get generated key
             Long notificationId = notificationInsert.executeAndReturnKey(params).longValue();
@@ -175,8 +176,8 @@ public class TrackerService {
 
                 try {
                     sendMail(recipient.getRecipientValue(), event);
-                    jdbc.update("INSERT INTO NotificationRecipients (notification_id, recipient_id) VALUES (?, ?)",
-                            notificationId, recipient.getRecipientId());
+                    jdbc.update("INSERT INTO NotificationRecipients (notification_id, recipient_value) VALUES (?, ?)",
+                            notificationId, recipient.getRecipientValue());
                 } catch (Exception e) {
                     logger.error("Failed to notify " + recipient.getRecipientValue() + " for " + event.macAddress(), e);
                 }
