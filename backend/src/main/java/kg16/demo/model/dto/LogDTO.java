@@ -12,7 +12,6 @@ public class LogDTO {
     private String offlineSince;
     private String restoredAt;
     private boolean alertSent;
-    private String notificationMessage;
     private String notificationTimestamp;
     private String notificationRecipient;
     private String notificationType;

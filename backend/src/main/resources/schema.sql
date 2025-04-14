@@ -73,7 +73,6 @@ CREATE TABLE OfflineEvents (
 CREATE TABLE Notifications (
     notification_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     event_id BIGINT NOT NULL REFERENCES OfflineEvents(event_id) ON DELETE CASCADE,
-    message TEXT NOT NULL,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

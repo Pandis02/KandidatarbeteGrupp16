@@ -153,13 +153,6 @@ public class TrackerService {
             return;
         }
 
-        // Calculate minutes between
-        var duration = ChronoUnit.MINUTES.between(event.offlineSince.toLocalDateTime(), LocalDateTime.now());
-
-        String message = String.format(
-                "Device with the name '%s' and mac address '%s' has been offline for %d minutes now.",
-                event.deviceName(), event.macAddress(), duration);
-
         try {
             // Create SimpleJdbcInsert for notifications
             SimpleJdbcInsert notificationInsert = new SimpleJdbcInsert(jdbc)
@@ -169,7 +162,6 @@ public class TrackerService {
             // Create parameters map
             Map<String, Object> params = new HashMap<>();
             params.put("event_id", event.id);
-            params.put("message", message);
 
             // Execute insert and get generated key
             Long notificationId = notificationInsert.executeAndReturnKey(params).longValue();
@@ -181,14 +173,13 @@ public class TrackerService {
                 if (!recipient.getRecipientType().equals("email"))
                     continue;
 
-                jdbc.update("INSERT INTO NotificationRecipients (notification_id, recipient_id) VALUES (?, ?)",
-                        notificationId, recipient.getRecipientId());
-            }
-
-            for (var recipient : recipients) {
-                if (!recipient.getRecipientType().equals("email"))
-                    continue;
-                sendMail(recipient.getRecipientValue(), event);
+                try {
+                    sendMail(recipient.getRecipientValue(), event);
+                    jdbc.update("INSERT INTO NotificationRecipients (notification_id, recipient_id) VALUES (?, ?)",
+                            notificationId, recipient.getRecipientId());
+                } catch (Exception e) {
+                    logger.error("Failed to notify " + recipient.getRecipientValue() + " for " + event.macAddress(), e);
+                }
             }
         } catch (DataAccessException e) {
             logger.error("Failed to notify for mac address: " + event.macAddress(), e);

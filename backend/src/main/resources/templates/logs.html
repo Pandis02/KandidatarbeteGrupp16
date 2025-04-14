@@ -125,10 +125,6 @@
                                 <span class="detail-label">Restored At:</span>
                                 <span th:text="${#strings.substring(log.restoredAt, 0, 19)}"></span>
                             </div>
-                            <div class="detail-item" th:if="${log.notificationMessage}">
-                                <span class="detail-label">Notification Message:</span>
-                                <span th:text="${log.notificationMessage}"></span>
-                            </div>
                             <div class="detail-item" th:if="${log.notificationTimestamp}">
                                 <span class="detail-label">Notification Timestamp:</span>
                                 <span th:text="${log.notificationTimestamp}"></span>
