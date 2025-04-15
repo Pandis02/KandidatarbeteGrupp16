@@ -47,7 +47,7 @@ public class LogService {
                     END AS alert_sent
                 FROM
                     OfflineEvents oe
-                JOIN
+                LEFT JOIN
                     TrackedDevices td ON oe.mac_address = td.mac_address
                 LEFT JOIN
                     Locations l ON td.location_id = l.location_id
