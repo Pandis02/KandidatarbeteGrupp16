@@ -51,12 +51,22 @@ public class LocationsService {
     }
 
     public List<Location> getAllLocations() {
-        return jdbc.query("SELECT * FROM Locations;", (rs, rowNum) -> new Location(
-                rs.getInt("location_id"),
-                rs.getString("building"),
-                rs.getString("room")));
+        return jdbc.query(
+                """
+                        SELECT
+                            l.location_id, l.building, l.room, COUNT(td.mac_address) AS devices
+                        FROM
+                            Locations l
+                            LEFT JOIN TrackedDevices td ON td.location_id = l.location_id
+                        GROUP BY l.location_id
+                        ORDER BY l.building, l.room;
+                        """, (rs, rowNum) -> new Location(
+                        rs.getLong("location_id"),
+                        rs.getString("building"),
+                        rs.getString("room"),
+                        rs.getInt("devices")));
     }
 
-    public record Location(int id, String building, String room) {
+    public record Location(Long id, String building, String room, int devices) {
     }
 }

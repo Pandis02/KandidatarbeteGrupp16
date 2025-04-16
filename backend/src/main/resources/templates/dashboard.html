@@ -104,7 +104,7 @@
                                     <!-- ROOMS IN BUILDING -->
                                     <ul class="collapse list-unstyled" th:id="'building-' + ${building.name}">
                                         <li th:each="room : ${building.rooms}">
-                                            <a class="status-item" href="#">
+                                            <a class="status-item" th:href="@{/devices(search=${building.name + ' ' + room.name})}">
                                                 <span class="status-cicle"
                                                     th:class="'status-cicle ' + (${room.onlineDevices == room.totalDevices} ? 'bg-success' : 
                                                                               (${room.onlineDevices >= room.totalDevices * 0.75} ? 'bg-warning' : 'bg-danger'))"></span>

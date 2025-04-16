@@ -1,6 +1,7 @@
 package kg16.demo.web;
 
 import java.util.Comparator;
+import java.util.stream.Stream;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -30,9 +31,15 @@ public class ViewDevices {
         // Apply search filtering if a search term is provided
         if (search != null && !search.trim().isEmpty()) {
             String lcs = search.toLowerCase();
-            allDevices = allDevices.stream().filter(
-                    device -> device.macAddress().toLowerCase().contains(lcs) ||
-                            device.name().toLowerCase().contains(lcs))
+            allDevices = allDevices.stream()
+                    .filter(device -> Stream.of(
+                            device.macAddress(),
+                            device.name(),
+                            device.building(),
+                            device.room(),
+                            device.building() + " " + device.room())
+                            .map(String::toLowerCase)
+                            .anyMatch(s -> s.contains(lcs)))
                     .toList();
         }
 
@@ -45,9 +52,11 @@ public class ViewDevices {
             case "location" -> allDevices.stream()
                     .sorted(Comparator
                             .comparing(DeviceService.Instance::building,
-                                    Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
+                                    Comparator.nullsLast(
+                                            String.CASE_INSENSITIVE_ORDER))
                             .thenComparing(DeviceService.Instance::room,
-                                    Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)))
+                                    Comparator.nullsLast(
+                                            String.CASE_INSENSITIVE_ORDER)))
                     .toList();
             case "tracking" -> allDevices.stream()
                     .sorted(Comparator.comparing(DeviceService.Instance::enabled))

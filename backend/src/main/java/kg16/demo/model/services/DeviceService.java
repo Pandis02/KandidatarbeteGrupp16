@@ -17,7 +17,7 @@ public class DeviceService {
     // get all devices in tracked table
     public List<Instance> getAllRegisteredDevices() {
         String sql = """
-                    SELECT COALESCE(td.custom_name, c.hostname) AS name, c.last_checkin, td.mac_address, loc.building, loc.room,
+                    SELECT COALESCE(td.custom_name, c.hostname) AS name, c.last_checkin, td.mac_address, loc.building, loc.room, loc.location_id,
                     CASE
                         WHEN EXISTS (
                             SELECT 1
@@ -45,6 +45,7 @@ public class DeviceService {
                     r.getString("mac_address"),
                     r.getString("building"),
                     r.getString("room"),
+                    r.getInt("location_id"),
                     status,
                     r.getBoolean("enabled"));
         });
@@ -68,6 +69,7 @@ public class DeviceService {
             String macAddress,
             String building,
             String room,
+            int locationId,
             String status,
             boolean enabled) {
 

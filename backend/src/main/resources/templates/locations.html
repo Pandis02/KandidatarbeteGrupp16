@@ -53,6 +53,7 @@
                         <tr>
                             <th>Building</th>
                             <th>Room</th>
+                            <th>Assigned Devices</th>
                             <th class="text-end">Actions</th>
                         </tr>
                     </thead>
@@ -61,6 +62,7 @@
                         <tr th:each="location : ${locations}">
                             <td th:text="${location.building}"></td>
                             <td th:text="${location.room}"></td>
+                            <td th:text="${location.devices}"></td>
                             <td class="text-end">
                                 <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editModal"
                                     th:attr="data-id=${location.id}, 
