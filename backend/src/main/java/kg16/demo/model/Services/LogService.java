@@ -21,6 +21,7 @@ public class LogService {
     }
 
     private final RowMapper<LogDTO> logRowMapper = (rs, rowNum) -> new LogDTO(
+        rs.getLong("eventId"),
             rs.getString("device_name"),
             rs.getString("mac_address"),
             rs.getString("offline_since"),
@@ -28,16 +29,18 @@ public class LogService {
             rs.getBoolean("alert_sent"),
             rs.getString("notification_timestamp"),
             rs.getString("notification_recipients"),
-            rs.getString("location"));
+            rs.getString("location"),
+            rs.getString("tag"));
 
     public List<LogDTO> findOfflineEvents(LocalDate startDate, LocalDate endDate) {
         StringBuilder query = new StringBuilder("""
                 SELECT
-                    oe.event_id,
+                    oe.event_id AS eventId,
                     oe.mac_address,
                     oe.location,
                     oe.offline_since,
                     oe.restored_at,
+                    oe.tag,
                     COALESCE(td.custom_name, c.hostname) AS device_name,
                     nc.timestamp AS notification_timestamp,
                     STRING_AGG(nr.recipient_value, '; ') AS notification_recipients,
@@ -83,5 +86,12 @@ public class LogService {
         // Execute the query with parameters
         return jdbcTemplate.query(query.toString(), params.toArray(), logRowMapper);
     }
+
+    public void updateTag(Long eventId, String tag) {
+        String sql = "UPDATE OfflineEvents SET tag = ? WHERE event_id = ?";
+        jdbcTemplate.update(sql, tag, eventId);
+    }
+    
+    
 
 }

@@ -7,6 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LogDTO {
+    private Long eventId;
     private String hostname;
     private String macAddress;
     private String offlineSince;
@@ -15,4 +16,5 @@ public class LogDTO {
     private String notificationTimestamp;
     private String notificationRecipients;
     private String location;
+    private String tag;
 }

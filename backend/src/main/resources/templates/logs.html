@@ -44,6 +44,10 @@
                 <i class="bi bi-broadcast fs-3 pe-2"></i>
                 <span class="nav-text">Checkin Discovery</span>
             </a>
+        <a href="statistics" class="nav-link">
+            <i class="bi bi-bar-chart fs-3 pe-2"></i>
+            <span class="nav-text">Statistics</span>
+        </a>
             <a href="settings" class="nav-link">
                 <i class="bi bi-gear fs-3 pe-2"></i>
                 <span class="nav-text">Settings</span>
@@ -133,6 +137,58 @@
                                 <span class="detail-label">Alert Recipients:</span>
                                 <span th:text="${log.notificationRecipients}"></span>
                             </div>
+                            
+                            <div class="detail-item d-flex justify-content-between align-items-center">
+                                <i class="bi bi-exclamation-triangle-fill text-danger"></i>
+                                <span class="detail-label">Issue:</span>
+                                <div class="flex-grow-1 text-end">
+                            
+                                    <div class="d-inline-flex align-items-center gap-2"
+                                         th:id="'tag-container-' + ${log.eventId}">
+                                        <span th:id="'tag-display-' + ${log.eventId}"
+                                              th:text="${log.tag != null ? log.tag : 'None given'}">
+                                            None given
+                                        </span>
+                            
+                                        <button class="btn btn-sm btn-outline-secondary"
+                                                th:onclick="'toggleEdit(' + ${log.eventId} + ')'">Edit</button>
+                            
+                                                <button class="btn btn-sm btn-outline-danger"
+                                                th:id="'remove-btn-' + ${log.eventId}"
+                                                th:if="${log.tag != null and !#strings.isEmpty(log.tag) and log.tag != 'None given'}"
+                                                th:onclick="'removeTag(' + ${log.eventId} + ')'">
+                                            Ta bort
+                                        </button>
+                                        
+                                    </div>
+
+                                    <div class="d-none d-inline-flex align-items-center gap-2"
+                                         th:id="'tag-edit-' + ${log.eventId}">
+                                        <input type="text" class="form-control form-control-sm"
+                                               placeholder="Ange orsak"
+                                               th:id="'input-tag-' + ${log.eventId}"
+                                               th:placeholder="${log.tag != null ? log.tag : 'None given'}" />
+                            
+                                        <button class="btn btn-sm btn-success"
+                                                th:onclick="'saveTag(' + ${log.eventId} + ')'">Save</button>
+                            
+                                        <button class="btn btn-sm btn-outline-secondary"
+                                                th:onclick="'cancelEdit(' + ${log.eventId} + ')'">Cancel</button>
+                                    </div>
+                            
+                                </div>
+                            </div>
+                         </div>
+                            
+                            <form th:action="@{/logs/update-tag}" method="post" th:id="'tag-form-' + ${log.eventId}" class="mt-2 d-none">
+                                <input type="hidden" name="eventId" th:value="${log.eventId}" />
+                                <div class="input-group">
+                                    <input type="text" class="form-control" name="tag" th:value="${log.tag}" />
+                                    <button type="submit" class="btn btn-sm btn-primary">
+                                        <i class="bi bi-save"></i> Save
+                                    </button>
+                                </div>
+                            </form>                       
                         </div>
                     </div>
                 </div>
