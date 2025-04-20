@@ -38,6 +38,9 @@ public class ViewDashboard {
             status = new Status("Attention Needed!", "red");
         }
 
+        model.addAttribute("alertTimings", ds.getAlertsTimings());
+        model.addAttribute("dayAlerts", ds.get7DayAlerts());
+
         model.addAttribute("totalDevices", totalDevices);
         model.addAttribute("totalOnline", totalOnline);
         model.addAttribute("totalOffline", totalOffline);

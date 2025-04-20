@@ -43,8 +43,86 @@ public class DashboardService {
         });
     }
 
+    public List<Integer> get7DayAlerts() {
+        String sql = """
+                SELECT
+                    CAST(reference_date AS DATE) AS alert_date,
+                    COUNT(n.notification_id) AS alert_count
+                FROM
+                    (
+                        SELECT DATEADD('DAY', seq.n, DATEADD('DAY', -6, CURRENT_DATE())) AS reference_date
+                        FROM (
+                            SELECT 0 AS n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL
+                            SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6
+                        ) seq
+                    ) dates
+                LEFT JOIN
+                    Notifications n ON CAST(n.timestamp AS DATE) = CAST(dates.reference_date AS DATE)
+                GROUP BY
+                    reference_date
+                ORDER BY
+                    reference_date ASC;
+                """;
+
+        // Old query; problem: only returns the days for which there were any alerts at all
+        /*
+        SELECT
+        CAST(timestamp AS DATE) AS alert_date,
+        COUNT(*) AS alert_count
+        FROM
+        Notifications
+        WHERE
+        timestamp >= DATEADD('DAY', -6, CURRENT_DATE())
+        GROUP BY
+        CAST(timestamp AS DATE)
+        ORDER BY
+        alert_date ASC;
+        */
+
+        return jdbc.query(sql, (r, rowNum) -> {
+            return r.getInt("alert_count");
+        });
+    }
+
+    public List<Integer> getAlertsTimings() {
+        // uses something called binning, almost linear regression
+        String sql = """
+                SELECT
+                    time_bins.label AS time_of_day,
+                    COUNT(n.notification_id) AS alert_count
+                FROM
+                    (
+                        SELECT '00:00' AS label, 0 AS bin_order UNION ALL
+                        SELECT '04:00', 1 UNION ALL
+                        SELECT '08:00', 2 UNION ALL
+                        SELECT '12:00', 3 UNION ALL
+                        SELECT '16:00', 4 UNION ALL
+                        SELECT '20:00', 5 UNION ALL
+                        SELECT '23:59', 6
+                    ) time_bins
+                LEFT JOIN
+                    Notifications n ON
+                    CASE
+                        WHEN HOUR(n.timestamp) < 4 THEN '00:00'
+                        WHEN HOUR(n.timestamp) < 8 THEN '04:00'
+                        WHEN HOUR(n.timestamp) < 12 THEN '08:00'
+                        WHEN HOUR(n.timestamp) < 16 THEN '12:00'
+                        WHEN HOUR(n.timestamp) < 20 THEN '16:00'
+                        WHEN HOUR(n.timestamp) <= 23 THEN '20:00'
+                        ELSE '23:59'
+                    END = time_bins.label
+                GROUP BY
+                    time_bins.label, time_bins.bin_order
+                ORDER BY
+                    time_bins.bin_order;
+                """;
+
+        return jdbc.query(sql, (r, rowNum) -> {
+            return r.getInt("alert_count");
+        });
+    }
+
     private List<Location> getLocationsBriefing() {
-        var minutes = settings.getSettings().getAlertThresholdMinutes();
         String sql = """
                 SELECT
                     loc.location_id,
@@ -64,7 +142,7 @@ public class DashboardService {
                     loc.building ASC;
                 """;
 
-        return jdbc.query(String.format(sql, minutes), (r, rowNum) -> {
+        return jdbc.query(sql, (r, rowNum) -> {
             return new Location(
                     r.getInt("location_id"),
                     r.getString("building"),
