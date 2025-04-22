@@ -25,32 +25,33 @@
     </style>
 </head>
 <body>
+    <!-- Sidebar -->
     <nav class="sidebar" id="sidebar">
         <button class="btn toggle-btn nav-link nav-toggle-icon" onclick="toggleSidebar()">
             <i class="bi bi-chevron-left text-white"></i>
         </button>
         <div class="nav flex-column pt-5">
-            <a href="index.html" class="nav-link">
+            <a href="dashboard" class="nav-link">
                 <i class="bi bi-grid fs-3 pe-2"></i>
                 <span class="nav-text">Dashboard</span>
             </a>
-            <a href="scanningPage.html" class="nav-link">
-                <i class="bi bi-wifi fs-3 pe-2"></i>
-                <span class="nav-text">Scans</span>
-            </a>
-            <a href="tracked-devices.html" class="nav-link">
-                <i class="bi bi-bell fs-3 pe-2"></i>
-                <span class="nav-text">Tracked Devices</span>
-            </a>
-            <a href="logs.html" class="nav-link">
-                <i class="bi bi-pencil fs-3 pe-2"></i>
-                <span class="nav-text">Logs and Events</span>
-            </a>
-            <a href="checkin-discovery.html" class="nav-link">
+            <a href="devices" class="nav-link">
                 <i class="bi bi-pc-display fs-3 pe-2"></i>
+                <span class="nav-text">Registered Devices</span>
+            </a>
+            <a href="logs" class="nav-link">
+                <i class="bi bi-pencil fs-3 pe-2"></i>
+                <span class="nav-text">Logs</span>
+            </a>
+            <a href="discovery" class="nav-link">
+                <i class="bi bi-broadcast fs-3 pe-2"></i>
                 <span class="nav-text">Checkin Discovery</span>
             </a>
-            <a href="settings.html" class="nav-link">
+            <a href="scanningPage.html" class="nav-link active">
+                <i class="bi bi-broadcast fs-3 pe-2"></i>
+                <span class="nav-text">Scan</span>
+            </a>
+            <a href="settings" class="nav-link">
                 <i class="bi bi-gear fs-3 pe-2"></i>
                 <span class="nav-text">Settings</span>
             </a>
