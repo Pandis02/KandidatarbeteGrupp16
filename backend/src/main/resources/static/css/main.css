@@ -554,3 +554,42 @@ a.nav-link:focus{
         opacity: 0;
     }
 }
+/*For the reciepent page*/
+.recipient-form {
+    border-radius: 0 0 8px 8px;
+    padding: 20px;
+    border-top: 1px solid #e9ecef;
+}
+.breadcrumb-item a {
+    text-decoration: none;
+}
+.breadcrumb-item a:hover {
+    text-decoration: underline;
+}
+.dropdown-item.active {
+    background-color: #f8f9fa;
+    color: #212529;
+    font-weight: 500;
+}
+.dropdown-item i {
+    width: 20px;
+    text-align: center;
+    margin-right: 8px;
+}
+.roles-dropdown .dropdown-menu {
+    padding: 0;
+    min-width: 200px;
+}
+.roles-dropdown .dropdown-toggle::after {
+    display: none;
+}
+.back-button {
+    font-size: 0.9rem;
+}
+.help-icon {
+    cursor: help;
+    color: #6c757d;
+}
+.badge-role {
+    cursor: pointer;
+}
