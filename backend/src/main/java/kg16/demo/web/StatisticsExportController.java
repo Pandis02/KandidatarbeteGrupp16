@@ -1,7 +1,11 @@
 package kg16.demo.web;
 
 import jakarta.servlet.http.HttpServletResponse;
-import kg16.demo.model.services.StatisticsService;
+import kg16.demo.model.services.BasicStatsService;
+import kg16.demo.model.services.DowntimeStatsService;
+import kg16.demo.model.services.LocationStatsService;
+import kg16.demo.model.services.TagStatsService;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -16,10 +20,17 @@ import java.util.zip.ZipOutputStream;
 @RequestMapping("/api/export")
 public class StatisticsExportController {
 
-    private final StatisticsService statisticsService;
+    private final BasicStatsService basicStats;
+    private final TagStatsService tagStats;
+    private final LocationStatsService locationStats;
+    private final DowntimeStatsService downtimeStats;
 
-    public StatisticsExportController(StatisticsService statisticsService) {
-        this.statisticsService = statisticsService;
+    public StatisticsExportController(BasicStatsService basicStats, TagStatsService tagStats, LocationStatsService locationStats, DowntimeStatsService downtimeStats) {
+        this.basicStats = basicStats;
+        this.tagStats = tagStats;
+        this.locationStats = locationStats;
+        this.downtimeStats = downtimeStats;
+
     }
 
     @GetMapping(value = "/tags", produces = "text/csv")
@@ -27,7 +38,7 @@ public class StatisticsExportController {
                            @RequestParam(required = false) String to,
                            HttpServletResponse response) throws IOException {
         exportCsv(response, "tag_stats.csv", "Tag,Count",
-                statisticsService.findCommonTagsBetween(parseFrom(from), parseTo(to)),
+                tagStats.findCommonTagsBetween(parseFrom(from), parseTo(to)),
                 t -> "%s,%d".formatted(t.tag(), t.count()));
     }
 
@@ -36,7 +47,7 @@ public class StatisticsExportController {
                                  @RequestParam(required = false) String to,
                                  HttpServletResponse response) throws IOException {
         exportCsv(response, "top_devices.csv", "MAC Address,Events,Downtime",
-                statisticsService.findMostProblematicDevicesBetween(parseFrom(from), parseTo(to)),
+                downtimeStats.findMostProblematicDevicesBetween(parseFrom(from), parseTo(to)),
                 d -> "%s,%d,%s".formatted(d.macAddress(), d.eventCount(), d.formattedDowntime()));
     }
 
@@ -45,7 +56,7 @@ public class StatisticsExportController {
                               @RequestParam(required = false) String to,
                               HttpServletResponse response) throws IOException {
         exportCsv(response, "weekday_stats.csv", "Weekday,Count",
-                statisticsService.findEventCountByWeekday(parseFrom(from), parseTo(to)),
+                basicStats.findEventCountByWeekday(parseFrom(from), parseTo(to)),
                 w -> "%s,%d".formatted(w.weekday(), w.count()));
     }
 
@@ -54,7 +65,7 @@ public class StatisticsExportController {
                                         @RequestParam(required = false) String to,
                                         HttpServletResponse response) throws IOException {
         exportCsv(response, "downtime_histogram.csv", "Range,Count",
-                statisticsService.getDowntimeHistogram(parseFrom(from), parseTo(to)),
+                downtimeStats.getDowntimeHistogram(parseFrom(from), parseTo(to)),
                 d -> "%s,%d".formatted(d.rangeLabel(), d.count()));
     }
 
@@ -63,7 +74,7 @@ public class StatisticsExportController {
                                 @RequestParam(required = false) String to,
                                 HttpServletResponse response) throws IOException {
         exportCsv(response, "location_stats.csv", "Location,Count",
-                statisticsService.findEventsByLocationBetween(parseFrom(from), parseTo(to)),
+                locationStats.findEventsByLocationBetween(parseFrom(from), parseTo(to)),
                 l -> "%s,%d".formatted(l.location(), l.count()));
     }
 
@@ -72,7 +83,7 @@ public class StatisticsExportController {
                                   @RequestParam(required = false) String to,
                                   HttpServletResponse response) throws IOException {
         exportCsv(response, "top_recovery.csv", "MAC Address,Recovery Time (s),Recovered At",
-                statisticsService.findTopRecoveryTimeEvents(parseFrom(from), parseTo(to)),
+                downtimeStats.findTopRecoveryTimeEvents(parseFrom(from), parseTo(to)),
                 e -> "%s,%d,%s".formatted(e.getMacAddress(), e.getRecoveryTimeSeconds(), e.getRestoredAtFormatted()));
     }
 
@@ -89,27 +100,27 @@ public class StatisticsExportController {
 
         try (var zipOut = new ZipOutputStream(response.getOutputStream())) {
             addZipEntry(zipOut, "tag_stats.csv", "Tag,Count",
-                    statisticsService.findCommonTagsBetween(fromDate, toDate),
+                    tagStats.findCommonTagsBetween(fromDate, toDate),
                     t -> "%s,%d".formatted(t.tag(), t.count()));
 
             addZipEntry(zipOut, "top_devices.csv", "MAC Address,Events,Downtime",
-                    statisticsService.findMostProblematicDevicesBetween(fromDate, toDate),
+                    downtimeStats.findMostProblematicDevicesBetween(fromDate, toDate),
                     d -> "%s,%d,%s".formatted(d.macAddress(), d.eventCount(), d.formattedDowntime()));
 
             addZipEntry(zipOut, "weekday_stats.csv", "Weekday,Count",
-                    statisticsService.findEventCountByWeekday(fromDate, toDate),
+                    basicStats.findEventCountByWeekday(fromDate, toDate),
                     w -> "%s,%d".formatted(w.weekday(), w.count()));
 
             addZipEntry(zipOut, "downtime_histogram.csv", "Range,Count",
-                    statisticsService.getDowntimeHistogram(fromDate, toDate),
+                    downtimeStats.getDowntimeHistogram(fromDate, toDate),
                     d -> "%s,%d".formatted(d.rangeLabel(), d.count()));
 
             addZipEntry(zipOut, "location_stats.csv", "Location,Count",
-                    statisticsService.findEventsByLocationBetween(fromDate, toDate),
+                    locationStats.findEventsByLocationBetween(fromDate, toDate),
                     l -> "%s,%d".formatted(l.location(), l.count()));
 
             addZipEntry(zipOut, "top_recovery.csv", "MAC Address,Recovery Time (s),Recovered At",
-                    statisticsService.findTopRecoveryTimeEvents(fromDate, toDate),
+                    downtimeStats.findTopRecoveryTimeEvents(fromDate, toDate),
                     e -> "%s,%d,%s".formatted(e.getMacAddress(), e.getRecoveryTimeSeconds(), e.getRestoredAtFormatted()));
         }
     }

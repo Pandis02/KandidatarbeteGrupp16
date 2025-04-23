@@ -2,7 +2,14 @@ package kg16.demo.web;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import kg16.demo.model.dto.*;
-import kg16.demo.model.services.StatisticsService;
+import kg16.demo.model.services.BasicStatsService;
+import kg16.demo.model.services.CheckinStatsService;
+import kg16.demo.model.services.DeviceStatsService;
+import kg16.demo.model.services.DowntimeStatsService;
+import kg16.demo.model.services.LocationStatsService;
+import kg16.demo.model.services.NotificationStatsService;
+import kg16.demo.model.services.TagStatsService;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,10 +23,23 @@ import java.util.OptionalDouble;
 @Controller
 public class ViewStatistics {
 
-    private final StatisticsService statisticsService;
+    private final BasicStatsService basicStats;
+    private final TagStatsService tagStats;
+    private final LocationStatsService locationStats;
+    private final DowntimeStatsService downtimeStats;
+    private final NotificationStatsService notificationStats;
+    private final DeviceStatsService deviceStats;
+    private final CheckinStatsService checkinStats;
 
-    public ViewStatistics(StatisticsService statisticsService) {
-        this.statisticsService = statisticsService;
+    public ViewStatistics(BasicStatsService basicStats, TagStatsService tagStats, LocationStatsService locationStats, DowntimeStatsService downtimeStats, NotificationStatsService notificationStats, DeviceStatsService deviceStats, CheckinStatsService checkinStats) {
+        this.basicStats = basicStats;
+        this.tagStats = tagStats;
+        this.locationStats = locationStats;
+        this.downtimeStats = downtimeStats;
+        this.notificationStats = notificationStats;
+        this.deviceStats = deviceStats;
+        this.checkinStats = checkinStats;
+
     }
 
     @GetMapping("/statistics")
@@ -35,24 +55,24 @@ public class ViewStatistics {
                 : LocalDate.now().atTime(23, 59, 59);
 
         // Fetch data for the charts and tables
-        List<DayCount> dailyEvents = statisticsService.findEventsByDayBetween(fromDate, toDate);
-        List<HourCount> hourlyEvents = statisticsService.findEventsByHourBetween(fromDate, toDate);
-        List<TagCount> tagCounts = statisticsService.findCommonTagsBetween(fromDate, toDate);
-        List<TopDevice> topDevices = statisticsService.findMostProblematicDevicesBetween(fromDate, toDate);
-        int totalEventCount = statisticsService.countEventsBetween(fromDate, toDate);
-        OptionalDouble avgDowntime = statisticsService.findAverageDowntimeBetween(fromDate, toDate);
-        int currentlyOffline = statisticsService.countCurrentlyOfflineDevices();
-        List<LocationCount> locationCounts = statisticsService.findEventsByLocationBetween(fromDate, toDate);
-        List<TopRecoveryTimeEvent> topRecoveryTimeEvents = statisticsService.findTopRecoveryTimeEvents(fromDate, toDate);
-        List<WeekdayCount> weekdayCounts = statisticsService.findEventCountByWeekday(fromDate, toDate);
-        List<DowntimeBucket> downtimeHistogram = statisticsService.getDowntimeHistogram(fromDate, toDate);
-        List<TagTrend> tagTrends = statisticsService.getTagTrends(fromDate, toDate);
-        List<MostNotifiedDevice> mostNotified = statisticsService.findMostNotifiedDevices(fromDate, toDate);
-        List<AverageRestoreByLocation> avgRestoreByLocation = statisticsService.findAverageRestoreTimesPerLocation(fromDate, toDate);
-        List<NotificationChannelCount> channelCounts = statisticsService.getNotificationChannelDistributionBetween(fromDate, toDate);      
-        MissedCheckinSummary missedSummary = statisticsService.getMissedCheckinStatsBetween(fromDate, toDate);
-        List<DeviceStability> stabilityList = statisticsService.computeDeviceStability(fromDate, toDate);
-        List<String> silentDevices = statisticsService.findDevicesWithNoEventsBetween(fromDate, toDate);
+        List<DayCount> dailyEvents = basicStats.findEventsByDayBetween(fromDate, toDate);
+        List<HourCount> hourlyEvents = basicStats.findEventsByHourBetween(fromDate, toDate);
+        List<TagCount> tagCounts = tagStats.findCommonTagsBetween(fromDate, toDate);
+        List<TopDevice> topDevices = downtimeStats.findMostProblematicDevicesBetween(fromDate, toDate);
+        int totalEventCount = basicStats.countEventsBetween(fromDate, toDate);
+        OptionalDouble avgDowntime = downtimeStats.findAverageDowntimeBetween(fromDate, toDate);
+        int currentlyOffline = basicStats.countCurrentlyOfflineDevices();
+        List<LocationCount> locationCounts = locationStats.findEventsByLocationBetween(fromDate, toDate);
+        List<TopRecoveryTimeEvent> topRecoveryTimeEvents = downtimeStats.findTopRecoveryTimeEvents(fromDate, toDate);
+        List<WeekdayCount> weekdayCounts = basicStats.findEventCountByWeekday(fromDate, toDate);
+        List<DowntimeBucket> downtimeHistogram = downtimeStats.getDowntimeHistogram(fromDate, toDate);
+        List<TagTrend> tagTrends = tagStats.getTagTrends(fromDate, toDate);
+        List<MostNotifiedDevice> mostNotified = notificationStats.findMostNotifiedDevices(fromDate, toDate);
+        List<AverageRestoreByLocation> avgRestoreByLocation = locationStats.findAverageRestoreTimesPerLocation(fromDate, toDate);
+        List<NotificationChannelCount> channelCounts = notificationStats.getNotificationChannelDistributionBetween(fromDate, toDate);      
+        MissedCheckinSummary missedSummary = checkinStats.getMissedCheckinStatsBetween(fromDate, toDate);
+        List<DeviceStability> stabilityList = deviceStats.computeDeviceStability(fromDate, toDate);
+        List<String> silentDevices = deviceStats.findDevicesWithNoEventsBetween(fromDate, toDate);
         model.addAttribute("silentDevices", silentDevices);        
 
         // Add to model

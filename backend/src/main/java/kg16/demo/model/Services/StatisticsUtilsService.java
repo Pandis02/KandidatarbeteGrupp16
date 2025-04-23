@@ -4,37 +4,49 @@ import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
+
+@Service
 public class StatisticsUtilsService {
 
-    public static long calculateDowntimeSeconds(Map<String, Object> row) {
-        Timestamp from = (Timestamp) row.get("offline_since");
-        Timestamp to = (Timestamp) row.get("restored_at");
-        if (from == null) return 0;
-        return Duration.between(from.toLocalDateTime(),
-                to != null ? to.toLocalDateTime() : LocalDateTime.now()).getSeconds();
+    private final JdbcTemplate jdbc;
+
+    public StatisticsUtilsService(JdbcTemplate jdbc) {
+        this.jdbc = jdbc;
     }
 
-    public static <K, V> List<V> mapToList(Map<K, ? extends Number> map, StatisticsService.BiMapper<K, Integer, V> constructor) {
+
+    public static <K, V> List<V> mapToList(Map<K, ? extends Number> map, BiMapper<K, Integer, V> constructor) {
         return map.entrySet().stream()
                 .map(e -> constructor.map(e.getKey(), e.getValue().intValue()))
                 .toList();
     }
 
-    public static void appendFilterConditions(StringBuilder sql, List<Object> params,
-                                              List<String> tags, List<String> locations, List<String> devices) {
-        if (tags != null && !tags.isEmpty()) {
-            sql.append(" AND tag IN (").append(String.join(",", Collections.nCopies(tags.size(), "?"))).append(")");
-            params.addAll(tags);
-        }
-        if (locations != null && !locations.isEmpty()) {
-            sql.append(" AND location IN (").append(String.join(",", Collections.nCopies(locations.size(), "?"))).append(")");
-            params.addAll(locations);
-        }
-        if (devices != null && !devices.isEmpty()) {
-            sql.append(" AND mac_address IN (").append(String.join(",", Collections.nCopies(devices.size(), "?"))).append(")");
-            params.addAll(devices);
-        }
+    public List<Map<String, Object>> fetchOfflineEvents(LocalDateTime from, LocalDateTime to) {
+        return jdbc.queryForList("""
+            SELECT mac_address, offline_since, restored_at
+            FROM OfflineEvents
+            WHERE offline_since BETWEEN ? AND ?
+        """, from, to);
     }
+
+    public List<LocalDateTime> fetchTimestamps(String column, LocalDateTime from, LocalDateTime to) {
+        String sql = "SELECT " + column + " FROM OfflineEvents WHERE " + column + " BETWEEN ? AND ?";
+        return jdbc.query(sql, (rs, rowNum) -> rs.getTimestamp(column).toLocalDateTime(), from, to);
+    }
+
+    public long calculateDowntimeSeconds(Map<String, Object> row) {
+        LocalDateTime from = ((Timestamp) row.get("offline_since")).toLocalDateTime();
+        Timestamp restoredTs = (Timestamp) row.get("restored_at");
+        LocalDateTime to = (restoredTs != null) ? restoredTs.toLocalDateTime() : LocalDateTime.now();
+        return Duration.between(from, to).getSeconds();
+    }
+
+    @FunctionalInterface
+    interface BiMapper<A, B, R> {
+        R map(A a, B b);
+    }
+
 }
