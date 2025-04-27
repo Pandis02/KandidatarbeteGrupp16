@@ -113,7 +113,7 @@
 
             <div class="recipient-form">
                 <form action="add-recipient" method="get" class="row g-3" onsubmit="return addRecipient(event)">
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <label for="newRecipientType" class="form-label">Notification Type</label>
                         <select name="type" id="newRecipientType" class="form-select">
                             <option value="email">Email</option>
@@ -126,7 +126,7 @@
                         <input type="text" name="value" id="newRecipientValue" class="form-control"
                             placeholder="Enter email address or phone number">
                     </div>
-                    <div class="col-md-2">
+                    <!-- <div class="col-md-2">
                         <label class="form-label">Assign Roles</label>
                         <div class="dropdown roles-dropdown w-100">
                             <button class="btn btn-outline-secondary dropdown-toggle w-100 d-flex justify-content-between align-items-center" type="button" id="roleDropdown" data-bs-toggle="dropdown" aria-expanded="false">
@@ -156,8 +156,8 @@
                                 </li>
                             </ul>
                         </div>
-                    </div>
-                    <div class="col-md-2 d-flex align-items-end">
+                    </div> -->
+                    <div class="col-md-3 d-flex align-items-end">
                         <button type="submit" class="btn btn-primary w-100">
                             <i class="bi bi-plus-circle me-1"></i>Add Recipient
                         </button>
@@ -204,38 +204,13 @@
             tooltipTriggerList.map(function (tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
-            
-   
-            const roleCheckboxes = document.querySelectorAll('.roles-dropdown input[type="checkbox"]');
-            const dropdownButton = document.getElementById('roleDropdown');
-            
-            roleCheckboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', updateRoleDropdownLabel);
-            });
-            
-            function updateRoleDropdownLabel() {
-                const selectedRoles = [];
-                roleCheckboxes.forEach(checkbox => {
-                    if (checkbox.checked) {
-                        selectedRoles.push(checkbox.value);
-                    }
-                });
-                
-                if (selectedRoles.length === 0) {
-                    dropdownButton.querySelector('span').textContent = 'Select Roles';
-                } else if (selectedRoles.length === roleCheckboxes.length) {
-                    dropdownButton.querySelector('span').textContent = 'All Roles';
-                } else {
-                    dropdownButton.querySelector('span').textContent = selectedRoles.join(', ');
-                }
-            }
         });
         
         function addRecipient(event) {
             let type = document.getElementById('newRecipientType').value;
             let value = document.getElementById('newRecipientValue').value.trim();
 
-            if (value === "") {
+            /* if (value === "") {
                 event.preventDefault();
                 document.getElementById('errorModalBody').textContent = "Please enter a valid recipient value.";
                 new bootstrap.Modal(document.getElementById('errorModal')).show();
@@ -258,7 +233,7 @@
                     new bootstrap.Modal(document.getElementById('errorModal')).show();
                     return false;
                 }
-            }
+            } */
             
             return true;
         }
