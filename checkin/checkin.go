@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-const server = "http://localhost:8080/checkin"
+const server = "http://143.198.251.208:8080/checkin"
 
 var interval = 15
 
