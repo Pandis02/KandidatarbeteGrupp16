@@ -1,6 +1,11 @@
 document.addEventListener("DOMContentLoaded", () => {
     if (typeof chartData === "undefined") return;
 
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+    
     const {
         dailyRaw, hourlyRaw, tagCounts, downtimeHistogram,
         weekdayCounts, locationCounts, tagTrends,
@@ -71,90 +76,90 @@ document.addEventListener("DOMContentLoaded", () => {
     ]);
 
     const tagTrendsCanvas = document.getElementById('tagTrendsChart');
-if (tagTrendsCanvas) {
-    if (!Array.isArray(tagTrends) || tagTrends.length === 0) {
-        // Render a visible empty placeholder chart
-        new Chart(tagTrendsCanvas, {
-            type: 'line',
-            data: {
-                labels: ['No data'],
-                datasets: [{
-                    label: 'No Tag Data',
-                    data: [0],
-                    borderColor: '#ccc',
-                    borderDash: [5, 5],
-                    pointRadius: 0,
-                    tension: 0.3
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Date'
+    if (tagTrendsCanvas) {
+        if (!Array.isArray(tagTrends) || tagTrends.length === 0) {
+            // Render a visible empty placeholder chart
+            new Chart(tagTrendsCanvas, {
+                type: 'line',
+                data: {
+                    labels: ['No data'],
+                    datasets: [{
+                        label: 'No Tag Data',
+                        data: [0],
+                        borderColor: '#ccc',
+                        borderDash: [5, 5],
+                        pointRadius: 0,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Date'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Event Count'
+                            }
                         }
                     },
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Event Count'
-                        }
+                    plugins: {
+                        legend: { display: true },
+                        tooltip: { enabled: false }
                     }
-                },
-                plugins: {
-                    legend: { display: true },
-                    tooltip: { enabled: false }
                 }
-            }
-        });
-    } else {
-        const groupedTrends = {};
-        tagTrends.forEach(({ date, tag, count }) => {
-            if (!groupedTrends[tag]) groupedTrends[tag] = {};
-            groupedTrends[tag][date] = count;
-        });
+            });
+        } else {
+            const groupedTrends = {};
+            tagTrends.forEach(({ date, tag, count }) => {
+                if (!groupedTrends[tag]) groupedTrends[tag] = {};
+                groupedTrends[tag][date] = count;
+            });
 
-        const allTrendDates = [...new Set(tagTrends.map(t => t.date))].sort();
-        const trendDatasets = Object.entries(groupedTrends).map(([tag, values]) => ({
-            label: tag,
-            data: allTrendDates.map(date => values[date] || 0),
-            fill: false,
-            tension: 0.3
-        }));
+            const allTrendDates = [...new Set(tagTrends.map(t => t.date))].sort();
+            const trendDatasets = Object.entries(groupedTrends).map(([tag, values]) => ({
+                label: tag,
+                data: allTrendDates.map(date => values[date] || 0),
+                fill: false,
+                tension: 0.3
+            }));
 
-        new Chart(tagTrendsCanvas, {
-            type: 'line',
-            data: {
-                labels: allTrendDates,
-                datasets: trendDatasets
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { position: 'top' }
+            new Chart(tagTrendsCanvas, {
+                type: 'line',
+                data: {
+                    labels: allTrendDates,
+                    datasets: trendDatasets
                 },
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Date'
-                        }
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top' }
                     },
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Event Count'
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Date'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Event Count'
+                            }
                         }
                     }
                 }
-            }
-        });
+            });
+        }
     }
-}
 
 
     if (rawChannelCounts.length > 0) {
@@ -163,13 +168,18 @@ if (tagTrendsCanvas) {
         ]);
     }
 
-    ["tagTable", "locationTable", "topDevicesTable", "mostNotifiedTable", "avgRestoreTable", "stableDevicesTable", "recoveryTable"].forEach(id => {
-        const extraRows = document.querySelectorAll(`#${id} .extra-row`);
-        const toggleContainer = document.getElementById(`toggle-btn-${id}`);
-        if (toggleContainer && extraRows.length === 0) {
-            toggleContainer.style.display = "none";
-        }
-    });
+    [
+        'silentDevicesList',
+        'topDevicesTable',
+        'tagTable',
+        'locationTable',
+        'channelTable',
+        'mostNotifiedTable',
+        'avgRestoreTable',
+        'stableDevicesTable',
+        'recoveryTable'
+      ].forEach(id => setupShowMoreCollapse(id));
+      
     
 
     document.querySelector("form")?.addEventListener("submit", function () {
@@ -253,21 +263,6 @@ function renderPieChart(id, labels, data, colors) {
     });
 }
 
-function toggleMore(id) {
-    const rows = document.querySelectorAll(`#${id} .extra-row`);
-    const button = document.querySelector(`#toggle-btn-${id} button`);
-    if (rows.length === 0) {
-        if (button) button.style.display = "none";
-        return;
-    }
-
-    const expanded = [...rows].some(row => !row.classList.contains("d-none"));
-    rows.forEach(row => row.classList.toggle("d-none"));
-    if (button) {
-        button.textContent = expanded ? "Show More" : "Show Less";
-    }
-}
-
 function exportDashboardAsImage() {
     const dashboard = document.getElementById("dashboard");
     html2canvas(dashboard).then(canvas => {
@@ -295,5 +290,69 @@ function exportDashboardAsImage() {
   }
   
 
+  
+
+
+
+function setupShowMoreCollapse(containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    const hiddenRows = container.querySelectorAll('.extra-row.d-none');
+    if (hiddenRows.length === 0) return;
+
+    const cardBody = container.closest('.card-body') || container.parentElement;
+    const controls = document.createElement('div');
+    controls.className = 'text-center mt-3';
+
+    const showMoreBtn = document.createElement('button');
+    showMoreBtn.className = 'btn btn-sm btn-outline-secondary';
+    showMoreBtn.textContent = 'Show More';
+
+    const collapseBtn = document.createElement('button');
+    collapseBtn.className = 'btn btn-sm btn-outline-danger ms-2 d-none';
+    collapseBtn.textContent = 'Collapse All';
+
+    controls.appendChild(showMoreBtn);
+    controls.appendChild(collapseBtn);
+    cardBody.appendChild(controls);
+
+    showMoreBtn.addEventListener('click', async () => {
+        showMoreBtn.disabled = true;
+        showMoreBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...`;
+        await new Promise(resolve => setTimeout(resolve, 300)); // simulate slight loading delay
+
+        const hiddenRows = container.querySelectorAll('.extra-row.d-none');
+        for (let i = 0; i < 5 && i < hiddenRows.length; i++) {
+            hiddenRows[i].classList.remove('d-none');
+            hiddenRows[i].style.opacity = 0;
+            hiddenRows[i].style.transition = 'opacity 0.5s';
+            requestAnimationFrame(() => hiddenRows[i].style.opacity = 1);
+        }
+
+        const stillHidden = container.querySelectorAll('.extra-row.d-none').length;
+        if (stillHidden > 0) {
+            showMoreBtn.disabled = false;
+            showMoreBtn.textContent = 'Show More';
+        } else {
+            showMoreBtn.disabled = true;
+            showMoreBtn.textContent = 'No more items';
+        }
+        collapseBtn.classList.remove('d-none');
+    });
+
+    collapseBtn.addEventListener('click', () => {
+        container.querySelectorAll('.extra-row').forEach(row => {
+            row.classList.add('d-none');
+            row.style.opacity = '';
+            row.style.transition = '';
+        });
+        showMoreBtn.disabled = false;
+        showMoreBtn.textContent = 'Show More';
+        collapseBtn.classList.add('d-none');
+    });
+}
+
+  
 
 

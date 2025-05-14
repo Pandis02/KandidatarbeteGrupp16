@@ -16,6 +16,10 @@ import java.util.function.Function;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+/**
+ * REST controller for exporting system statistics as downloadable CSV or ZIP files.
+ * Provides endpoints to export tag data, location summaries, recovery stats, and more.
+ */
 @RestController
 @RequestMapping("/api/export")
 public class StatisticsExportController {
@@ -25,14 +29,17 @@ public class StatisticsExportController {
     private final LocationStatsService locationStats;
     private final DowntimeStatsService downtimeStats;
 
-    public StatisticsExportController(BasicStatsService basicStats, TagStatsService tagStats, LocationStatsService locationStats, DowntimeStatsService downtimeStats) {
+    public StatisticsExportController(BasicStatsService basicStats, TagStatsService tagStats,
+                                      LocationStatsService locationStats, DowntimeStatsService downtimeStats) {
         this.basicStats = basicStats;
         this.tagStats = tagStats;
         this.locationStats = locationStats;
         this.downtimeStats = downtimeStats;
-
     }
 
+    /**
+     * Exports tag frequency counts as a CSV file.
+     */
     @GetMapping(value = "/tags", produces = "text/csv")
     public void exportTags(@RequestParam(required = false) String from,
                            @RequestParam(required = false) String to,
@@ -42,6 +49,9 @@ public class StatisticsExportController {
                 t -> "%s,%d".formatted(t.tag(), t.count()));
     }
 
+    /**
+     * Exports top problematic devices based on event count and downtime as a CSV file.
+     */
     @GetMapping(value = "/top-devices", produces = "text/csv")
     public void exportTopDevices(@RequestParam(required = false) String from,
                                  @RequestParam(required = false) String to,
@@ -51,6 +61,9 @@ public class StatisticsExportController {
                 d -> "%s,%d,%s".formatted(d.macAddress(), d.eventCount(), d.formattedDowntime()));
     }
 
+    /**
+     * Exports event counts grouped by weekday as a CSV file.
+     */
     @GetMapping(value = "/weekday", produces = "text/csv")
     public void exportWeekday(@RequestParam(required = false) String from,
                               @RequestParam(required = false) String to,
@@ -60,6 +73,9 @@ public class StatisticsExportController {
                 w -> "%s,%d".formatted(w.weekday(), w.count()));
     }
 
+    /**
+     * Exports downtime distribution (buckets) as a CSV file.
+     */
     @GetMapping(value = "/downtime", produces = "text/csv")
     public void exportDowntimeHistogram(@RequestParam(required = false) String from,
                                         @RequestParam(required = false) String to,
@@ -69,6 +85,9 @@ public class StatisticsExportController {
                 d -> "%s,%d".formatted(d.rangeLabel(), d.count()));
     }
 
+    /**
+     * Exports event counts grouped by location as a CSV file.
+     */
     @GetMapping(value = "/locations", produces = "text/csv")
     public void exportLocations(@RequestParam(required = false) String from,
                                 @RequestParam(required = false) String to,
@@ -78,6 +97,9 @@ public class StatisticsExportController {
                 l -> "%s,%d".formatted(l.location(), l.count()));
     }
 
+    /**
+     * Exports the top 5 longest recovery time events as a CSV file.
+     */
     @GetMapping(value = "/top-recovery", produces = "text/csv")
     public void exportTopRecovery(@RequestParam(required = false) String from,
                                   @RequestParam(required = false) String to,
@@ -87,6 +109,9 @@ public class StatisticsExportController {
                 e -> "%s,%d,%s".formatted(e.getMacAddress(), e.getRecoveryTimeSeconds(), e.getRestoredAtFormatted()));
     }
 
+    /**
+     * Exports all statistics in a single ZIP file with multiple CSV entries inside.
+     */
     @GetMapping(value = "/all", produces = "application/zip")
     public void exportAllAsZip(@RequestParam(required = false) String from,
                                @RequestParam(required = false) String to,
@@ -125,6 +150,16 @@ public class StatisticsExportController {
         }
     }
 
+    /**
+     * Generic helper for writing a single CSV response to the HTTP stream.
+     *
+     * @param response  the servlet response
+     * @param filename  file name to use in headers
+     * @param header    CSV header line
+     * @param data      data rows
+     * @param formatter lambda to convert each data row to CSV string
+     * @param <T>       type of data element
+     */
     private <T> void exportCsv(HttpServletResponse response, String filename, String header,
                                List<T> data, Function<T, String> formatter) throws IOException {
         response.setHeader("Content-Disposition", "attachment; filename=" + filename);
@@ -138,24 +173,40 @@ public class StatisticsExportController {
         }
     }
 
+    /**
+     * Helper for writing a CSV entry inside a ZIP archive.
+     *
+     * @param zipOut    the output stream
+     * @param filename  the CSV filename within the ZIP
+     * @param header    CSV header line
+     * @param data      list of records
+     * @param formatter lambda to convert data items to lines
+     * @param <T>       type of record
+     */
     private <T> void addZipEntry(ZipOutputStream zipOut, String filename, String header,
-                                  List<T> data, Function<T, String> formatter) throws IOException {
+                                 List<T> data, Function<T, String> formatter) throws IOException {
         zipOut.putNextEntry(new ZipEntry(filename));
         PrintWriter writer = new PrintWriter(zipOut);
         writer.println(header);
         for (T item : data) {
             writer.println(formatter.apply(item));
         }
-        writer.flush();
+        writer.flush(); // Important for ZIP stream
         zipOut.closeEntry();
     }
 
+    /**
+     * Parses a `from` date string or defaults to 7 days ago.
+     */
     private LocalDateTime parseFrom(String input) {
         return (input == null || input.isEmpty())
                 ? LocalDateTime.now().minusDays(7)
                 : LocalDateTime.parse(input);
     }
 
+    /**
+     * Parses a `to` date string or defaults to now.
+     */
     private LocalDateTime parseTo(String input) {
         return (input == null || input.isEmpty())
                 ? LocalDateTime.now()

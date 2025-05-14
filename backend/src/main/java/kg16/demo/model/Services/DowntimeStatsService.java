@@ -12,9 +12,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Service responsible for calculating statistics related to offline event durations and recovery times.
+ * Provides insights such as average downtime, downtime distribution buckets, and the worst-performing devices.
+ */
 @Service
 public class DowntimeStatsService {
-    
+
     private final JdbcTemplate jdbc;
     private final StatisticsUtilsService sus;
 
@@ -24,6 +28,13 @@ public class DowntimeStatsService {
         this.sus = new StatisticsUtilsService(jdbc);
     }
 
+    /**
+     * Identifies the top 5 most problematic devices based on total accumulated downtime.
+     *
+     * @param from start of the time range
+     * @param to   end of the time range
+     * @return list of {@link TopDevice} sorted by total downtime (descending)
+     */
     public List<TopDevice> findMostProblematicDevicesBetween(LocalDateTime from, LocalDateTime to) {
         List<Map<String, Object>> rows = sus.fetchOfflineEvents(from, to);
 
@@ -43,12 +54,27 @@ public class DowntimeStatsService {
                 .toList();
     }
 
+    /**
+     * Calculates the average downtime (in seconds) for all offline events in the specified range.
+     *
+     * @param from start of the time range
+     * @param to   end of the time range
+     * @return optional average downtime (empty if no data)
+     */
     public OptionalDouble findAverageDowntimeBetween(LocalDateTime from, LocalDateTime to) {
         return sus.fetchOfflineEvents(from, to).stream()
-        .mapToLong(row -> sus.calculateDowntimeSeconds(row))
+                .mapToLong(sus::calculateDowntimeSeconds)
                 .average();
     }
 
+    /**
+     * Groups resolved offline events into predefined duration ranges ("0–10 min", "10–30 min", etc.)
+     * to build a downtime histogram.
+     *
+     * @param from start of the time range
+     * @param to   end of the time range
+     * @return list of {@link DowntimeBucket} representing the histogram
+     */
     public List<DowntimeBucket> getDowntimeHistogram(LocalDateTime from, LocalDateTime to) {
         List<Map<String, Object>> rows = sus.fetchOfflineEvents(from, to);
 
@@ -59,7 +85,7 @@ public class DowntimeStatsService {
 
         for (Map<String, Object> row : rows) {
             Timestamp end = (Timestamp) row.get("restored_at");
-            if (end == null) continue;
+            if (end == null) continue; // Skip unresolved events
 
             long min = Duration.between(
                     ((Timestamp) row.get("offline_since")).toLocalDateTime(),
@@ -75,13 +101,19 @@ public class DowntimeStatsService {
             else if (min <= 480) label = "4–8 h";
             else label = "8+ h";
 
-
             buckets.merge(label, 1, Integer::sum);
         }
 
         return StatisticsUtilsService.mapToList(buckets, DowntimeBucket::new);
     }
 
+    /**
+     * Returns the 5 longest recovery time events (restored events only) in the given time range.
+     *
+     * @param from start of the time range
+     * @param to   end of the time range
+     * @return list of {@link TopRecoveryTimeEvent}, sorted by recovery duration descending
+     */
     public List<TopRecoveryTimeEvent> findTopRecoveryTimeEvents(LocalDateTime from, LocalDateTime to) {
         List<Map<String, Object>> rows = jdbc.queryForList("""
             SELECT mac_address, offline_since, restored_at
