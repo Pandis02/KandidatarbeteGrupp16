@@ -219,40 +219,6 @@ public class DashboardService {
     }
 
     /**
-     * Internal helper method to retrieve location-level stats used to construct building views.
-     *
-     * @return a list of internal {@link Location} records
-     */
-    private List<Location> getLocationsBriefing() {
-        var minutes = settings.getSettings().getAlertThresholdMinutes();
-        String sql = """
-                SELECT
-                    loc.location_id,
-                    loc.building,
-                    loc.room,
-                    COUNT(td.mac_address) AS total_devices,
-                    COUNT(oe.mac_address) AS offline_devices
-                FROM
-                    Locations loc
-                LEFT JOIN
-                    TrackedDevices td on td.location_id = loc.location_id AND td.enabled
-                LEFT JOIN
-                    OfflineEvents oe ON td.mac_address = oe.mac_address AND oe.restored_at IS NULL
-                GROUP BY
-                    loc.location_id
-                ORDER BY
-                    loc.building ASC;
-                """;
-
-        return jdbc.query(sql, (r, rowNum) -> new Location(
-                r.getInt("location_id"),
-                r.getString("building"),
-                r.getString("room"),
-                r.getInt("total_devices"),
-                r.getInt("offline_devices")));
-    }
-
-    /**
      * Represents summary information about a building, including all rooms and device stats.
      *
      * @param rooms          list of rooms in the building

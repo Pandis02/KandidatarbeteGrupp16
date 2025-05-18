@@ -56,7 +56,7 @@ public class ViewLogs {
             ).toList();
         }
 
-        int totalPages = Math.ceilDiv(logs.size(), rows);
+        int totalPages = Math.max(1, Math.ceilDiv(logs.size(), rows));
         page = Math.max(1, Math.min(page, totalPages));
         int startIndex = (page - 1) * rows;
         int endIndex = Math.min(startIndex + rows, logs.size());
