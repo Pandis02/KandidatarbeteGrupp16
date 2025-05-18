@@ -91,7 +91,7 @@ public class ViewLogs {
      */
     @PostMapping("/logs/update-confirmation")
     public ResponseEntity<Void> updateConfirmation(@RequestBody ConfirmationUpdateDTO request) {
-        logService.updateConfirmedFalsePositive(request.getEventId(), request.isConfirmed());
+        logService.updateConfirmedFalsePositive(request.getEventId(), request.getConfirmed());
         return ResponseEntity.ok().build();
     }
 }

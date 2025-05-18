@@ -1,287 +1,363 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="css/main.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
+    <link rel="stylesheet" href="css/main.css" />
     <title>Logs</title>
     <style>
-        .filter-button.active {
-            background-color: #007bff;
-            color: white;
-        }
+      .filter-button.active {
+        background-color: #007bff;
+        color: white;
+      }
 
-        .filter-button {
-            background-color: #f8f9fa;
-            color: #343a40;
-        }
+      .filter-button {
+        background-color: #f8f9fa;
+        color: #343a40;
+      }
     </style>
-</head>
+  </head>
 
-
-<body>
+  <body>
     <!-- Sidebar -->
     <nav class="sidebar">
-        <button class="btn toggle-btn nav-link nav-toggle-icon" onclick="toggleSidebar()">
-            <i class="bi bi-chevron-left text-white"></i>
-        </button>
-        <div class="nav flex-column pt-5">
-            <a href="dashboard" class="nav-link">
-                <i class="bi bi-grid fs-3 pe-2"></i>
-                <span class="nav-text">Dashboard</span>
-            </a>
-            <a href="devices" class="nav-link">
-                <i class="bi bi-pc-display fs-3 pe-2"></i>
-                <span class="nav-text">Registered Devices</span>
-            </a>
-            <a href="logs" class="nav-link active">
-                <i class="bi bi-pencil fs-3 pe-2"></i>
-                <span class="nav-text">Logs</span>
-            </a>
-            <a href="discovery" class="nav-link">
-                <i class="bi bi-broadcast fs-3 pe-2"></i>
-                <span class="nav-text">Checkin Discovery</span>
-            </a>
-            <a href="statistics" class="nav-link">
-                <i class="bi bi-bar-chart fs-3 pe-2"></i>
-                <span class="nav-text">Statistics</span>
-            </a>
-            <a href="settings" class="nav-link">
-                <i class="bi bi-gear fs-3 pe-2"></i>
-                <span class="nav-text">Settings</span>
-            </a>
-            <a href="login.html" class="nav-link sign-out">
-                <i class="bi bi-box-arrow-left fs-3 pe-2"></i>
-                <span class="nav-text">Logout</span>
-            </a>
-        </div>
+      <button
+        class="btn toggle-btn nav-link nav-toggle-icon"
+        onclick="toggleSidebar()"
+      >
+        <i class="bi bi-chevron-left text-white"></i>
+      </button>
+      <div class="nav flex-column pt-5">
+        <a href="dashboard" class="nav-link">
+          <i class="bi bi-grid fs-3 pe-2"></i>
+          <span class="nav-text">Dashboard</span>
+        </a>
+        <a href="devices" class="nav-link">
+          <i class="bi bi-pc-display fs-3 pe-2"></i>
+          <span class="nav-text">Registered Devices</span>
+        </a>
+        <a href="logs" class="nav-link active">
+          <i class="bi bi-pencil fs-3 pe-2"></i>
+          <span class="nav-text">Logs</span>
+        </a>
+        <a href="discovery" class="nav-link">
+          <i class="bi bi-broadcast fs-3 pe-2"></i>
+          <span class="nav-text">Checkin Discovery</span>
+        </a>
+        <a href="statistics" class="nav-link">
+          <i class="bi bi-bar-chart fs-3 pe-2"></i>
+          <span class="nav-text">Statistics</span>
+        </a>
+        <a href="settings" class="nav-link">
+          <i class="bi bi-gear fs-3 pe-2"></i>
+          <span class="nav-text">Settings</span>
+        </a>
+        <a href="login.html" class="nav-link sign-out">
+          <i class="bi bi-box-arrow-left fs-3 pe-2"></i>
+          <span class="nav-text">Logout</span>
+        </a>
+      </div>
     </nav>
     <!-- Main Content -->
     <div class="main-content p-4">
-        <div class="container">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h1 class="pt-3">Logs & Events</h1>
-                </div>
-                <div>
-                    <select class="p-2 rounded" id="themeSelector">
-                        <option value="light">Light</option>
-                        <option value="dark">Dark</option>
-                    </select>
-                </div>
-            </div>
-            <hr class="pb-1">
-            <!-- Filter and sorting option -->
-            <div class="row py-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div class="d-flex gap-2">
-                        <div class="input-group">
-                            <span class="input-group-text bg-white border-end-0">
-                                <i class="bi bi-search"></i>
-                            </span>
-                            <input type="text" class="form-control border-start-0 ps-0" placeholder="Search..."
-                                th:value="${search}"
-                                th:onchange="|window.location.href = '/logs?page=${page}&rows=${rows}&search=' + this.value|">
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- Offline Events -->
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 id="eventsHeading">Offline Events</h5>
-                <button class="btn btn-sm btn-outline-secondary" onclick="collapseAll()">Collapse All</button>
-            </div>
-            <div th:each="log, iterStat : ${logs}" class="row pb-3 log-item">
-                <div id="offlineEvent">
-                    <div class="card-header logs-header" data-bs-toggle="collapse"
-                        th:href="'#offline' + ${iterStat.index}">
-                        <div class="d-flex justify-content-between">
-                            <div>
-                                <span class="fw-bold" th:text="${log.macAddress}"></span>
-                                <span class="text-muted"
-                                    th:text="${#strings.substring(log.offlineSince, 0, 19)}"></span>
-                            </div>
-                            <div>
-                                <span class="badge me-2 bg-warning">Disconnected</span>
-                                <span class="badge me-2 bg-danger" th:if="${log.alertSent}">Alert Sent</span>
-                                <span class="badge me-2 bg-success" th:if="${log.restoredAt}">Restored</span>
-                                <span class="text-muted" th:text="${log.hostname}"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div th:id="'offline' + ${iterStat.index}" class="collapse">
-                        <div class="card-body">
-                            <div class="detail-item">
-                                <span class="detail-label">Device Name:</span>
-                                <span th:text="${log.hostname}"></span>
-                            </div>
-                            <div class="detail-item" th:if="${log.location}">
-                                <span class="detail-label">Device Location:</span>
-                                <span th:text="${log.location}"></span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Offline Since:</span>
-                                <span th:text="${#strings.substring(log.offlineSince, 0, 19)}"></span>
-                            </div>
-                            <div class="detail-item" th:if="${log.restoredAt}">
-                                <span class="detail-label">Restored At:</span>
-                                <span th:text="${#strings.substring(log.restoredAt, 0, 19)}"></span>
-                            </div>
-                            <div class="detail-item" th:if="${log.notificationTimestamp}">
-                                <span class="detail-label">Alert Timestamp:</span>
-                                <span th:text="${log.notificationTimestamp}"></span>
-                            </div>
-                            <div class="detail-item" th:if="${log.notificationRecipients}">
-                                <span class="detail-label">Alert Recipients:</span>
-                                <span th:text="${log.notificationRecipients}"></span>
-                            </div>
-
-                            <div class="detail-item d-flex justify-content-between align-items-center">
-                                <i class="bi bi-exclamation-triangle-fill text-danger"></i>
-                                <span class="detail-label">Issue:</span>
-                                <div class="flex-grow-1 text-end">
-
-                                    <div class="d-inline-flex align-items-center gap-2"
-                                        th:id="'tag-container-' + ${log.eventId}">
-                                        <span th:id="'tag-display-' + ${log.eventId}"
-                                            th:text="${log.tag != null ? log.tag : 'None given'}">
-                                            None given
-                                        </span>
-
-                                        <button class="btn btn-sm btn-outline-secondary"
-                                            th:onclick="'toggleEdit(' + ${log.eventId} + ')'">Edit</button>
-
-                                        <button class="btn btn-sm btn-outline-danger"
-                                            th:id="'remove-btn-' + ${log.eventId}"
-                                            th:if="${log.tag != null and !#strings.isEmpty(log.tag) and log.tag != 'None given'}"
-                                            th:onclick="'removeTag(' + ${log.eventId} + ')'">
-                                            Remove
-                                        </button>
-
-                                    </div>
-
-                                    <div class="d-none d-inline-flex align-items-center gap-2"
-                                        th:id="'tag-edit-' + ${log.eventId}">
-                                        <input type="text" class="form-control form-control-sm" placeholder="Ange orsak"
-                                            th:id="'input-tag-' + ${log.eventId}"
-                                            th:placeholder="${log.tag != null ? log.tag : 'None given'}" />
-
-                                        <button class="btn btn-sm btn-success"
-                                            th:onclick="'saveTag(' + ${log.eventId} + ')'">Save</button>
-
-                                        <button class="btn btn-sm btn-outline-secondary"
-                                            th:onclick="'cancelEdit(' + ${log.eventId} + ')'">Cancel</button>
-                                    </div>
-
-                                </div>
-                            </div>
-
-
-                            <div class="detail-item d-flex justify-content-between align-items-center">
-                                <div class="d-flex align-items-center gap-2">
-                                  <i class="bi bi-question-circle text-info" data-bs-toggle="tooltip" title="Set whether this was a false alarm or real issue."></i>
-                                  <span class="detail-label">Classify Alarm:</span>
-                                </div>
-                              
-                                <select class="form-select form-select-sm w-auto"
-        th:id="'false-positive-select-' + ${log.eventId}"
-        th:data-event-id="${log.eventId}"
-        onchange="updateFalsePositiveStatus(this)">
-    <option value="null"
-            th:selected="${log.confirmedFalsePositive == null}">
-        Unmarked
-    </option>
-    <option value="true"
-            th:selected="${log.confirmedFalsePositive != null and log.confirmedFalsePositive}">
-        False Alarm
-    </option>
-    <option value="false"
-            th:selected="${log.confirmedFalsePositive != null and !log.confirmedFalsePositive}">
-        Real Alarm
-    </option>
-</select>
-
-                              </div>
-                              
-                            
-                              
-                              
-
-                        </div>
-
-                        <form th:action="@{/logs/update-tag}" method="post" th:id="'tag-form-' + ${log.eventId}"
-                            class="mt-2 d-none">
-                            <input type="hidden" name="eventId" th:value="${log.eventId}" />
-                            <div class="input-group">
-                                <input type="text" class="form-control" name="tag" th:value="${log.tag}" />
-                                <button type="submit" class="btn btn-sm btn-primary">
-                                    <i class="bi bi-save"></i> Save
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
+      <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h1 class="pt-3">Logs & Events</h1>
+          </div>
+          <div>
+            <select class="p-2 rounded" id="themeSelector">
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+            </select>
+          </div>
         </div>
+        <hr class="pb-1" />
+        <!-- Filter and sorting option -->
+        <div class="row py-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex gap-2">
+              <div class="input-group">
+                <span class="input-group-text bg-white border-end-0">
+                  <i class="bi bi-search"></i>
+                </span>
+                <input
+                  type="text"
+                  class="form-control border-start-0 ps-0"
+                  placeholder="Search..."
+                  th:value="${search}"
+                  th:onchange="|window.location.href = '/logs?page=${page}&rows=${rows}&search=' + this.value|"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Offline Events -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 id="eventsHeading">Offline Events</h5>
+          <button
+            class="btn btn-sm btn-outline-secondary"
+            onclick="collapseAll()"
+          >
+            Collapse All
+          </button>
+        </div>
+        <div th:each="log, iterStat : ${logs}" class="row pb-3 log-item">
+          <div id="offlineEvent">
+            <div
+              class="card-header logs-header"
+              data-bs-toggle="collapse"
+              th:href="'#offline' + ${iterStat.index}"
+            >
+              <div class="d-flex justify-content-between">
+                <div>
+                  <span class="fw-bold" th:text="${log.macAddress}"></span>
+                  <span
+                    class="text-muted"
+                    th:text="${#strings.substring(log.offlineSince, 0, 19)}"
+                  ></span>
+                </div>
+                <div>
+                  <span class="badge me-2 bg-warning">Disconnected</span>
+                  <span class="badge me-2 bg-danger" th:if="${log.alertSent}"
+                    >Alert Sent</span
+                  >
+                  <span class="badge me-2 bg-success" th:if="${log.restoredAt}"
+                    >Restored</span
+                  >
+                  <span class="text-muted" th:text="${log.hostname}"></span>
+                </div>
+              </div>
+            </div>
+            <div th:id="'offline' + ${iterStat.index}" class="collapse">
+              <div class="card-body">
+                <div class="detail-item">
+                  <span class="detail-label">Device Name:</span>
+                  <span th:text="${log.hostname}"></span>
+                </div>
+                <div class="detail-item" th:if="${log.location}">
+                  <span class="detail-label">Device Location:</span>
+                  <span th:text="${log.location}"></span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Offline Since:</span>
+                  <span
+                    th:text="${#strings.substring(log.offlineSince, 0, 19)}"
+                  ></span>
+                </div>
+                <div class="detail-item" th:if="${log.restoredAt}">
+                  <span class="detail-label">Restored At:</span>
+                  <span
+                    th:text="${#strings.substring(log.restoredAt, 0, 19)}"
+                  ></span>
+                </div>
+                <div class="detail-item" th:if="${log.notificationTimestamp}">
+                  <span class="detail-label">Alert Timestamp:</span>
+                  <span th:text="${log.notificationTimestamp}"></span>
+                </div>
+                <div class="detail-item" th:if="${log.notificationRecipients}">
+                  <span class="detail-label">Alert Recipients:</span>
+                  <span th:text="${log.notificationRecipients}"></span>
+                </div>
+
+                <div
+                  class="detail-item d-flex justify-content-between align-items-center"
+                >
+                  <i class="bi bi-exclamation-triangle-fill text-danger"></i>
+                  <span class="detail-label">Issue:</span>
+                  <div class="flex-grow-1 text-end">
+                    <div
+                      class="d-inline-flex align-items-center gap-2"
+                      th:id="'tag-container-' + ${log.eventId}"
+                    >
+                      <span
+                        th:id="'tag-display-' + ${log.eventId}"
+                        th:text="${log.tag != null ? log.tag : 'None given'}"
+                      >
+                        None given
+                      </span>
+
+                      <button
+                        class="btn btn-sm btn-outline-secondary"
+                        th:onclick="'toggleEdit(' + ${log.eventId} + ')'"
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        class="btn btn-sm btn-outline-danger"
+                        th:id="'remove-btn-' + ${log.eventId}"
+                        th:if="${log.tag != null and !#strings.isEmpty(log.tag) and log.tag != 'None given'}"
+                        th:onclick="'removeTag(' + ${log.eventId} + ')'"
+                      >
+                        Remove
+                      </button>
+                    </div>
+
+                    <div
+                      class="d-none d-inline-flex align-items-center gap-2"
+                      th:id="'tag-edit-' + ${log.eventId}"
+                    >
+                      <input
+                        type="text"
+                        class="form-control form-control-sm"
+                        placeholder="Ange orsak"
+                        th:id="'input-tag-' + ${log.eventId}"
+                        th:placeholder="${log.tag != null ? log.tag : 'None given'}"
+                      />
+
+                      <button
+                        class="btn btn-sm btn-success"
+                        th:onclick="'saveTag(' + ${log.eventId} + ')'"
+                      >
+                        Save
+                      </button>
+
+                      <button
+                        class="btn btn-sm btn-outline-secondary"
+                        th:onclick="'cancelEdit(' + ${log.eventId} + ')'"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  class="detail-item d-flex justify-content-between align-items-center"
+                >
+                  <div class="d-flex align-items-center gap-2">
+                    <i
+                      class="bi bi-question-circle text-info"
+                      data-bs-toggle="tooltip"
+                      title="Set whether this was a false alarm or real issue."
+                    ></i>
+                    <span class="detail-label">Classify Alarm:</span>
+                  </div>
+
+                  <select
+                    class="form-select form-select-sm w-auto"
+                    th:id="'false-positive-select-' + ${log.eventId}"
+                    th:data-event-id="${log.eventId}"
+                    onchange="updateFalsePositiveStatus(this)"
+                  >
+                    <option
+                      value="null"
+                      th:selected="${log.confirmedFalsePositive == null}"
+                    >
+                      Unmarked
+                    </option>
+                    <option
+                      value="true"
+                      th:selected="${log.confirmedFalsePositive != null and log.confirmedFalsePositive}"
+                    >
+                      False Alarm
+                    </option>
+                    <option
+                      value="false"
+                      th:selected="${log.confirmedFalsePositive != null and !log.confirmedFalsePositive}"
+                    >
+                      Real Alarm
+                    </option>
+                  </select>
+                </div>
+              </div>
+
+              <form
+                th:action="@{/logs/update-tag}"
+                method="post"
+                th:id="'tag-form-' + ${log.eventId}"
+                class="mt-2 d-none"
+              >
+                <input type="hidden" name="eventId" th:value="${log.eventId}" />
+                <div class="input-group">
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="tag"
+                    th:value="${log.tag}"
+                  />
+                  <button type="submit" class="btn btn-sm btn-primary">
+                    <i class="bi bi-save"></i> Save
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
         <!-- Footer -->
         <div class="row pt-2">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <label class="table-gray" for="rowsSelector">Rows per page:</label>
-                    <select class="ps-1 border-0 table-gray" id="rowsSelector" th:data-page="${page}"
-                        th:data-search="${search}" onchange="updateRowsPerPage(this)">
-                        <option th:selected="${rows == 5}" value="5">5</option>
-                        <option th:selected="${rows == 10}" value="10">10</option>
-                        <option th:selected="${rows == 20}" value="20">20</option>
-                    </select>
-
-
-
-                </div>
-                <div class="d-flex justify-content-between align-items-center">
-                    <span class="table-gray pe-3" th:text="${page} + ' of ' + ${pages}"></span>
-                    <div class="d-flex gap-2">
-                        <a class="nav-button btn btn-outline-dark themeButton"
-                            th:href="@{/logs(page=${page - 1}, rows=${rows}, search=${search})}"
-                            th:classappend="${page} == 1 ? 'disabled' : ''">
-                            <i class="bi bi-caret-left-fill"></i>
-                        </a>
-                        <a class="nav-button btn btn-outline-dark themeButton"
-                            th:href="@{/logs(page=${page + 1}, rows=${rows}, search=${search})}"
-                            th:classappend="${page} == ${pages} ? 'disabled' : ''">
-                            <i class="bi bi-caret-right-fill"></i>
-                        </a>
-
-                    </div>
-                </div>
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <label class="table-gray" for="rowsSelector"
+                >Rows per page:</label
+              >
+              <select
+                class="ps-1 border-0 table-gray"
+                id="rowsSelector"
+                th:data-page="${page}"
+                th:data-search="${search}"
+                onchange="updateRowsPerPage(this)"
+              >
+                <option th:selected="${rows == 5}" value="5">5</option>
+                <option th:selected="${rows == 10}" value="10">10</option>
+                <option th:selected="${rows == 20}" value="20">20</option>
+              </select>
             </div>
+            <div class="d-flex justify-content-between align-items-center">
+              <span
+                class="table-gray pe-3"
+                th:text="${page} + ' of ' + ${pages}"
+              ></span>
+              <div class="d-flex gap-2">
+                <a
+                  class="nav-button btn btn-outline-dark themeButton"
+                  th:href="@{/logs(page=${page - 1}, rows=${rows}, search=${search})}"
+                  th:classappend="${page} == 1 ? 'disabled' : ''"
+                >
+                  <i class="bi bi-caret-left-fill"></i>
+                </a>
+                <a
+                  class="nav-button btn btn-outline-dark themeButton"
+                  th:href="@{/logs(page=${page + 1}, rows=${rows}, search=${search})}"
+                  th:classappend="${page} == ${pages} ? 'disabled' : ''"
+                >
+                  <i class="bi bi-caret-right-fill"></i>
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
-    </div>
+      </div>
     </div>
     <!-- Javascript-->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/site.js"></script>
     <script>
-        function collapseAll() {
-            const collapsibleElements = document.querySelectorAll('.collapse');
-            collapsibleElements.forEach(element => {
-                element.classList.remove('show'); // Ensure all collapsible elements are collapsed
-            });
-        }
+      function collapseAll() {
+        const collapsibleElements = document.querySelectorAll(".collapse");
+        collapsibleElements.forEach((element) => {
+          element.classList.remove("show"); // Ensure all collapsible elements are collapsed
+        });
+      }
 
-        function updateRowsPerPage(selector) {
-            const baseUrl = '/logs';
-            const page = selector.getAttribute('data-page') || 1;
-            const search = selector.getAttribute('data-search') || '';
-            const rows = selector.value;
-            const url = `${baseUrl}?page=${page}&rows=${rows}&search=${search}`;
-            window.location.href = url;
-        }
-
+      function updateRowsPerPage(selector) {
+        const baseUrl = "/logs";
+        const page = selector.getAttribute("data-page") || 1;
+        const search = selector.getAttribute("data-search") || "";
+        const rows = selector.value;
+        const url = `${baseUrl}?page=${page}&rows=${rows}&search=${search}`;
+        window.location.href = url;
+      }
     </script>
-</body>
-
+  </body>
 </html>
