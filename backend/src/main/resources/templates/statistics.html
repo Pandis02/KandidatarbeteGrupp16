@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <title>System Statistics</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Bootstrap & Chart.js -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@1.1.0/dist/chartjs-chart-matrix.min.js"></script>
+  <link rel="stylesheet" href="/css/main.css">
+</head>
+
+<body>
+  <!-- Sidebar -->
+  <nav class="sidebar" id="sidebar">
+    <button class="btn toggle-btn nav-link nav-toggle-icon" onclick="toggleSidebar()">
+      <i class="bi bi-chevron-left text-white"></i>
+    </button>
+    <div class="nav flex-column pt-5">
+      <a href="dashboard" class="nav-link">
+        <i class="bi bi-grid fs-3 pe-2"></i>
+        <span class="nav-text">Dashboard</span>
+      </a>
+      <a href="devices" class="nav-link">
+        <i class="bi bi-pc-display fs-3 pe-2"></i>
+        <span class="nav-text">Registered Devices</span>
+      </a>
+      <a href="logs" class="nav-link">
+        <i class="bi bi-pencil fs-3 pe-2"></i>
+        <span class="nav-text">Logs</span>
+      </a>
+      <a href="discovery" class="nav-link">
+        <i class="bi bi-broadcast fs-3 pe-2"></i>
+        <span class="nav-text">Checkin Discovery</span>
+      </a>
+      <a href="scanningPage.html" class="nav-link">
+        <i class="bi bi-broadcast fs-3 pe-2"></i>
+        <span class="nav-text">Scan</span>
+      </a>
+      <a href="statistics" class="nav-link active">
+        <i class="bi bi-bar-chart fs-3 pe-2"></i>
+        <span class="nav-text">Statistics</span>
+      </a>
+      <a href="settings" class="nav-link">
+        <i class="bi bi-gear fs-3 pe-2"></i>
+        <span class="nav-text">Settings</span>
+      </a>
+      <a href="login.html" class="nav-link sign-out">
+        <i class="bi bi-box-arrow-left fs-3 pe-2"></i>
+        <span class="nav-text">Logout</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="main-content p-4">
+    <div class="container-fluid mt-4">
+      <div id="dashboard">
+        <h1 class="mb-4">System Statistics</h1>
+
+        <!-- Date Range Filter -->
+        <form method="get" action="/statistics" class="mb-4">
+          <div class="row g-3">
+            <div class="col-md-3">
+              <label for="from" class="form-label">From:</label>
+              <input type="date" id="from" name="from" class="form-control" th:value="${from.toLocalDate()}">
+            </div>
+            <div class="col-md-3">
+              <label for="to" class="form-label">To:</label>
+              <input type="date" id="to" name="to" class="form-control" th:value="${to.toLocalDate()}">
+            </div>
+            <div class="col-md-6 d-flex justify-content-between align-items-end">
+              <button class="btn btn-primary">Update</button>
+              <button type="button" class="btn btn-outline-primary ms-auto" data-bs-toggle="collapse"
+                data-bs-target="#exportCard" aria-expanded="false" aria-controls="exportCard">
+                <i class="bi bi-box-arrow-up me-1"></i> Export Options
+              </button>
+
+
+            </div>
+          </div>
+        </form>
+
+
+        <div id="exportCard" class="collapse">
+          <div class="card mb-4 shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h5 class="mb-0">📤 Export Statistics</h5>
+            </div>
+            <div class="card-body">
+              <!-- Export as PDF/Image -->
+              <div class="mb-3">
+                <button class="btn btn-outline-success me-2" onclick="exportDashboardAsImage()">Export as Image
+                  (PNG)</button>
+                <button class="btn btn-outline-success" onclick="exportDashboardAsPDF()">Export as PDF</button>
+              </div>
+
+              <hr>
+
+              <!-- Export Data as CSV/ZIP -->
+              <div class="mb-2">
+                <h6>Raw Data Exports</h6>
+
+                <div class="d-flex flex-wrap gap-2">
+                  <a class="btn btn-outline-primary" th:href="@{/api/export/all(from=${from}, to=${to})}">
+                    Download All (ZIP)
+                  </a>
+
+                  <a class="btn btn-outline-secondary" th:href="@{/api/export/tags(from=${from}, to=${to})}">
+                    Tag Statistics (CSV)
+                  </a>
+
+                  <a class="btn btn-outline-secondary" th:href="@{/api/export/top-devices(from=${from}, to=${to})}">
+                    Top Devices (CSV)
+                  </a>
+
+                  <a class="btn btn-outline-secondary" th:href="@{/api/export/weekday(from=${from}, to=${to})}">
+                    Events by Weekday (CSV)
+                  </a>
+
+                  <a class="btn btn-outline-secondary" th:href="@{/api/export/downtime(from=${from}, to=${to})}">
+                    Downtime Histogram (CSV)
+                  </a>
+
+                  <a class="btn btn-outline-secondary" th:href="@{/api/export/locations(from=${from}, to=${to})}">
+                    Events by Location (CSV)
+                  </a>
+
+                  <a class="btn btn-outline-secondary" th:href="@{/api/export/top-recovery(from=${from}, to=${to})}">
+                    Top Recovery Times (CSV)
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- Statistics Cards (Summary) -->
+        <div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
+          <div class="col">
+            <div class="card shadow-sm h-100 text-center p-3">
+              <h5>Average Downtime</h5>
+              <p class="display-6 mb-1"
+                th:text="${avgDowntime != null ? #numbers.formatDecimal(avgDowntime / 3600.0, 1, 2) + ' hours' : '0.00 hours'}">
+                0.00 hours
+              </p>
+              <p class="text-muted small mb-0">
+                <span>Per offline event during selected range</span>
+              </p>
+            </div>
+          </div>
+
+          <div class="col">
+            <div class="card shadow-sm h-100 text-center p-3">
+              <h5>Total Events in Range</h5>
+              <p class="display-6 mb-1">
+                <strong th:text="${totalEventCount ?: 0}">0</strong>
+              </p>
+              <p class="text-muted small mb-0">
+                Number of OfflineEvents between selected dates
+              </p>
+            </div>
+          </div>
+
+          <div class="col">
+            <div class="card shadow-sm h-100 text-center p-3">
+              <h5>
+                Currently Offline Devices
+                <i class="bi bi-info-circle" data-bs-toggle="tooltip"
+                  title="Devices that are still offline (restored_at is NULL in latest event)">
+                </i>
+              </h5>
+              <p class="display-6 mb-1">
+                <strong th:text="${currentlyOffline ?: 0}">0</strong>
+              </p>
+              <p class="text-muted small mb-0">
+                <span
+                  th:text="'Out of ' + ${totalDevices} + ' devices (' + ${#numbers.formatDecimal(offlineRate, 1, 1)} + '%)'">
+                  Out of 0 devices (0.0%)
+                </span>
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+      
+
+    <!-- False Positive Statistics Row -->
+    <!-- Check-in Summary & False Positives Card -->
+    <div class="card mb-5 shadow-sm">
+      <div class="card-header text-center">
+        <h5>Check-in Summary and False Positive Analysis</h5>
+      </div>
+      <div class="card-body text-center">
+        <!-- Original Check-in Summary -->
+        <div class="mb-4">
+          <p>
+            <strong th:text="${missedCheckinSummary.ongoingOfflineEvents}">0</strong> Currently offline devices
+          </p>
+          <p class="text-muted mb-1">
+            <span th:text="${missedCheckinSummary.formattedEstimatedFalsePositives()} + ' false positives'">0</span>
+          </p>
+          <p class="text-muted small">
+            <i class="bi bi-info-circle" data-bs-toggle="tooltip"
+   title="Estimates how many ongoing offline events are likely false positives, based on historical tag and location accuracy."></i>
+<span
+              th:text="${#numbers.formatDecimal(missedCheckinSummary.falsePositiveRate * 100, 1, 1)} + '%'">0.0%</span>
+          </p>
+        </div>
+
+        <!-- Two columns: Top Tags and Top Locations -->
+        <div class="row">
+          <!-- Top False Positive Tags -->
+          <div class="col-md-6">
+            <h6>Top False Positive Tags</h6>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item" th:each="entry : ${missedCheckinSummary.topFalsePositiveTags().entrySet()}"
+                th:text="${entry.key + ' - ' + #numbers.formatDecimal(entry.value * 100, 1, 1) + '%'}">
+                Tag - 0.0%
+              </li>
+            </ul>
+          </div>
+
+          <!-- Top False Positive Locations -->
+          <div class="col-md-6">
+            <h6>Top False Positive Locations</h6>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item"
+                th:each="entry : ${missedCheckinSummary.topFalsePositiveLocations().entrySet()}"
+                th:text="${entry.key + ' - ' + #numbers.formatDecimal(entry.value * 100, 1, 1) + '%'}">
+                Location - 0.0%
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="row row-cols-1 row-cols-md-2 g-4 mb-5">
+
+      <div class="col">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Most Problematic Devices</h5>
+          </div>
+          <div class="card-body row">
+            <div class="col-12">
+              <table class="table" id="topDevicesTable">
+                <thead>
+                  <tr>
+                    <th>MAC Address</th>
+                    <th>Event Count</th>
+                    <th>Downtime</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr th:each="device, iterStat : ${topDevices}"
+                    th:classappend="${iterStat.index} >= 5 ? 'd-none extra-row' : ''">
+                    <td th:text="${device.macAddress()}"></td>
+                    <td th:text="${device.eventCount()}"></td>
+                    <td th:text="${device.formattedDowntime()}"></td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <!-- NEW: Buttons below the table -->
+              <div class="text-center my-2" id="controls-topDevicesTable"></div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Devices with No Events -->
+      <div class="col">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Devices with No Events (MAC Addresses)</h5>
+          </div>
+          <div class="card-body">
+            <ul class="list-group" id="silentDevicesList">
+              <li class="list-group-item" th:each="mac, iterStat : ${silentDevices}"
+                th:classappend="${iterStat.index} >= 5 ? 'd-none extra-row' : ''" th:text="${mac}">
+                MAC
+              </li>
+            </ul>
+
+            <!-- NEW: Controls under list -->
+            <div class="text-center my-2" id="controls-silentDevicesList"></div>
+
+          </div>
+        </div>
+      </div>
+
+
+
+    </div>
+
+
+    <!-- All charts/tables grouped by type -->
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+      <div class="col">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between">
+            <h5>Daily Events</h5>
+          </div>
+          <div class="card-body"><canvas id="dailyEventsChart"></canvas></div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between">
+            <h5>Hourly Events</h5>
+          </div>
+          <div class="card-body"><canvas id="hourlyEventsChart"></canvas></div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between">
+            <h5>Events by Weekday</h5>
+          </div>
+          <div class="card-body"><canvas id="weekdayChart"></canvas></div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between">
+            <h5>Downtime Histogram</h5>
+          </div>
+          <div class="card-body"><canvas id="downtimeChart"></canvas></div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between">
+            <h5>Top Tags</h5>
+          </div>
+          <div class="card-body row">
+            <div class="col-md-6"><canvas id="tagChart"></canvas></div>
+            <div class="col-md-6">
+              <table class="table" id="tagTable">
+                <thead>
+                  <tr>
+                    <th>Tag</th>
+                    <th>Count</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr th:each="tag, stat : ${tagCounts}" th:classappend="${stat.index} >= 5 ? 'd-none extra-row' : ''">
+                    <td th:text="${tag.tag}">N/A</td>
+                    <td th:text="${tag.count}">0</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <!-- NEW: Controls under table -->
+              <div class="text-center my-2" id="controls-tagTable"></div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="col">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between">
+            <h5>Top Locations</h5>
+          </div>
+          <div class="card-body row">
+            <div class="col-md-6"><canvas id="locationPieChart"></canvas></div>
+            <div class="col-md-6">
+              <table class="table" id="locationTable">
+                <thead>
+                  <tr>
+                    <th>Location</th>
+                    <th>Count</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr th:each="loc, stat : ${locationCounts}"
+                    th:classappend="${stat.index} >= 5 ? 'd-none extra-row' : ''">
+                    <td th:text="${loc.location}">Location</td>
+                    <td th:text="${loc.count}">0</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <!-- NEW: Controls under table -->
+              <div class="text-center my-2" id="controls-locationTable"></div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="col">
+        <div class="card">
+          <div class="card-header">
+            <h5>Tag Trends</h5>
+          </div>
+          <div class="card-body"><canvas id="tagTrendsChart"></canvas></div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Notification Channels</h5>
+          </div>
+          <div class="card-body row">
+            <div class="col-md-6"><canvas id="channelChart"></canvas></div>
+            <div class="col-md-6">
+              <table class="table" id="channelTable">
+                <thead>
+                  <tr>
+                    <th>Channel</th>
+                    <th>Count</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr th:each="c, iter : ${notificationChannels}"
+                    th:classappend="${iter.index} >= 5 ? 'd-none extra-row' : ''">
+                    <td th:text="${c.type}">Slack</td>
+                    <td th:text="${c.count}">0</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <!-- NEW: Controls under table -->
+              <div class="text-center my-2" id="controls-channelTable"></div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+
+      <div class="col">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Most Notified Devices</h5>
+          </div>
+          <div class="card-body">
+            <table class="table" id="mostNotifiedTable">
+              <thead>
+                <tr>
+                  <th>MAC</th>
+                  <th>Notifications</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="entry, iterStat : ${mostNotifiedDevices}"
+                  th:classappend="${iterStat.index} >= 5 ? 'd-none extra-row' : ''">
+                  <td th:text="${entry.macAddress}">mac</td>
+                  <td th:text="${entry.notificationCount}">0</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <!-- NEW: Controls under table -->
+            <div class="text-center my-2" id="controls-mostNotifiedTable"></div>
+
+          </div>
+        </div>
+      </div>
+
+
+      <div class="col">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Average Restore by Location</h5>
+          </div>
+          <div class="card-body">
+            <table class="table" id="avgRestoreTable">
+              <thead>
+                <tr>
+                  <th>Location</th>
+                  <th>Avg Restore Time</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="entry, iterStat : ${avgRestoreByLocation}"
+                  th:classappend="${iterStat.index} >= 5 ? 'd-none extra-row' : ''">
+                  <td th:text="${entry.location}">loc</td>
+                  <td th:text="${entry.formatted}">0s</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <!-- NEW: Controls under table -->
+            <div class="text-center my-2" id="controls-avgRestoreTable"></div>
+
+          </div>
+        </div>
+      </div>
+
+
+      <div class="col">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Most Stable Devices</h5>
+          </div>
+          <div class="card-body">
+            <table class="table" id="stableDevicesTable">
+              <thead>
+                <tr>
+                  <th>MAC</th>
+                  <th>Uptime %</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="device, iterStat : ${deviceStability}"
+                  th:classappend="${iterStat.index} >= 5 ? 'd-none extra-row' : ''">
+                  <td th:text="${device.macAddress}">MAC</td>
+                  <td th:text="${device.formatted}">100%</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <!-- NEW: Controls under table -->
+            <div class="text-center my-2" id="controls-stableDevicesTable"></div>
+
+          </div>
+        </div>
+      </div>
+
+
+      <div class="col">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Slowest Recoveries</h5>
+          </div>
+          <div class="card-body">
+            <table class="table" id="recoveryTable">
+              <thead>
+                <tr>
+                  <th>MAC</th>
+                  <th>Recovery Time</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="event, iterStat : ${topRecoveryTimeEvents}"
+                  th:classappend="${iterStat.index} >= 5 ? 'd-none extra-row' : ''">
+                  <td th:text="${event.macAddress}">MAC</td>
+                  <td th:text="${event.formatted}">0</td>
+                  <td th:text="${event.restoredAtFormatted}">date</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <!-- NEW: Controls under table -->
+            <div class="text-center my-2" id="controls-recoveryTable"></div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  </div>
+
+</div>
+</div>
+
+  <!-- Inject chart data -->
+  <script th:inline="javascript">
+    const chartData = {
+      dailyRaw: /*[[${dailyEvents}]]*/[],
+      hourlyRaw: /*[[${hourlyEvents}]]*/[],
+      tagCounts: /*[[${tagCounts}]]*/[],
+      downtimeHistogram: /*[[${downtimeHistogram}]]*/[],
+      weekdayCounts: /*[[${weekdayCounts}]]*/[],
+      locationCounts: /*[[${locationCounts}]]*/[],
+      tagTrends: /*[[${tagTrends}]]*/[],
+      fromDate: /*[[${from.toLocalDate()}]]*/ "2025-04-01",
+      toDate: /*[[${to.toLocalDate()}]]*/ "2025-04-17",
+      rawChannelCounts: /*[[${notificationChannels}]]*/[]
+    };
+  </script>
+
+  <!-- Then load chart logic -->
+  <script src="/js/statistics.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="js/site.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>

@@ -73,7 +73,7 @@ public class ViewDevices {
                     .toList();
         };
 
-        int totalPages = Math.ceilDiv(allDevices.size(), rows);
+        int totalPages = Math.max(1, Math.ceilDiv(allDevices.size(), rows));
 
         // Ensure page is within valid range
         page = Math.max(1, Math.min(page, totalPages));
