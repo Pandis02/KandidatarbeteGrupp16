@@ -21,7 +21,7 @@ public class ViewDevices {
     @GetMapping("/devices")
     public String onDevices(
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "5") int rows,
+            @RequestParam(defaultValue = "10") int rows,
             @RequestParam(defaultValue = "") String search,
             @RequestParam(defaultValue = "name") String sortBy,
             Model model) {

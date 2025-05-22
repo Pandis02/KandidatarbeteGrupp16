@@ -40,6 +40,7 @@ public class ViewDashboard {
 
         model.addAttribute("alertTimings", ds.getAlertsTimings());
         model.addAttribute("dayAlerts", ds.get7DayAlerts());
+        model.addAttribute("recent3", ds.getRecent3Events());
 
         model.addAttribute("totalDevices", totalDevices);
         model.addAttribute("totalOnline", totalOnline);

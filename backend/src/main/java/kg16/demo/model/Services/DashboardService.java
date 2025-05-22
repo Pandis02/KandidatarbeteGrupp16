@@ -104,6 +104,21 @@ public class DashboardService {
         });
     }
 
+    public List<Event> getRecent3Events() {
+        String sql = """
+                SELECT
+                    COALESCE(td.custom_name, c.hostname)  AS name, oe.offline_since, oe.location, oe.mac_address
+                FROM OfflineEvents oe
+                LEFT JOIN TrackedDevices td ON oe.mac_address = td.mac_address
+                JOIN Checkins c ON td.mac_address = c.mac_address
+                ORDER BY event_id DESC LIMIT 3;
+                """;
+
+        return jdbc.query(sql, (r, rowNum) -> new Event(
+                r.getTimestamp("offline_since"),
+                r.getString("location"), r.getString("name"), r.getString("mac_address")));
+    }
+
     public List<Integer> getAlertsTimings() {
         // uses something called binning, almost linear regression
         String sql = """
@@ -142,11 +157,11 @@ public class DashboardService {
         });
     }
 
-      /**
-     * Internal helper method to retrieve location-level stats used to construct building views.
-     *
-     * @return a list of internal {@link Location} records
-     */
+    /**
+    * Internal helper method to retrieve location-level stats used to construct building views.
+    *
+    * @return a list of internal {@link Location} records
+    */
     private List<Location> getLocationsBriefing() {
         String sql = """
                 SELECT
@@ -282,5 +297,12 @@ public class DashboardService {
             int offline,
             int totalComputers,
             int online) {
+    }
+
+    public record Event(
+            java.sql.Timestamp time,
+            String location,
+            String name,
+            String macAddress) {
     }
 }

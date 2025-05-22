@@ -138,30 +138,24 @@
                             class="card-header bg-navy fw-bold text-white c-default d-flex justify-content-between align-items-center">
                             <div>Recent Activity</div>
                             <!-- Link to checkin discovery or tracked devices page -->
-                            <a href="#" class="text-white">View all</a>
+                            <a href="logs" class="text-white">View all</a>
                         </div>
                         <div class="card-body">
                             <table class="table activity-table table-hover">
                                 <thead class="text-center">
                                     <tr>
+                                        <th>Name</th>
+                                        <th>MAC Address</th>
+                                        <th>Location</th>
                                         <th>Time</th>
-                                        <th>Room</th>
-                                        <th>Device</th>
-                                        <th>Event</th>
                                     </tr>
                                 </thead>
                                 <tbody class="text-center">
-                                    <tr>
-                                        <td>12:00</td>
-                                        <td>ED-XXX2</td>
-                                        <td>Computer 1</td>
-                                        <td>Device went offline</td>
-                                    </tr>
-                                    <tr>
-                                        <td>12:00</td>
-                                        <td>ED-XXX1</td>
-                                        <td>Computer 2</td>
-                                        <td>Device went offline</td>
+                                    <tr th:each="event : ${recent3}">
+                                        <td th:text="${event.name}"></td>
+                                        <td th:text="${event.macAddress}"></td>
+                                        <td th:text="${event.location}"></td>
+                                        <td th:text="${event.time}"></td>
                                     </tr>
                                 </tbody>
                             </table>
